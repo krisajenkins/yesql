@@ -10,3 +10,6 @@ pom.xml.asc
 .lein-failures
 .lein-plugins
 .lein-repl-history
+
+/derby.log
+/sqlinsql_test_derby/
