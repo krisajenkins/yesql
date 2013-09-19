@@ -5,4 +5,4 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/java.jdbc "0.3.0-alpha5"]]
-  :profiles {:dev {:dependencies [[org.apache.derby/derby "10.8.1.2"]]}})
+  :profiles {:dev {:dependencies [[org.apache.derby/derby "10.10.1.1"]]}})
