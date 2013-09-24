@@ -12,4 +12,4 @@ pom.xml.asc
 .lein-repl-history
 
 /derby.log
-/sqlinsql_test_derby/
+/sqlinsql_test_derby*

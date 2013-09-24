@@ -4,7 +4,7 @@
             [sqlinsql.core :refer :all]))
 
 (def derby-db {:subprotocol "derby"
-               :subname "sqlinsql_test_derby"
+               :subname (gensym "sqlinsql_test_derby_")
                :create true})
 
 (deftest startup-test-db
