@@ -13,3 +13,6 @@ pom.xml.asc
 
 /derby.log
 /sqlinsql_test_derby*
+/README.html
+/README.pdf
+/README.tex
