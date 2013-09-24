@@ -54,6 +54,8 @@
     (gensym "P_")
     parameter))
 
+;; TODO Tidy
+;; TODO :file metadata. Seems to get swallowed by 'def.
 (defmacro defquery
   "Defines a query function, as defined in the given SQL file.
 Any comments in that file will form the docstring."
