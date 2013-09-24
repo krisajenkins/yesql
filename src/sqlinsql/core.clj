@@ -1,12 +1,29 @@
 (ns sqlinsql.core
-  (:require [clojure.java.io :refer [resource]]
-            [clojure.java.jdbc :as sql]))
+  (:refer-clojure :exclude [replace])
+  (:require [sqlinsql.named-parameters :refer :all]
+            [clojure.java.io :refer [as-file resource]]
+            [clojure.string :refer [join replace]]
+            [clojure.java.jdbc :as sql]
+            [clojure.java.jdbc.sql :refer [select where]]))
 
 (defn slurp-from-classpath
   "Slurps a file from the classpath."
   [path]
-  (if-let [file (resource path)]
-    (slurp file)))
+  (if-let [url (resource path)]
+    (slurp url)))
+
+(defn classpath-file-basename
+  [path]
+  (if-let [url (resource path)]
+    (->> url
+         as-file
+         .getName
+         (re-find #"(.*)\.(.*)?")
+         rest)))
+
+(defn underscores-to-dashes
+  [string]
+  (replace string "_" "-"))
 
 (defn extract-docstring
   "Returns the docstring, if any, within the given sqlfile."
@@ -24,11 +41,6 @@
        (map second)
        (join "\n")))
 
-(defn extract-parameters
-  "Returns a sequence of the parameter names for the query"
-  [query]
-  )
-
 (defn make-query-function
   [query]
   (fn [db & parameters]
@@ -36,29 +48,28 @@
      (sql/query db
                 (cons query parameters)))))
 
+(defn- replace-question-mark-with-gensym
+  [parameter]
+  (if (= parameter '?)
+    (gensym "P_")
+    parameter))
+
 (defmacro defquery
   "Defines a query function, as defined in the given SQL file.
 Any comments in that file will form the docstring."
-  [name file]
-  (let [sqlfile (slurp-from-classpath file)
-        query (extract-query sqlfile)
-        docstring (extract-docstring sqlfile)
-        ]
+  [name filename]
+  (let [file (slurp-from-classpath filename)
+        query (extract-query file)
+        docstring (extract-docstring file)
+        [converted parameters] (convert-named-query query)
+        dbsym (gensym "DB_")
+        namelist (map replace-question-mark-with-gensym parameters)
+        arglist (vec (cons dbsym (distinct namelist)))]
     `(def ~(with-meta name
              (merge (meta name)
-                    {:arglists ''([db & parameters])
+                    {:arglists `(quote (~arglist))
                      :doc docstring}))
-       (fn [db# & parameters#]
+       (fn ~arglist
          (lazy-seq
-          (sql/query db#
-                     (cons ~query parameters#)))))))
-
-(defquery current-time "sqlinsql/current_time.sql")
-
-(def db {:subprotocol "derby"
-         :subname "sqlinsql_test_derby"
-         :create true})
-
-(:time
- (first
-  (current-time db)))
+          (sql/query ~dbsym
+                     ~(vec (cons converted namelist))))))))

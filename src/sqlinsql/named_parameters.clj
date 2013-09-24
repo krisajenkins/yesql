@@ -1,6 +1,5 @@
 (ns sqlinsql.named-parameters)
 
-(require '[clojure.tools.trace :refer :all])
 (defn consume-to
   [text escape? marker?]
   (loop [accumulator []
@@ -13,43 +12,40 @@
                :else (recur (conj accumulator head)
                             remainder)))) 
 
-(def end-of-parameter #{\space \, \" \' \: \& \; \( \) \| \= \+ \- \* \% \/ \\ \< \> \^})
-
-(defn parse-parameter
-  [text]
-  (if (= (first text) \:)
-    (consume-to (rest text) (constantly false) end-of-parameter)
-    [nil text]))
-
-(defn parse-quoted-string
-  [text quote-char]
-  (if (= (first text) quote-char)
-    (consume-to (rest text) #{\\} #{quote-char})
-    [nil text]))
-
 (defn split-at-parameters
   [query]
-  (loop [accumulator []
-         chars []
+  (loop [chars []
          [head & tail :as remainder] query]
-    (cond
-     (empty? remainder) (conj accumulator (apply str chars))
-     (and (= \: head)
-          (= \: (first tail))) (recur accumulator
-                                      (conj chars head (first tail))
-                                      (rest tail))
-          
-          (= \: head) (let [[parameter marker next-bit] (parse-parameter remainder)]
-                        (recur (conj accumulator
-                                     (apply str chars)
-                                     (symbol (apply str parameter)))
-                               [marker]
-                               next-bit)) 
-          (= \' head) (let [[string marker next-bit] (parse-quoted-string remainder \')]
-                        (recur accumulator
-                               (into (conj chars head)
-                                     (conj string marker))
-                               next-bit)) 
-          :else (recur accumulator
-                       (conj chars head)
-                       tail)))) 
+    (case head
+      nil [(apply str chars)]
+      \' (let [[string marker next-bit] (consume-to tail #{\\} #{\'})]
+           (recur (into (conj chars head)
+                        (conj string marker))
+                  next-bit)) 
+      \? (cons (apply str chars)
+               (cons (symbol (str head))
+                     (split-at-parameters tail)))
+      \: (case (first tail)
+           \: (recur (conj chars head (first tail))
+                     (rest tail))
+           (let [[parameter marker next-bit] (consume-to tail
+                                                         (constantly false)
+                                                         #{\space \newline \, \" \' \: \& \; \( \) \| \= \+ \- \* \% \/ \\ \< \> \^})]
+             (cons (apply str chars)
+                   (cons (symbol (apply str parameter))
+                         (split-at-parameters (cons marker next-bit)))))) 
+      (recur (conj chars head)
+             tail)))) 
+
+(defn convert-named-query
+  "Convert a named-parameter query into a plain placeholder query, plus a list of the parameter names."
+  [query]
+  (let [split (split-at-parameters query)]
+    [(reduce (fn [accumulator token]
+               (str accumulator
+                    (if (symbol? token)
+                      "?"
+                      token)))
+             ""
+             split)
+     (filter symbol? split)]))
