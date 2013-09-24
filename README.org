@@ -65,16 +65,16 @@ By keeping the SQL and Clojure separate you get:
 
 [[https://github.com/technomancy/leiningen][Leiningen]] dependency information:
 
-[sqlinsql "0.1.0"]
+[sqlinsql "0.1.0-SNAPSHOT"]
 
-FIXME
+TODO
 
 ** Status
 
-Shiny & new. Well-tested, in use by the author, but needs your feedback.
+In development. I welcome your feedback.
 
 ** License
 
-Copyright © 2013 FIXME
+Copyright © 2013 Kris Jenkins
 
 Distributed under the Eclipse Public License, the same as Clojure.
