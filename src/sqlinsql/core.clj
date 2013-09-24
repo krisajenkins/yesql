@@ -64,12 +64,11 @@ Any comments in that file will form the docstring."
         [converted parameters] (convert-named-query query)
         dbsym (gensym "DB_")
         namelist (map replace-question-mark-with-gensym parameters)
-        arglist (vec (cons dbsym (distinct namelist)))]
+        arglist (distinct namelist)]
     `(def ~(with-meta name
-             (merge (meta name)
-                    {:arglists `(quote (~arglist))
-                     :doc docstring}))
-       (fn ~arglist
+             {:arglists `(quote ~(list (vec (cons 'db arglist))))
+              :doc docstring})
+       (fn ~(vec (cons dbsym arglist))
          (lazy-seq
           (sql/query ~dbsym
                      ~(vec (cons converted namelist))))))))
