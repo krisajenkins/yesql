@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [replace])
   (:require [sqlinsql.named-parameters :refer :all]
             [clojure.java.io :refer [as-file resource]]
-            [clojure.string :refer [join replace]]
+            [clojure.string :refer [join replace split-lines]]
             [clojure.java.jdbc :as sql]
             [clojure.java.jdbc.sql :refer [select where]])
   (:import [java.io FileNotFoundException]))
@@ -27,20 +27,28 @@
   [string]
   (replace string "_" "-"))
 
+(defn sql-comment-line?
+  "If string is an SQL comment line, returns the text after the comment marker, otherwise nil."
+  [string]
+  (->> string
+       (re-matches #"^\p{Blank}*--\p{Blank}*(.*)")
+       second))
+
 (defn extract-docstring
   "Returns the docstring, if any, within the given sqlfile."
   [sqlfile]
   (->> sqlfile
-       (re-seq #"(?m)^\s*--\s*(.*)")
-       (map second)
+       split-lines
+       (map sql-comment-line?)
+       (remove nil?)
        (join "\n")))
 
 (defn extract-query
   "Returns the query for the given sqlfile."
   [sqlfile]
   (->> sqlfile
-       (re-seq #"(?m)^(?!\s*--\s*)(.*)")
-       (map second)
+       split-lines
+       (remove sql-comment-line?)
        (join "\n")))
 
 (defn make-query-function
@@ -63,8 +71,8 @@
 Any comments in that file will form the docstring."
   [name filename]
   (let [file (slurp-from-classpath filename)
-        query (extract-query file)
         docstring (extract-docstring file)
+        query (extract-query file)
         split-query (split-at-parameters query)
         arglist (vec (filter symbol? split-query))
         dbsym (gensym "DB_")]

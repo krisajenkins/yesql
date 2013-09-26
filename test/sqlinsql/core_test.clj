@@ -31,14 +31,28 @@
   (is (= (underscores-to-dashes "current_time")
          "current-time")))
 
+(deftest sql-comment-line?-test
+  (are [line match] (= (sql-comment-line? line)
+                       match)
+       "--Test." "Test."
+       "-- Test." "Test."
+       "  -- Test." "Test."
+       "--" ""
+       "-- " ""
+       "Test." nil))
+
 (deftest extraction
   (let [current-time-file (slurp-from-classpath "sqlinsql/current_time.sql")
-        named-parameters-file (slurp-from-classpath "sqlinsql/named_parameters.sql")]
+        named-parameters-file (slurp-from-classpath "sqlinsql/named_parameters.sql")
+        complicated-docstring-file (slurp-from-classpath "sqlinsql/complicated_docstring.sql")]
     (testing "Docstring extraction."
       (is (= (extract-docstring current-time-file)
-             "Just selects the current time.\nNothing fancy.")))
+             "Just selects the current time.\nNothing fancy."))
+      (is (= (extract-docstring complicated-docstring-file) "This is a simple query.\n\nbut...\n\nThe docstring\nis tricksy.\nIsn't it?")))
     (testing "Query extraction."
       (is (= (extract-query current-time-file)
+             "SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1"))
+      (is (= (extract-query complicated-docstring-file)
              "SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1")))
     (testing "Query function - select current time."
       (let [current-time-fn (make-query-function "SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1")
