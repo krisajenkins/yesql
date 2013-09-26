@@ -37,6 +37,35 @@
       (recur (conj chars head)
              tail)))) 
 
+(defn- args-to-placehoders
+  [args]
+  (if-not (coll? args)
+    "?"
+    (clojure.string/join "," (repeat (count args) "?"))))
+
+(defn reassemble-query
+  [split-query args]
+  (assert (= (count (filter symbol? split-query))
+             (count args))
+          "Query parameter count must match args count.")
+  (loop [query-string ""
+         final-args []
+         [query-head & query-tail] split-query
+         [args-head & args-tail :as remaining-args] args]
+    (cond
+     (nil? query-head) (vec (cons query-string final-args))
+     (string? query-head) (recur (str query-string query-head)
+                                 final-args
+                                 query-tail
+                                 remaining-args)
+     (symbol? query-head) (recur (str query-string (args-to-placehoders args-head))
+                                 (if (coll? args-head)
+                                   (apply conj final-args args-head)
+                                   (conj final-args args-head))
+                                 query-tail
+                                 args-tail)
+     )))
+
 (defn convert-named-query
   "Convert a named-parameter query into a plain placeholder query, plus a list of the parameter names."
   [query]

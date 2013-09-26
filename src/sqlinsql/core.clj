@@ -65,15 +65,13 @@ Any comments in that file will form the docstring."
   (let [file (slurp-from-classpath filename)
         query (extract-query file)
         docstring (extract-docstring file)
-        [converted parameters] (convert-named-query query)
-        dbsym (gensym "DB_")
-        namelist (map replace-question-mark-with-gensym parameters)
-        arglist (distinct namelist)]
-    (clojure.pprint/pprint file)
+        split-query (split-at-parameters query)
+        arglist (vec (filter symbol? split-query))
+        dbsym (gensym "DB_")]
     `(def ~(with-meta name
              {:arglists `(quote ~(list (vec (cons 'db arglist))))
               :doc docstring})
        (fn ~(vec (cons dbsym arglist))
          (lazy-seq
           (sql/query ~dbsym
-                     ~(vec (cons converted namelist))))))))
+                     (reassemble-query '~split-query ~arglist)))))))

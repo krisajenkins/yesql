@@ -32,7 +32,11 @@
            '["SELECT " value1 " + " ? " + value2 + " ? " + " value1 "\nFROM SYSIBM.SYSDUMMY1"]
            )))) 
 
-(deftest convert-named-query-test
-  (is (= (convert-named-query "SELECT :a+2*:b+age::int FROM users WHERE username = ? AND :b > 0")
-         ["SELECT ?+2*?+age::int FROM users WHERE username = ? AND ? > 0"
-          '[a b ? b]]))) 
+(deftest reassemble-query-test
+  (is (= (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country") ["gb"])
+         ["SELECT age FROM users WHERE country = ?" "gb"]))
+  (is (= (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)") ["gb" ["tom" "dick" "harry"]])
+         ["SELECT age FROM users WHERE country = ? AND name IN (?,?,?)" "gb" "tom" "dick" "harry"]))
+  (testing "Argument errors."
+    (is (thrown? AssertionError
+                 (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)") ["gb"])))))
