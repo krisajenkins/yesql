@@ -9,11 +9,11 @@ You're writing Clojure. You need to write some SQL.
 We're generally all agreed that this is a problem:
 
 #+BEGIN_SRC clojure
-  ((query "SELECT * FROM users WHERE country_code = ?") "GB")
+  (query "SELECT * FROM users WHERE country_code = ?" "GB")
 #+END_SRC
 
-Unless these query strings are short, they get hard to read and hard
-to rewrite pretty quickly.
+Unless these query strings are short, they quickly get hard to read
+and hard to rewrite.
 
 But something like this is not the solution:
 
@@ -43,7 +43,7 @@ WHERE country_code = ?
 #+BEGIN_SRC clojure
   (defquery users-by-country "myproject/db/users-by-country.sql")
   
-  (users-by-country "GB")
+  (users-by-country db-spec "GB")
 #+END_SRC
 
 By keeping the SQL and Clojure separate you get:
@@ -61,15 +61,13 @@ By keeping the SQL and Clojure separate you get:
 - Query reuse. Drop the same SQL files into other projects, because
   they're just plain ol' SQL. Share them as a submodule.
 
-** Usage
+** TODO Usage
 
 [[https://github.com/technomancy/leiningen][Leiningen]] dependency information:
 
 #+BEGIN_SRC clojure
 [sqlinsql "0.1.0-SNAPSHOT"]
 #+END_SRC
-
-TODO
 
 ** Status
 
