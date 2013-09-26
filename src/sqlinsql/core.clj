@@ -4,13 +4,15 @@
             [clojure.java.io :refer [as-file resource]]
             [clojure.string :refer [join replace]]
             [clojure.java.jdbc :as sql]
-            [clojure.java.jdbc.sql :refer [select where]]))
+            [clojure.java.jdbc.sql :refer [select where]])
+  (:import [java.io FileNotFoundException]))
 
 (defn slurp-from-classpath
   "Slurps a file from the classpath."
   [path]
   (if-let [url (resource path)]
-    (slurp url)))
+    (slurp url)
+    (throw (FileNotFoundException. path))))
 
 (defn classpath-file-basename
   [path]
@@ -67,6 +69,7 @@ Any comments in that file will form the docstring."
         dbsym (gensym "DB_")
         namelist (map replace-question-mark-with-gensym parameters)
         arglist (distinct namelist)]
+    (clojure.pprint/pprint file)
     `(def ~(with-meta name
              {:arglists `(quote ~(list (vec (cons 'db arglist))))
               :doc docstring})

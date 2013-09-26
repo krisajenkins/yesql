@@ -15,7 +15,9 @@
 
 (deftest slurp-from-classpath-test
   (is (re-find #"SELECT"
-               (slurp-from-classpath "sqlinsql/current_time.sql"))))
+               (slurp-from-classpath "sqlinsql/current_time.sql")))
+  (is (thrown? java.io.FileNotFoundException
+               (slurp-from-classpath "nothing/here"))))
 
 (deftest classpath-file-basename-test
   (is (= (classpath-file-basename "sqlinsql/current_time.sql")
