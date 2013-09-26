@@ -65,7 +65,9 @@ By keeping the SQL and Clojure separate you get:
 
 [[https://github.com/technomancy/leiningen][Leiningen]] dependency information:
 
+#+BEGIN_SRC clojure
 [sqlinsql "0.1.0-SNAPSHOT"]
+#+END_SRC
 
 TODO
 
