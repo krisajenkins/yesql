@@ -80,7 +80,13 @@ FROM user
 WHERE country_code = :country_code
 ```
 
+Make sure it's on the classpath. For this example, it's in
+`src/some/where/users_by_country.sql`. Now we can use it in our
+Clojure.
+
 ```clojure
+(require '[yesql.core :refer [defquery]])
+
 ; Define a database connection spec. (This is standard clojure.java.jdbc.)
 (def db-spec {:classname "org.postgresql.Driver"
               :subprotocol "postgresql"
