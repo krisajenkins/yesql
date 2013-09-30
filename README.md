@@ -111,7 +111,8 @@ Now we can use it:
 (users-by-country db-spec "GB")
 ;=> ({:count 58})
 
-; Use it in a transaction.
+; Use it in a clojure.java.jdbc transaction.
+(require '[clojure.java.jdbc :as sql])
 (sql/db-transaction [connection db-spec]
                     {:limeys (users-by-country connection "GB") 
                      :yanks  (users-by-country connection "US")})
