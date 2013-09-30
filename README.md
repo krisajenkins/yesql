@@ -1,6 +1,6 @@
 # Yesql - Clojure SQL queries rethought.
 
-Yesql is a Clojure library for /using/ SQL queries.
+Yesql is a Clojure library for _using_ SQL queries.
 
 ## Rationale
 
