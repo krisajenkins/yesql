@@ -95,10 +95,10 @@ Lo! It has automatic docstrings in the REPL:
 ```clojure
 (clojure.repl/find-doc "users-by-country")
 
-; user> -------------------------
-; user> user/users-by-country
-; user> ([db country_code])
-; user>   Counts the users in a given country.
+;=> -------------------------
+;=> user/users-by-country
+;=> ([db country_code])
+;=>   Counts the users in a given country.
 ```
 
 Now we can use it:
@@ -111,8 +111,7 @@ Now we can use it:
 
 ; Use it standalone. Note that the first argument is the db-spec.
 (users-by-country db-spec "GB")
-
-; user> ({:count 58})
+;=> ({:count 58})
 
 ; Use it in a transaction.
 (sql/db-transaction [connection db-spec]
