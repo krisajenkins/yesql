@@ -12,7 +12,7 @@ pom.xml.asc
 .lein-repl-history
 
 /derby.log
-/sqlinsql_test_derby*
+/yesql_test_derby*
 /README.html
 /README.pdf
 /README.tex

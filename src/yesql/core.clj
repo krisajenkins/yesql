@@ -1,6 +1,6 @@
-(ns sqlinsql.core
+(ns yesql.core
   (:refer-clojure :exclude [replace])
-  (:require [sqlinsql.named-parameters :refer :all]
+  (:require [yesql.named-parameters :refer :all]
             [clojure.java.io :refer [as-file resource]]
             [clojure.string :refer [join replace split-lines]]
             [clojure.java.jdbc :as sql]

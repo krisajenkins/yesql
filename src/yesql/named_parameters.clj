@@ -1,4 +1,4 @@
-(ns sqlinsql.named-parameters)
+(ns yesql.named-parameters)
 
 (defn consume-to
   [text escape? marker?]
@@ -10,7 +10,7 @@
                                                    (rest remainder))
                (marker? head) [accumulator head remainder]
                :else (recur (conj accumulator head)
-                            remainder)))) 
+                            remainder))))
 
 (defn split-at-parameters
   [query]
@@ -21,7 +21,7 @@
       \' (let [[string marker next-bit] (consume-to tail #{\\} #{\'})]
            (recur (into (conj chars head)
                         (conj string marker))
-                  next-bit)) 
+                  next-bit))
       \? (cons (apply str chars)
                (cons (symbol (str head))
                      (split-at-parameters tail)))
@@ -33,9 +33,9 @@
                                                          #{\space \newline \, \" \' \: \& \; \( \) \| \= \+ \- \* \% \/ \\ \< \> \^})]
              (cons (apply str chars)
                    (cons (symbol (apply str parameter))
-                         (split-at-parameters (cons marker next-bit)))))) 
+                         (split-at-parameters (cons marker next-bit))))))
       (recur (conj chars head)
-             tail)))) 
+             tail))))
 
 (defn- args-to-placehoders
   [args]

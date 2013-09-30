@@ -1,6 +1,6 @@
-(ns sqlinsql.named-parameters-test
+(ns yesql.named-parameters-test
   (:require [clojure.test :refer :all]
-            [sqlinsql.named-parameters :refer :all]))
+            [yesql.named-parameters :refer :all]))
 
 (deftest split-at-parameters-test
   (testing "Simple"
@@ -30,7 +30,7 @@
            '["SELECT " a "+2*" b "+age::int FROM users WHERE username = " ? " AND " b " > 0"]))
     (is (= (split-at-parameters "SELECT :value1 + ? + value2 + ? + :value1\nFROM SYSIBM.SYSDUMMY1")
            '["SELECT " value1 " + " ? " + value2 + " ? " + " value1 "\nFROM SYSIBM.SYSDUMMY1"]
-           )))) 
+           ))))
 
 (deftest reassemble-query-test
   (is (= (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country") ["gb"])

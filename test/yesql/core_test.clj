@@ -1,10 +1,10 @@
-(ns sqlinsql.core-test
+(ns yesql.core-test
   (:require [clojure.test :refer :all]
             [clojure.java.jdbc :as sql]
-            [sqlinsql.core :refer :all]))
+            [yesql.core :refer :all]))
 
 (def derby-db {:subprotocol "derby"
-               :subname (gensym "sqlinsql_test_derby_")
+               :subname (gensym "yesql_test_derby_")
                :create true})
 
 (deftest startup-test-db
@@ -15,14 +15,14 @@
 
 (deftest slurp-from-classpath-test
   (is (re-find #"SELECT"
-               (slurp-from-classpath "sqlinsql/current_time.sql")))
+               (slurp-from-classpath "yesql/current_time.sql")))
   (is (thrown? java.io.FileNotFoundException
                (slurp-from-classpath "nothing/here"))))
 
 (deftest classpath-file-basename-test
-  (is (= (classpath-file-basename "sqlinsql/current_time.sql")
+  (is (= (classpath-file-basename "yesql/current_time.sql")
          ["current_time" "sql"]))
-  (is (= (classpath-file-basename "sqlinsql/core_test.clj")
+  (is (= (classpath-file-basename "yesql/core_test.clj")
          ["core_test" "clj"])))
 
 (deftest underscores-to-dashes-test
@@ -42,9 +42,9 @@
        "Test." nil))
 
 (deftest extraction
-  (let [current-time-file (slurp-from-classpath "sqlinsql/current_time.sql")
-        named-parameters-file (slurp-from-classpath "sqlinsql/named_parameters.sql")
-        complicated-docstring-file (slurp-from-classpath "sqlinsql/complicated_docstring.sql")]
+  (let [current-time-file (slurp-from-classpath "yesql/current_time.sql")
+        named-parameters-file (slurp-from-classpath "yesql/named_parameters.sql")
+        complicated-docstring-file (slurp-from-classpath "yesql/complicated_docstring.sql")]
     (testing "Docstring extraction."
       (is (= (extract-docstring current-time-file)
              "Just selects the current time.\nNothing fancy."))
@@ -57,4 +57,4 @@
     (testing "Query function - select current time."
       (let [current-time-fn (make-query-function "SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1")
             [{current-time :time}] (current-time-fn derby-db)]
-        (is (instance? java.util.Date current-time)))))) 
+        (is (instance? java.util.Date current-time))))))

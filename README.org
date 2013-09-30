@@ -1,6 +1,6 @@
-* SQLinSQL - Clojure SQL queries rethought.
+* Yesql - Clojure SQL queries rethought.
 
-SQLinSQL is a Clojure library for /using/ SQL queries.
+Yesql is a Clojure library for /using/ SQL queries.
 
 ** Rationale
 
@@ -42,14 +42,14 @@ WHERE country_code = ?
 
 #+BEGIN_SRC clojure
   (defquery users-by-country "myproject/db/users-by-country.sql")
-  
+
   (users-by-country db-spec "GB")
 #+END_SRC
 
 By keeping the SQL and Clojure separate you get:
 
 - No syntactic surprises. Your database doesn't stick to the SQL
-  standard (because none of them do); SQLinSQL doesn't care. You will
+  standard (because none of them do); Yesql doesn't care. You will
   never spend time hunting for "the equivalent sexpr syntax". You will
   never need to fallback to a =(raw-sql "some('funky'::SYNTAX)")= function.
 - Better editor support. Your editor probably already has great SQL
@@ -66,7 +66,7 @@ By keeping the SQL and Clojure separate you get:
 [[https://github.com/technomancy/leiningen][Leiningen]] dependency information:
 
 #+BEGIN_SRC clojure
-[sqlinsql "0.1.0-SNAPSHOT"]
+[yesql "0.1.0-SNAPSHOT"]
 #+END_SRC
 
 ** Status
