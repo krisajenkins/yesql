@@ -29,7 +29,7 @@ here they're not adding anything. This is parens-for-parens sake.
 (Don't agree? Wait until this extra syntax layer breaks down and you
 start wrestling with a `(raw-sql)` function.)
 
-So what's the solution? Keep the SQL in SQL. Have one file with your
+So what's the solution? Keep the SQL as SQL. Have one file with your
 query:
 
 ``` sql
@@ -52,7 +52,7 @@ By keeping the SQL and Clojure separate you get:
   never spend time hunting for "the equivalent sexpr syntax". You will
   never need to fallback to a `(raw-sql "some('funky'::SYNTAX)")` function.
 - Better editor support. Your editor probably already has great SQL
-  support. By keeping SQL in SQL, you get to use it.
+  support. By keeping the SQL as SQL, you get to use it.
 - Team interoperability. Your DBAs can read and write the queries you
   use in your Clojure project.
 - Easier performance tuning. Need to `EXPLAIN` that query plan? It's
@@ -70,7 +70,7 @@ By keeping the SQL and Clojure separate you get:
 
 ## Example usage
 
-Create an SQL query:
+Create an SQL query. Note we can supply named parameters and a comment string:
 
 ```sql
 -- Counts the users in a given country.
