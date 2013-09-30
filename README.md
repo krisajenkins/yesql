@@ -85,26 +85,31 @@ Make sure it's on the classpath. For this example, it's in
 Clojure.
 
 ```clojure
-(require '[yesql.core :refer [defquery]])
-
-; Define a database connection spec. (This is standard clojure.java.jdbc.)
-(def db-spec {:classname "org.postgresql.Driver"
-              :subprotocol "postgresql"
-              :subname "//localhost:5432/demo"
-              :user "me"})
-
 ; Import the SQL query as a function.
+(require '[yesql.core :refer [defquery]])
 (defquery users-by-country "some/where/users_by_country.sql")
+```
 
-; Lo! It has automatic docstrings in the REPL:
+Lo! It has automatic docstrings in the REPL:
+
+```clojure
 (clojure.repl/find-doc "users-by-country")
 
 ; user> -------------------------
 ; user> user/users-by-country
 ; user> ([db country_code])
 ; user>   Counts the users in a given country.
+```
 
-; Use it.
+Now we can use it:
+```clojure
+; Define a database connection spec. (This is standard clojure.java.jdbc.)
+(def db-spec {:classname "org.postgresql.Driver"
+              :subprotocol "postgresql"
+              :subname "//localhost:5432/demo"
+              :user "me"})
+
+; Use it standalone. Note that the first argument is the db-spec.
 (users-by-country db-spec "GB")
 
 ; user> ({:count 58})
