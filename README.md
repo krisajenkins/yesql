@@ -80,8 +80,7 @@ WHERE country_code = :country_code
 ```
 
 Make sure it's on the classpath. For this example, it's in
-`src/some/where/users_by_country.sql`. Now we can use it in our
-Clojure.
+`src/some/where/`. Now we can use it in our Clojure program.
 
 ```clojure
 ; Import the SQL query as a function.
