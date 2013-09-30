@@ -61,12 +61,52 @@ By keeping the SQL and Clojure separate you get:
 - Query reuse. Drop the same SQL files into other projects, because
   they're just plain ol' SQL. Share them as a submodule.
 
-## TODO Usage
+## Installation
 
 [Leiningen](https://github.com/technomancy/leiningen) dependency information:
 
 ``` clojure
 [yesql "0.1.0-SNAPSHOT"]
+```
+
+## Example usage
+
+Create an SQL query:
+
+```sql
+-- Counts the users in a given country.
+SELECT count(*) AS count
+FROM user
+WHERE country_code = :country_code
+```
+
+```clojure
+; Define a database connection spec. (This is standard clojure.java.jdbc.)
+(def db-spec {:classname "org.postgresql.Driver"
+              :subprotocol "postgresql"
+              :subname "//localhost:5432/demo"
+              :user "me"})
+
+; Import the SQL query as a function.
+(defquery users-by-country "some/where/users_by_country.sql")
+
+; Lo! It has automatic docstrings in the REPL:
+(clojure.repl/find-doc "users-by-country")
+
+; user> -------------------------
+; user> user/users-by-country
+; user> ([db country_code])
+; user>   Counts the users in a given country.
+
+; Use it.
+(users-by-country db-spec "GB")
+
+; user> ({:count 58})
+
+; Use it in a transaction.
+(sql/db-transaction [connection db-spec]
+                    {:limeys (users-by-country connection "GB") 
+                     :yanks  (users-by-country connection "US")})
 ```
 
 ## Status

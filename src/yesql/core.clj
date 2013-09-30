@@ -77,7 +77,7 @@ Any comments in that file will form the docstring."
         arglist (vec (filter symbol? split-query))
         dbsym (gensym "DB_")]
     `(def ~(with-meta name
-             {:arglists `(quote ~(list (vec (cons 'db-spec arglist))))
+             {:arglists `(quote ~(list (vec (cons 'db arglist))))
               :doc docstring})
        (fn ~(vec (cons dbsym arglist))
          (lazy-seq
