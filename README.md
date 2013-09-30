@@ -6,7 +6,7 @@ Yesql is a Clojure library for /using/ SQL queries.
 
 You're writing Clojure. You need to write some SQL.
 
-We're generally all agreed that this is a problem:
+I think we're all agreed that this is a problem:
 
 ``` clojure
 (query "SELECT * FROM users WHERE country_code = ?" "GB")
@@ -24,7 +24,7 @@ But something like this is not the solution:
 ```
 
 Clojure is a great language for writing DSLs, but we don't need a new
-one. SQL is already a mature DSL.  And S-expressions are great, but
+one. SQL is already a mature DSL.  And s-expressions are great, but
 here they're not adding anything. This is parens-for-parens sake.
 (Don't agree? Wait until this extra syntax layer breaks down and you
 start wrestling with a `(raw-sql)` function.)
