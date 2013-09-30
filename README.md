@@ -91,7 +91,7 @@ Make sure it's on the classpath. For this example, it's in
 Lo! It has automatic docstrings in the REPL:
 
 ```clojure
-(clojure.repl/find-doc "users-by-country")
+(clojure.repl/doc users-by-country)
 
 ;=> -------------------------
 ;=> user/users-by-country
