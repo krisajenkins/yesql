@@ -13,7 +13,7 @@ I think we're all agreed that this is a problem:
 ```
 
 Unless these query strings are short, they quickly get hard to read
-and hard to rewrite.
+and hard to rewrite. Plus the lack of syntax highlighting is a pain.
 
 But something like this is not the solution:
 
@@ -41,8 +41,7 @@ WHERE country_code = ?
 ...and then pull it in and use it as a regular Clojure function:
 
 ``` clojure
-(defquery users-by-country "myproject/db/users-by-country.sql")
-
+(defquery users-by-country "some/where/users_by_country.sql")
 (users-by-country db-spec "GB")
 ```
 
