@@ -88,7 +88,7 @@ Make sure it's on the classpath. For this example, it's in
 (defquery users-by-country "some/where/users_by_country.sql")
 ```
 
-Lo! It has automatic docstrings in the REPL:
+Lo! It has automatic, useful docstrings in the REPL:
 
 ```clojure
 (clojure.repl/doc users-by-country)
