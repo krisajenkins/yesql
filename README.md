@@ -49,8 +49,8 @@ By keeping the SQL and Clojure separate you get:
 
 - No syntactic surprises. Your database doesn't stick to the SQL
   standard (because none of them do); Yesql doesn't care. You will
-  never spend time hunting for "the equivalent sexpr syntax". You will
-  never need to fallback to a `(raw-sql "some('funky'::SYNTAX)")` function.
+  never spend time hunting for "the equivalent sexp syntax". You will
+  never need to fall back to a `(raw-sql "some('funky'::SYNTAX)")` function.
 - Better editor support. Your editor probably already has great SQL
   support. By keeping the SQL as SQL, you get to use it.
 - Team interoperability. Your DBAs can read and write the queries you
