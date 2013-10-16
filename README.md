@@ -2,6 +2,10 @@
 
 Yesql is a Clojure library for _using_ SQL queries.
 
+## Status
+
+In development. I welcome your feedback.
+
 ## Rationale
 
 You're writing Clojure. You need to write some SQL.
@@ -117,10 +121,6 @@ Now we can use it:
                     {:limeys (users-by-country connection "GB") 
                      :yanks  (users-by-country connection "US")})
 ```
-
-## Status
-
-In development. I welcome your feedback.
 
 ## License
 
