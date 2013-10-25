@@ -63,8 +63,7 @@
                                    (apply conj final-args args-head)
                                    (conj final-args args-head))
                                  query-tail
-                                 args-tail)
-     )))
+                                 args-tail))))
 
 (defn convert-named-query
   "Convert a named-parameter query into a plain placeholder query, plus a list of the parameter names."
