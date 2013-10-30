@@ -52,7 +52,7 @@ WHERE country_code = ?
 By keeping the SQL and Clojure separate you get:
 
 - No syntactic surprises. Your database doesn't stick to the SQL
-  standard (because none of them do); Yesql doesn't care. You will
+  standard - none of them do - but Yesql doesn't care. You will
   never spend time hunting for "the equivalent sexp syntax". You will
   never need to fall back to a `(raw-sql "some('funky'::SYNTAX)")` function.
 - Better editor support. Your editor probably already has great SQL
