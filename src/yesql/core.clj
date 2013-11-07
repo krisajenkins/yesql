@@ -75,11 +75,14 @@ Any comments in that file will form the docstring."
         query (extract-query file)
         split-query (split-at-parameters query)
         arglist (vec (filter symbol? split-query))
+        reduced-arglist (vec (distinct arglist))
         dbsym (gensym "DB_")]
     `(def ~(with-meta name
-             {:arglists `(quote ~(list (vec (cons 'db arglist))))
+             {:arglists `(quote ~(list (vec (cons 'db reduced-arglist))))
               :doc docstring})
-       (fn ~(vec (cons dbsym arglist))
-         (lazy-seq
-          (sql/query ~dbsym
-                     (reassemble-query '~split-query ~arglist)))))))
+       (fn ~(vec (cons dbsym reduced-arglist))
+         (let [arg->val# (zipmap ~(mapv keyword reduced-arglist) ~reduced-arglist)
+               expanded-arglist# (mapv arg->val# ~(mapv keyword arglist))]
+           (lazy-seq
+                     (sql/query ~dbsym
+                                (reassemble-query '~split-query expanded-arglist#))))))))
