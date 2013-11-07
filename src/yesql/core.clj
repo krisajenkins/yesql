@@ -81,8 +81,6 @@ Any comments in that file will form the docstring."
              {:arglists `(quote ~(list (vec (cons 'db reduced-arglist))))
               :doc docstring})
        (fn ~(vec (cons dbsym reduced-arglist))
-         (let [arg->val# (zipmap ~(mapv keyword reduced-arglist) ~reduced-arglist)
-               expanded-arglist# (mapv arg->val# ~(mapv keyword arglist))]
-           (lazy-seq
-                     (sql/query ~dbsym
-                                (reassemble-query '~split-query expanded-arglist#))))))))
+         (lazy-seq
+          (sql/query ~dbsym
+                     (reassemble-query '~split-query ~arglist)))))))
