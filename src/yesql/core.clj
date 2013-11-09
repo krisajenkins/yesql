@@ -1,31 +1,10 @@
 (ns yesql.core
   (:refer-clojure :exclude [replace])
-  (:require [yesql.named-parameters :refer :all]
-            [clojure.java.io :refer [as-file resource]]
-            [clojure.string :refer [join replace split-lines]]
+  (:require [clojure.string :refer [join replace split-lines]]
             [clojure.java.jdbc :as sql]
-            [clojure.java.jdbc.sql :refer [select where]])
-  (:import [java.io FileNotFoundException]))
-
-(defn slurp-from-classpath
-  "Slurps a file from the classpath."
-  [path]
-  (if-let [url (resource path)]
-    (slurp url)
-    (throw (FileNotFoundException. path))))
-
-(defn classpath-file-basename
-  [path]
-  (if-let [url (resource path)]
-    (->> url
-         as-file
-         .getName
-         (re-find #"(.*)\.(.*)?")
-         rest)))
-
-(defn underscores-to-dashes
-  [string]
-  (replace string "_" "-"))
+            [clojure.java.jdbc.sql :refer [select where]]
+            [yesql.named-parameters :refer :all]
+            [yesql.util :refer :all]))
 
 (defn sql-comment-line?
   "If string is an SQL comment line, returns the text after the comment marker, otherwise nil."
