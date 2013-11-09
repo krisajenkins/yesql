@@ -2,6 +2,15 @@
   (:require [clojure.test :refer :all]
             [yesql.util :refer :all]))
 
+(deftest distinct-except-test
+  (let [coll '[a b c a b]]
+    (is (= (distinct-except coll #{'a})
+           '[a b c a]))
+    (is (= (distinct-except coll #{'b})
+           '[a b c b]))
+    (is (= (distinct-except coll #{'c})
+           '[a b c]))))
+
 (deftest underscores-to-dashes-test
   (is (= (underscores-to-dashes "nochange")
          "nochange"))
