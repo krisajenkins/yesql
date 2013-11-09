@@ -41,3 +41,20 @@
       (let [current-time-fn (make-query-function "SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1")
             [{current-time :time}] (current-time-fn derby-db)]
         (is (instance? java.util.Date current-time))))))
+
+
+(deftest defquery-metadata-test
+  (defquery current-time-query "yesql/current_time.sql")
+  (let [metadata (meta (var current-time-query))]
+    (is (= (:doc metadata)
+           "Just selects the current time.\nNothing fancy."))
+    (is (= (:arglists metadata)
+           '([db]))))
+
+  (defquery named-parameters-query "yesql/named_parameters.sql")
+  (let [metadata (meta (var named-parameters-query))]
+    (is (= (:doc metadata)
+           "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"))
+    (is (= (:arglists metadata)
+           '([db value1 value2 ? value2 ?])))))
+

@@ -6,3 +6,4 @@ WHERE :value1 > 10
 AND :value2 > 20
 AND ? < 50
 AND :value2 < 100
+AND ? = 5
