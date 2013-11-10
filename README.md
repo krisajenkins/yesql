@@ -2,9 +2,13 @@
 
 Yesql is a Clojure library for _using_ SQL queries.
 
-## Status
+## Installation
 
-In development. I welcome your feedback.
+[Leiningen](https://github.com/technomancy/leiningen) dependency information:
+
+``` clojure
+[yesql "0.2.0"]
+```
 
 ## Rationale
 
@@ -64,15 +68,7 @@ By keeping the SQL and Clojure separate you get:
 - Query reuse. Drop the same SQL files into other projects, because
   they're just plain ol' SQL. Share them as a submodule.
 
-## Installation
-
-[Leiningen](https://github.com/technomancy/leiningen) dependency information:
-
-``` clojure
-[yesql "0.1.0-SNAPSHOT"]
-```
-
-## Example usage
+## Example Usage
 
 Create an SQL query. Note we can supply named parameters and a comment string:
 
@@ -121,6 +117,10 @@ Now we can use it:
                     {:limeys (users-by-country connection "GB") 
                      :yanks  (users-by-country connection "US")})
 ```
+
+## Status
+
+Ready to use, but the API is subject to change. Feedback welcomed.
 
 ## License
 
