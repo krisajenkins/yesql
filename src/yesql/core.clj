@@ -1,8 +1,6 @@
 (ns yesql.core
-  (:refer-clojure :exclude [replace])
-  (:require [clojure.string :refer [join replace split-lines]]
+  (:require [clojure.string :refer [join split-lines]]
             [clojure.java.jdbc :as sql]
-            [clojure.java.jdbc.sql :refer [select where]]
             [yesql.named-parameters :refer :all]
             [yesql.util :refer :all]))
 
