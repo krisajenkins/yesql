@@ -14,6 +14,9 @@
            '["SELECT 'test'\nFROM dual"]))
     (is (= (split-at-parameters "SELECT :value, :other_value FROM dual")
            '["SELECT " value ", " other_value " FROM dual"])))
+  (testing "Whitespace"
+    (is (= (split-at-parameters "SELECT :age-5 FROM dual")
+           '["SELECT " age "-5 FROM dual"])))
   (testing "Mixed parameters"
     (is (= (split-at-parameters "SELECT :value, ? FROM dual")
            '["SELECT " value ", " ? " FROM dual"])))
