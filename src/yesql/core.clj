@@ -30,13 +30,6 @@
        (remove sql-comment-line?)
        (join "\n")))
 
-(defn make-query-function
-  [query]
-  (fn [db & parameters]
-    (lazy-seq
-     (sql/query db
-                (cons query parameters)))))
-
 (defn- replace-question-mark-with-gensym
   [parameter]
   (if (= parameter '?)

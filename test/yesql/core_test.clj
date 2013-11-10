@@ -36,13 +36,13 @@
       (is (= (extract-query current-time-file)
              "SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1"))
       (is (= (extract-query complicated-docstring-file)
-             "SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1")))
-    (testing "Query function - select current time."
-      (let [current-time-fn (make-query-function "SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1")
-            [{current-time :time}] (current-time-fn derby-db)]
-        (is (instance? java.util.Date current-time))))))
+             "SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1")))))
 
 (deftest defquery-test
+  (defquery current-time-query "yesql/current_time.sql")
+  (let [[{current-time :time}] (current-time-query derby-db)]
+    (is (instance? java.util.Date current-time)))
+
   (defquery named-parameters-query "yesql/named_parameters.sql")
   (let [[{current-time :time}] (named-parameters-query derby-db 1 2 3 4)]
     (is (instance? java.util.Date current-time))))

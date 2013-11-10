@@ -64,16 +64,3 @@
                                    (conj final-args args-head))
                                  query-tail
                                  args-tail))))
-
-(defn convert-named-query
-  "Convert a named-parameter query into a plain placeholder query, plus a list of the parameter names."
-  [query]
-  (let [split (split-at-parameters query)]
-    [(reduce (fn [accumulator token]
-               (str accumulator
-                    (if (symbol? token)
-                      "?"
-                      token)))
-             ""
-             split)
-     (filter symbol? split)]))
