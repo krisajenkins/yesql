@@ -5,7 +5,7 @@
             [yesql.core :refer :all]))
 
 (def derby-db {:subprotocol "derby"
-               :subname (gensym "yesql_test_derby_")
+               :subname (gensym "memory:")
                :create true})
 
 (deftest startup-test-db
