@@ -42,6 +42,10 @@
             [{current-time :time}] (current-time-fn derby-db)]
         (is (instance? java.util.Date current-time))))))
 
+(deftest defquery-test
+  (defquery named-parameters-query "yesql/named_parameters.sql")
+  (let [[{current-time :time}] (named-parameters-query derby-db 1 2 3 4)]
+    (is (instance? java.util.Date current-time))))
 
 (deftest defquery-metadata-test
   (defquery current-time-query "yesql/current_time.sql")
@@ -57,8 +61,3 @@
            "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"))
     (is (= (:arglists metadata)
            '([db value1 value2 ? ?])))))
-
-(deftest defquery-test
-  (defquery named-parameters-query "yesql/named_parameters.sql")
-  (let [[{current-time :time}] (named-parameters-query derby-db 1 2 3 4)]
-    (is (instance? java.util.Date current-time))))
