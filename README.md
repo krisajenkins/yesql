@@ -120,10 +120,10 @@ Now we can use it:
 
 ## When Should I Not Use Yesql?
 
-When you're supporting multiple database vendors. If you need complex
-queries to work seamlessly over several database types - eg. MySQL,
-Postgres and Oracle - *at the same time*, then you genuinely do need a
-new DSL that abstracts over raw SQL.
+When you need your queries to work with many different kinds of
+database at once. If you want one complex query to be transparently
+translated into different dialects for MySQL, Oracle, Postgres etc.,
+then you genuinely do need an abstraction layer on top.
 
 ## Status
 
