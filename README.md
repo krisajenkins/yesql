@@ -118,6 +118,13 @@ Now we can use it:
                      :yanks  (users-by-country connection "US")})
 ```
 
+## When Should I Not Use Yesql?
+
+When you're supporting multiple database vendors. If you need complex
+queries to work seamlessly over several database types - eg. MySQL,
+Postgres and Oracle - *at the same time*, then you genuinely do need a
+new DSL that abstracts over raw SQL.
+
 ## Status
 
 Ready to use, but the API is subject to change. Feedback welcomed.
