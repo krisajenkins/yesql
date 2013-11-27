@@ -47,10 +47,14 @@
               => ["SELECT " value1 " + " ? " + value2 + " ? " + " value1 "\nFROM SYSIBM.SYSDUMMY1"]))
 
 (deftest reassemble-query-test
-  (is (= (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country") ["gb"])
-         ["SELECT age FROM users WHERE country = ?" "gb"]))
-  (is (= (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)") ["gb" ["tom" "dick" "harry"]])
-         ["SELECT age FROM users WHERE country = ? AND name IN (?,?,?)" "gb" "tom" "dick" "harry"]))
+  (testing "Simple"
+    (is (= (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country") ["gb"])
+          ["SELECT age FROM users WHERE country = ?" "gb"])))
+  
+  (testing "List arguments"
+    (is (= (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)") ["gb" ["tom" "dick" "harry"]])
+           ["SELECT age FROM users WHERE country = ? AND name IN (?,?,?)" "gb" "tom" "dick" "harry"])))
+
   (testing "Argument errors."
     (is (thrown? AssertionError
                  (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)") ["gb"])))))
