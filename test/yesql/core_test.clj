@@ -18,11 +18,12 @@
              1)))))
 
 (deftest defquery-test
-  (let [[{current-time :time}] (current-time-query derby-db)]
-    (is (instance? java.util.Date current-time)))
+  (testing "Simple"
+    (let [[{current-time :time}] (current-time-query derby-db)]
+      (is (instance? java.util.Date current-time)))
 
-  (let [[{current-time :time}] (named-parameters-query derby-db 1 2 3 4)]
-    (is (instance? java.util.Date current-time))))
+    (let [[{current-time :time}] (named-parameters-query derby-db 1 2 3 4)]
+      (is (instance? java.util.Date current-time)))))
 
 (deftest defquery-metadata-test
   (let [metadata (meta (var current-time-query))]
