@@ -49,8 +49,8 @@ Any comments in that file will form the docstring."
         dbsym (gensym "DB_")]
     `(def
        ~(with-meta name
-             {:arglists `(quote ~(list (vec (cons 'db display-arglist))))
-              :doc docstring})
+          {:arglists `(quote ~(list (vec (cons 'db display-arglist))))
+           :doc docstring})
        (fn ~(vec (cons dbsym function-arglist))
          (sql/query ~dbsym
                     (reassemble-query '~split-query ~query-arglist))))))
