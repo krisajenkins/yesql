@@ -1,32 +1,8 @@
 (ns yesql.core
-  (:require [clojure.string :refer [join split-lines]]
-            [clojure.java.jdbc :as sql]
+  (:require [clojure.java.jdbc :as sql]
             [yesql.named-parameters :refer :all]
-            [yesql.util :refer :all]))
-
-(defn sql-comment-line?
-  "If string is an SQL comment line, returns the text after the comment marker, otherwise nil."
-  [string]
-  (->> string
-       (re-matches #"^\p{Blank}*--\p{Blank}*(.*)")
-       second))
-
-(defn extract-docstring
-  "Returns the docstring, if any, within the given sqlfile."
-  [sqlfile]
-  (->> sqlfile
-       split-lines
-       (map sql-comment-line?)
-       (remove nil?)
-       (join "\n")))
-
-(defn extract-query
-  "Returns the query for the given sqlfile."
-  [sqlfile]
-  (->> sqlfile
-       split-lines
-       (remove sql-comment-line?)
-       (join "\n")))
+            [yesql.util :refer :all]
+            [yesql.parser :refer [extract-docstring extract-query]]))
 
 (defn- replace-question-mark-with-gensym
   [parameter]
