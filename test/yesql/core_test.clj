@@ -61,3 +61,10 @@
            "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"))
     (is (= (:arglists metadata)
            '([db value1 value2 ? ?])))))
+
+(deftest transaction-handling-test
+  ;; Running a query in a transaction and using the result outside of it should work as expected.
+  (defquery current-time-query "yesql/current_time.sql")
+  (let [[{time :time}] (sql/db-transaction [connection derby-db]
+                                         (current-time-query connection))]
+    (is (instance? java.util.Date time))))

@@ -52,6 +52,5 @@ Any comments in that file will form the docstring."
              {:arglists `(quote ~(list (vec (cons 'db display-arglist))))
               :doc docstring})
        (fn ~(vec (cons dbsym function-arglist))
-         (lazy-seq
-          (sql/query ~dbsym
-                     (reassemble-query '~split-query ~query-arglist)))))))
+         (sql/query ~dbsym
+                    (reassemble-query '~split-query ~query-arglist))))))
