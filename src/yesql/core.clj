@@ -40,17 +40,17 @@ Any comments in that file will form the docstring."
   [name filename]
   (let [file (slurp-from-classpath filename)
         docstring (extract-docstring file)
+        dbsym (gensym "DB_")
         query (extract-query file)
         split-query (split-at-parameters query)
         arglist (vec (filter symbol? split-query))
         query-arglist (mapv replace-question-mark-with-gensym arglist)
-        function-arglist (distinct query-arglist)
-        display-arglist (distinct-except arglist #{'?})
-        dbsym (gensym "DB_")]
+        function-arglist (vec (cons dbsym (distinct query-arglist)))
+        display-arglist (vec (cons 'db (distinct-except arglist #{'?})))]
     `(def
        ~(with-meta name
-          {:arglists `(quote ~(list (vec (cons 'db display-arglist))))
+          {:arglists `(quote ~(list display-arglist))
            :doc docstring})
-       (fn ~(vec (cons dbsym function-arglist))
+       (fn ~function-arglist
          (sql/query ~dbsym
                     (reassemble-query '~split-query ~query-arglist))))))
