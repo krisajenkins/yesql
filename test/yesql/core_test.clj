@@ -23,7 +23,11 @@
       (is (instance? java.util.Date current-time)))
 
     (let [[{current-time :time}] (named-parameters-query derby-db 1 2 3 4)]
-      (is (instance? java.util.Date current-time)))))
+      (is (instance? java.util.Date current-time))))
+
+  (testing "No rows"
+    (let [result (named-parameters-query derby-db 1 2 0 0)]
+      (is (empty? result)))))
 
 (deftest defquery-metadata-test
   (let [metadata (meta (var current-time-query))]
