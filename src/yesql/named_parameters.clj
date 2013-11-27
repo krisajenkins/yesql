@@ -1,6 +1,6 @@
 (ns yesql.named-parameters)
 
-(defn consume-to
+(defn- consume-to
   [text escape? marker?]
   (loop [accumulator []
          [head & remainder :as string] text]
