@@ -1,8 +1,7 @@
 (ns yesql.core
-  (:require [clojure.java.jdbc :as sql]
-            [yesql.named-parameters :refer [split-at-parameters reassemble-query]]
-            [yesql.util :refer [slurp-from-classpath distinct-except]]
-            [yesql.parser :refer [extract-docstring extract-query]]))
+  (:require [yesql.named-parameters :refer [split-at-parameters reassemble-query]]
+            [yesql.parser :refer [extract-docstring extract-query]]
+            [yesql.util :refer [distinct-except slurp-from-classpath]]))
 
 (defn- replace-question-mark-with-gensym
   [parameter]
