@@ -5,6 +5,8 @@
 (defn distinct-except
   "Same as distinct, but keeps duplicates from the exceptions set."
   [coll exceptions]
+  {:pre [(coll? coll)
+         (set? exceptions)]}
   (let [step (fn step [xs seen]
                (lazy-seq
                 ((fn [[f :as xs] seen]
