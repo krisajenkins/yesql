@@ -1,0 +1,2 @@
+-- Error - This query has no name.
+SELECT CURRENT_TIMESTAMP FROM SYSIBM.SYSDUMMY1

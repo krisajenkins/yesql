@@ -25,19 +25,6 @@
 
 (deftest slurp-from-classpath-test
   (is (re-find #"SELECT"
-               (slurp-from-classpath "yesql/current_time.sql")))
+               (slurp-from-classpath "yesql/sample_files/current_time.sql")))
   (is (thrown? java.io.FileNotFoundException
                (slurp-from-classpath "nothing/here"))))
-
-(deftest classpath-file-basename-test
-  (is (= (classpath-file-basename "yesql/current_time.sql")
-         ["current_time" "sql"]))
-  (is (= (classpath-file-basename "yesql/core_test.clj")
-         ["core_test" "clj"])))
-
-(deftest segment-with-test
-  (is (= (segment-with (fn [x] (if (even? x) :even :odd))
-                       [3 5 2 4 6 1]))
-      (list [:odd [3 5]]
-            [:even [2 4 6]]
-            [:odd [1]])))

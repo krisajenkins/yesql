@@ -33,30 +33,3 @@
   (if-let [url (resource path)]
     (slurp url)
     (throw (FileNotFoundException. path))))
-
-(defn classpath-file-basename
-  [path]
-  (if-let [url (resource path)]
-    (->> url
-         as-file
-         .getName
-         (re-find #"(.*)\.(.*)?")
-         rest)))
-
-(defn segment-with
-  "Segments or chunks a sequence according to a classifier function.
-
-   eg. If your classifier returns :odd or :even, and your coll is [3 5 2 4 6 1]
-   you get:
-     ([:odd (3 5)]
-      [:even (2 4 6)]
-      [:odd (1)])"
-  [classifier coll]
-  (if-let [head (first coll)]
-    (let [head-type (classifier head)
-          pred #(= head-type
-                   (classifier %))]
-      (lazy-seq
-       (cons [head-type    (take-while pred coll)]
-             (segment-with classifier
-                           (drop-while pred coll)))))))

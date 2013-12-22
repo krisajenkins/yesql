@@ -1,21 +1,19 @@
 (ns yesql.core-test
-  (:require [clojure.test :refer :all]
-            [clojure.java.jdbc :as sql]
-            [yesql.util :refer [slurp-from-classpath]]
+  (:require [clojure.java.jdbc :as jdbc]
+            [clojure.test :refer :all]
             [yesql.core :refer :all]))
 
 (def derby-db {:subprotocol "derby"
                :subname (gensym "memory:")
                :create true})
 
-(defquery current-time-query "yesql/current_time.sql")
-(defquery named-parameters-query "yesql/named_parameters.sql")
+(defquery current-time-query "yesql/sample_files/current_time.sql")
+(defquery named-parameters-query "yesql/sample_files/named_parameters.sql")
 
 (deftest startup-test-db
-  (sql/with-connection derby-db
-    (sql/with-query-results rows ["SELECT CURRENT_TIMESTAMP FROM SYSIBM.SYSDUMMY1"]
-      (is (= (count rows)
-             1)))))
+  (is (= (count (jdbc/query derby-db
+                            ["SELECT CURRENT_TIMESTAMP FROM SYSIBM.SYSDUMMY1"]))
+         1)))
 
 (deftest defquery-test
   (testing "Simple"
@@ -44,6 +42,6 @@
 
 (deftest transaction-handling-test
   ;; Running a query in a transaction and using the result outside of it should work as expected.
-  (let [[{time :time}] (sql/db-transaction [connection derby-db]
-                                           (current-time-query connection))]
+  (let [[{time :time}] (jdbc/with-db-transaction [connection derby-db]
+                         (current-time-query connection))]
     (is (instance? java.util.Date time))))

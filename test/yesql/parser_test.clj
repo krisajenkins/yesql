@@ -1,28 +1,47 @@
 (ns yesql.parser-test
-  (:require [clojure.test :refer :all]
-            [yesql.util :refer [slurp-from-classpath]]
-            [yesql.parser :refer :all]))
+  (:require [clojure.string :refer [join]]
+            [clojure.test :refer :all]
+            [yesql.parser :refer :all]
+            [yesql.types :refer [map->Query]]
+            [yesql.util :refer [slurp-from-classpath]])
+  (:import clojure.lang.ExceptionInfo))
 
-(deftest sql-comment-line?-test
-  (are [line match] (= (sql-comment-line? line)
-                       match)
-       "--Test." "Test."
-       "-- Test." "Test."
-       "  -- Test." "Test."
-       "--" ""
-       "-- " ""
-       "Test." nil))
+(deftest classify-sql-line-test
+  (are [line type] (= (classify-sql-line line) type)
+       "--Test." :comment
+       "-- Test." :comment
+       "  -- Test." :comment
+       "--" :comment
+       " -- " :comment
+       "--name:" :tag
+       " -- name:" :tag
+       "SELECT" :query))
 
-(deftest extraction
-  (let [current-time-file (slurp-from-classpath "yesql/current_time.sql")
-        named-parameters-file (slurp-from-classpath "yesql/named_parameters.sql")
-        complicated-docstring-file (slurp-from-classpath "yesql/complicated_docstring.sql")]
-    (testing "Docstring extraction."
-      (is (= (extract-docstring current-time-file)
-             "Just selects the current time.\nNothing fancy."))
-      (is (= (extract-docstring complicated-docstring-file) "This is a simple query.\n\nbut...\n\nThe docstring\nis tricksy.\nIsn't it?")))
-    (testing "Query extraction."
-      (is (= (extract-query current-time-file)
-             "SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1"))
-      (is (= (extract-query complicated-docstring-file)
-             "SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1")))))
+(deftest parse-tagged-query-test
+  (testing "Simple"
+    (is (= (parse-tagged-query-file "yesql/sample_files/combined_file.sql")
+           (map map->Query
+                [{:name "the-time"
+                  :docstring "This is another time query.\nExciting, huh?"
+                  :querystring "SELECT CURRENT_TIMESTAMP\nFROM SYSIBM.SYSDUMMY1\n"}
+                 {:name "sums"
+                  :docstring "Just in case you've forgotten\nI made you a sum."
+                  :querystring (join "\n"
+                                     ["SELECT"
+                                      "    :a + 1 adder,"
+                                      "    :b - 1 subtractor"
+                                      "FROM SYSIBM.SYSDUMMY1"
+                                      ""] )}
+                 {:name "edge"
+                  :docstring "And here's an edge case.\nComments in the middle of the query."
+                  :querystring (join "\n"
+                                     ["SELECT"
+                                      "    1 + 1 AS two"
+                                      "FROM SYSIBM.SYSDUMMY1"] )}]))))
+
+  (testing "Edge Cases"
+    (is (= (parse-tagged-query-file "yesql/sample_files/tagged_no_comments.sql")
+           (map map->Query
+                [{:name "the-time"
+                  :docstring ""
+                  :querystring "SELECT CURRENT_TIMESTAMP\nFROM SYSIBM.SYSDUMMY1"}])))))
