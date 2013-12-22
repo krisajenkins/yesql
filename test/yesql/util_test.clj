@@ -34,3 +34,10 @@
          ["current_time" "sql"]))
   (is (= (classpath-file-basename "yesql/core_test.clj")
          ["core_test" "clj"])))
+
+(deftest segment-with-test
+  (is (= (segment-with (fn [x] (if (even? x) :even :odd))
+                       [3 5 2 4 6 1]))
+      (list [:odd [3 5]]
+            [:even [2 4 6]]
+            [:odd [1]])))
