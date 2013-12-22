@@ -113,9 +113,9 @@ Now we can use it:
 
 ; Use it in a clojure.java.jdbc transaction.
 (require '[clojure.java.jdbc :as sql])
-(sql/db-transaction [connection db-spec]
-                    {:limeys (users-by-country connection "GB") 
-                     :yanks  (users-by-country connection "US")})
+(sql/with-db-transaction [connection db-spec]
+    {:limeys (users-by-country connection "GB")
+     :yanks  (users-by-country connection "US")})
 ```
 
 ## When Should I Not Use Yesql?
