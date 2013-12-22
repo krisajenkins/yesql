@@ -1,6 +1,17 @@
 (ns yesql.util-test
   (:require [expectations :refer :all]
-            [yesql.util :refer :all]))
+            [yesql.util :refer :all]
+            [simple-check.clojure-test :refer [defspec]]
+            [simple-check.generators :as gen]
+            [simple-check.properties :as prop]))
+
+(defspec distinct-except-prop
+  20
+  (prop/for-all [coll (gen/vector gen/any-printable)]
+                (let [head (hash-set (first coll))
+                      distinction (distinct-except coll head)]
+                  (= (filter #(= head %) distinction)
+                     (filter #(= head %) coll)))))
 
 ;;; Test distinct-except
 (let [coll '[a b c a b]]

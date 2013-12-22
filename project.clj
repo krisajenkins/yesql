@@ -5,7 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/java.jdbc "0.3.3"]
-                 [instaparse "1.2.14"]]
+                 [instaparse "1.2.14"]
+                 [reiddraper/simple-check "0.5.3"]]
   :scm {:name "git"
         :url "https://github.com/krisajenkins/yesql"}
   :profiles {:dev {:dependencies [[org.apache.derby/derby "10.10.1.1"]
