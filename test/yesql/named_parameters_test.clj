@@ -21,7 +21,7 @@
               "SELECT :value FROM dual"               => ["SELECT " value " FROM dual"]
               "SELECT 'test'\nFROM dual"              => ["SELECT 'test'\nFROM dual"]
               "SELECT :value, :other_value FROM dual" => ["SELECT " value ", " other_value " FROM dual"])
-  
+
   (split-test "Tokenization rules"
               "SELECT :age-5 FROM dual" => ["SELECT " age "-5 FROM dual"])
 
@@ -50,7 +50,7 @@
   (testing "Simple"
     (is (= (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country") ["gb"])
           ["SELECT age FROM users WHERE country = ?" "gb"])))
-  
+
   (testing "List arguments"
     (is (= (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)") ["gb" ["tom" "dick" "harry"]])
            ["SELECT age FROM users WHERE country = ? AND name IN (?,?,?)" "gb" "tom" "dick" "harry"])))

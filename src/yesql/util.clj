@@ -1,6 +1,6 @@
 (ns yesql.util
- (:require [clojure.java.io :refer [as-file resource]])
- (:import [java.io FileNotFoundException]))
+  (:require [clojure.java.io :refer [as-file resource]])
+  (:import [java.io FileNotFoundException]))
 
 (defn distinct-except
   "Same as distinct, but keeps duplicates from the exceptions set."

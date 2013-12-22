@@ -12,7 +12,7 @@
 
 (defmacro defquery
   "Defines a query function, as defined in the given SQL file.
-Any comments in that file will form the docstring."
+   Any comments in that file will form the docstring."
   [name filename]
   (let [file (slurp-from-classpath filename)
         docstring (extract-docstring file)
@@ -29,4 +29,5 @@ Any comments in that file will form the docstring."
            :doc docstring})
        (fn ~function-arglist
          (sql/query ~dbsym
-                    (reassemble-query '~split-query ~query-arglist))))))
+                    (reassemble-query '~split-query
+                                      ~query-arglist))))))
