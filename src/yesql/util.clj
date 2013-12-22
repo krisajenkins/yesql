@@ -16,6 +16,11 @@
                  xs seen)))]
     (step coll #{})))
 
+(defn whitespace?
+  [string]
+  (boolean
+   (re-matches #"^\s*$" string)))
+
 (defn underscores-to-dashes
   [string]
   (clojure.string/replace string "_" "-"))

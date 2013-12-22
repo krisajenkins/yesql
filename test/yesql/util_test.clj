@@ -17,6 +17,12 @@
   (is (= (underscores-to-dashes "current_time")
          "current-time")))
 
+(deftest whitespace?-test
+  (is (whitespace? ""))
+  (is (whitespace? " 	"))
+  (is (not (whitespace? "a")))
+  (is (not (whitespace? " q "))))
+
 (deftest slurp-from-classpath-test
   (is (re-find #"SELECT"
                (slurp-from-classpath "yesql/current_time.sql")))
