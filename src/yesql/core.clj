@@ -19,13 +19,13 @@ Any comments in that file will form the docstring."
         dbsym (gensym "DB_")
         query (extract-query file)
         split-query (split-at-parameters query)
-        arglist (vec (filter symbol? split-query))
+        arglist (filterv symbol? split-query)
         query-arglist (mapv replace-question-mark-with-gensym arglist)
-        function-arglist (vec (cons dbsym (distinct query-arglist)))
-        display-arglist (vec (cons 'db (distinct-except arglist #{'?})))]
+        function-arglist (into [dbsym] (distinct query-arglist))
+        display-arglist  (list (into ['db] (distinct-except arglist #{'?})))]
     `(def
        ~(with-meta name
-          {:arglists `(quote ~(list display-arglist))
+          {:arglists `(quote ~display-arglist)
            :doc docstring})
        (fn ~function-arglist
          (sql/query ~dbsym
