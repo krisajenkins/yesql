@@ -69,7 +69,6 @@ By keeping the SQL and Clojure separate you get:
   they're just plain ol' SQL. Share them as a submodule.
 
 ## Usage
-
 ### One File, One Query
 
 Create an SQL query. Note we can supply named parameters and a comment string:
@@ -174,8 +173,7 @@ then you genuinely do need an abstraction layer on top.
 
 ## Status
 
-Ready to use, but the API is subject to change. Feedback
-welcomed. Pull requests welcomed, but please, no mixed commits.
+Ready to use, but the API is subject to change. Feedback welcomed.
 
 ## License
 
