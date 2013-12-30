@@ -68,7 +68,7 @@ By keeping the SQL and Clojure separate you get:
 - Query reuse. Drop the same SQL files into other projects, because
   they're just plain ol' SQL. Share them as a submodule.
 
-## Examples
+## Usage
 
 ### One File, One Query
 
@@ -122,8 +122,8 @@ Now we can use it:
 
 ### One File, Many Queries
 
-As an alternative to the above, you can store several SQL queries in a
-single file, and turn them into functions in a batch. Create a file like this
+As an alternative to the above, you can many several SQL queries in a
+single SQL file. Create a file like this
 
 ``` sql
 -- name: users-by-country
@@ -141,14 +141,14 @@ FROM user
 The format is: name tag, any docstring comments, the query. Like this:
 
 ``` sql
--- name: <the-clojure-function-name>
+-- name: the-clojure-function-name
 -- Any comments
 -- will become
 -- the function's docstring
 SELECT ...
 FROM ...
 
--- name: <the-next-function-name>
+-- name: the-next-function-name
 ...
 ```
 
@@ -159,10 +159,10 @@ Then read the file in like so:
 (defqueries "some/where/queryfile.sql")
 ```
 
-`defqueries` returns a list of the vars it creates, which can be
+`defqueries` returns a list of the functions it creates, which can be
 useful feedback while developing.
 
-As with `defquery`, each function will have a docstring, and sensible
+As with `defquery`, each function will have a docstring and sensible
 argument list based on the query parameters.
 
 ## When Should I Not Use Yesql?
@@ -174,7 +174,8 @@ then you genuinely do need an abstraction layer on top.
 
 ## Status
 
-Ready to use, but the API is subject to change. Feedback welcomed.
+Ready to use, but the API is subject to change. Feedback
+welcomed. Pull requests welcomed, but please, no mixed commits.
 
 ## License
 
