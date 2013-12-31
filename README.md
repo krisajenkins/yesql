@@ -6,8 +6,14 @@ Yesql is a Clojure library for _using_ SQL queries.
 
 [Leiningen](https://github.com/technomancy/leiningen) dependency information:
 
+### Stable
 ``` clojure
 [yesql "0.2.2"]
+```
+
+### Bleeding Edge
+``` clojure
+[yesql "0.3.0-SNAPSHOT"]
 ```
 
 ## Rationale
@@ -119,7 +125,7 @@ Now we can use it:
      :yanks  (users-by-country connection "US")})
 ```
 
-### One File, Many Queries
+### One File, Many Queries (v0.3.0-SNAPSHOT only)
 
 As an alternative to the above, you can many several SQL queries in a
 single SQL file. Create a file like this
