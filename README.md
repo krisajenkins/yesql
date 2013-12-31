@@ -167,8 +167,8 @@ Then read the file in like so:
 `defqueries` returns a list of the functions it creates, which can be
 useful feedback while developing.
 
-As with `defquery`, each function will have a docstring and sensible
-argument list based on the query parameters.
+As with `defquery`, each function will have a docstring based on the comments,
+and a sensible argument list based on the query parameters.
 
 ## When Should I Not Use Yesql?
 
