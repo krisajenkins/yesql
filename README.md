@@ -74,6 +74,13 @@ By keeping the SQL and Clojure separate you get:
 - Query reuse. Drop the same SQL files into other projects, because
   they're just plain ol' SQL. Share them as a submodule.
 
+### When Should I Not Use Yesql?
+
+When you need your queries to work with many different kinds of
+database at once. If you want one complex query to be transparently
+translated into different dialects for MySQL, Oracle, Postgres etc.,
+then you genuinely do need an abstraction layer on top of SQL.
+
 ## Usage
 ### One File, One Query
 
@@ -156,13 +163,6 @@ useful feedback while developing.
 
 As with `defquery`, each function will have a docstring based on the comments,
 and a sensible argument list based on the query parameters.
-
-## When Should I Not Use Yesql?
-
-When you need your queries to work with many different kinds of
-database at once. If you want one complex query to be transparently
-translated into different dialects for MySQL, Oracle, Postgres etc.,
-then you genuinely do need an abstraction layer on top of SQL.
 
 ## Status
 
