@@ -134,9 +134,9 @@ Now we can use it:
 
 ### One File, Many Queries (v0.3.0-SNAPSHOT only)
 
-As an alternative to the above, you can many several SQL queries in a
-single SQL file. The file format is: `(<name tag>
-[docstring comments] <the query>)*`, like so:
+As an alternative to the above, you can have many SQL queries in a
+single SQL file. The file format is: `(<name tag> [docstring comments]
+<the query>)*`, like so:
 
 ``` sql
 -- name: users-by-country
