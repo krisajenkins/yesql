@@ -129,7 +129,7 @@ Now we can use it:
 
 As an alternative to the above, you can many several SQL queries in a
 single SQL file. The format for is: `(<name tag>
-[any docstring comments] <the query>)*`, like so:
+[docstring comments] <the query>)*`, like so:
 
 ``` sql
 -- name: users-by-country
