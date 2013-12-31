@@ -128,7 +128,8 @@ Now we can use it:
 ### One File, Many Queries (v0.3.0-SNAPSHOT only)
 
 As an alternative to the above, you can many several SQL queries in a
-single SQL file. Create a file like this
+single SQL file. The format for is: `(<name tag>
+[any docstring comments] <the query>)*`, like so:
 
 ``` sql
 -- name: users-by-country
@@ -141,20 +142,6 @@ WHERE country_code = :country_code
 -- Counts all the users.
 SELECT count(*) AS count
 FROM user
-```
-
-The format is: name tag, any docstring comments, the query. Like this:
-
-``` sql
--- name: the-clojure-function-name
--- Any comments
--- will become
--- the function's docstring
-SELECT ...
-FROM ...
-
--- name: the-next-function-name
-...
 ```
 
 Then read the file in like so:
