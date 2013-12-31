@@ -119,10 +119,10 @@ Now we can use it:
 ;=> ({:count 58})
 
 ; Use it in a clojure.java.jdbc transaction.
-(require '[clojure.java.jdbc :as sql])
-(sql/with-db-transaction [connection db-spec]
-    {:limeys (users-by-country connection "GB")
-     :yanks  (users-by-country connection "US")})
+(require '[clojure.java.jdbc :as jdbc])
+(jdbc/with-db-transaction [connection db-spec]
+   {:limeys (users-by-country connection "GB")
+    :yanks  (users-by-country connection "US")})
 ```
 
 ### One File, Many Queries (v0.3.0-SNAPSHOT only)
@@ -162,7 +162,7 @@ and a sensible argument list based on the query parameters.
 When you need your queries to work with many different kinds of
 database at once. If you want one complex query to be transparently
 translated into different dialects for MySQL, Oracle, Postgres etc.,
-then you genuinely do need an abstraction layer on top.
+then you genuinely do need an abstraction layer on top of SQL.
 
 ## Status
 
