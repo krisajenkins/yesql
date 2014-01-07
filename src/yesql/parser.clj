@@ -5,7 +5,7 @@
             [yesql.util :refer [slurp-from-classpath]]))
 
 (def yesql-name-tag-regex #"^\p{Blank}*--\p{Blank}*(name):(.*)")
-(def sql-comment-regex   #"^\p{Blank}*--(.*)")
+(def sql-comment-regex    #"^\p{Blank}*--(.*)")
 
 (defn- extract-comment
   "If the given line is an sql comment, returns the text of that comment."
