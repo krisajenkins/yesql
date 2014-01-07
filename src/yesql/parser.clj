@@ -41,16 +41,6 @@
          [head & tail :as lines] lines]
     (if (nil? head)
       [accumulator nil]
-      (if-let [comment (extract-comment head)]
-        (recur (conj accumulator comment) tail)
-        [accumulator lines]))))
-
-(defn consume-comments
-  [lines]
-  (loop [accumulator []
-         [head & tail :as lines] lines]
-    (if (nil? head)
-      [accumulator nil]
       (case (classify-sql-line head)
         :comment (recur (conj accumulator (extract-comment head)) tail)
         [accumulator lines]))))
