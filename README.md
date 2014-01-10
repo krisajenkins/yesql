@@ -152,15 +152,16 @@ Then read the file in like so:
 (defqueries "some/where/queryfile.sql")
 ```
 
-`defqueries` returns a list of the functions it creates, which can be
+`defqueries` returns a sequence of the vars it binds, which can be
 useful feedback while developing.
 
-As with `defquery`, each function will have a docstring based on the comments,
-and a sensible argument list based on the query parameters.
+As with `defquery`, each function will have a docstring based on the
+comments, and a sensible argument list based on the query parameters.
 
 ## Status
 
-Ready to use, but the API is subject to change. Feedback welcomed.
+Ready to use, but not feature-complete. The API is subject to
+change. Feedback welcomed.
 
 ## License
 
