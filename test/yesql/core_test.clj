@@ -40,6 +40,13 @@
     (is (= (:arglists metadata)
            '([db value1 value2 ? ?])))))
 
+(deftest query-vector-test
+  (is (= (query-vector named-parameters-query 1 2 3 4)
+         ["SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1\nWHERE ? = 1\nAND ? = 2\nAND ? = 3\nAND ? = 2\nAND ? = 4"
+          1 2 3 2 4]))
+  (is (= (query-vector current-time-query)
+         ["SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1"])))
+
 (deftest transaction-handling-test
   ;; Running a query in a transaction and using the result outside of it should work as expected.
   (let [[{time :time}] (jdbc/with-db-transaction [connection derby-db]
