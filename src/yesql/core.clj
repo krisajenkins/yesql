@@ -2,7 +2,7 @@
   (:require [clojure.string :refer [split-lines]]
             [yesql.parser :refer [parse-one-tagged-query
                                   parse-tagged-queries]]
-            [yesql.types :refer [emit-def]]
+            [yesql.types :refer [emit-def ->query-vector]]
             [yesql.util :refer [slurp-from-classpath]]))
 
 (defmacro defquery
@@ -30,3 +30,8 @@
                      parse-tagged-queries)]
     `(doall [~@(for [query queries]
                  (emit-def query))])))
+
+(def query-vector
+  "Create query vector from a given query function and its (non-DB-configuration)
+   parameter."
+  ->query-vector)
