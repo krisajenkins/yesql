@@ -21,13 +21,23 @@
           split-query (split-at-parameters querystring)
           arglist (filterv symbol? split-query)
           query-arglist (mapv replace-question-mark-with-gensym arglist)
-          function-arglist (into [dbsym] (distinct query-arglist))
+          reassemble-arglist (vec (distinct query-arglist))
+          function-arglist (into [dbsym] reassemble-arglist)
           arglist-without-question-marks (distinct-except arglist #{'?})
           display-arglist `([~'db ~@arglist-without-question-marks])]
-      `(def ~(with-meta (symbol name)
-               {:arglists `(quote ~display-arglist)
-                :doc docstring})
-         (fn ~function-arglist
-           (jdbc/query ~dbsym
-                       (reassemble-query '~split-query
-                                         ~query-arglist)))))))
+      `(letfn [(reassemble# ~reassemble-arglist
+                 (reassemble-query '~split-query ~query-arglist))]
+         (def ~(with-meta (symbol name)
+                          {:arglists `(quote ~display-arglist)
+                           :doc docstring})
+           (with-meta
+             (fn ~function-arglist
+               (->> (reassemble# ~@reassemble-arglist)
+                    (jdbc/query ~dbsym)))
+             {::query reassemble#}))))))
+
+(defn ->query-vector
+  [query-fn & args]
+  (assert (-> query-fn meta ::query) "No SQL creation function attached.")
+  (let [f (-> query-fn meta ::query)]
+    (apply f args)))
