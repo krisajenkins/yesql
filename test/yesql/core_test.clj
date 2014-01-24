@@ -52,3 +52,10 @@
   (testing "defqueries returns the list of defined vars."
     (is (= (set (defqueries "yesql/sample_files/combined_file.sql"))
            #{(var the-time) (var sums) (var edge)}))))
+
+(deftest query-vector-test
+  (is (= (named-parameters-query 1 2 3 4)
+         ["SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1\nWHERE ? = 1\nAND ? = 2\nAND ? = 3\nAND ? = 2\nAND ? = 4"
+          1 2 3 2 4]))
+  (is (= (current-time-query)
+         ["SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1"])))
