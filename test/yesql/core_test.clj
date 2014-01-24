@@ -29,16 +29,18 @@
 
 (deftest defquery-metadata-test
   (let [metadata (meta (var current-time-query))]
-    (is (= (:doc metadata)
-           "Just selects the current time.\nNothing fancy."))
+    (is (.startsWith
+          (:doc metadata)
+          "Just selects the current time.\nNothing fancy."))
     (is (= (:arglists metadata)
-           '([db]))))
+           '([] [db]))))
 
   (let [metadata (meta (var named-parameters-query))]
-    (is (= (:doc metadata)
-           "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"))
+    (is (.startsWith
+          (:doc metadata)
+          "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"))
     (is (= (:arglists metadata)
-           '([db value1 value2 ? ?])))))
+           '([value1 value2 ? ?] [db value1 value2 ? ?])))))
 
 (deftest transaction-handling-test
   ;; Running a query in a transaction and using the result outside of it should work as expected.
