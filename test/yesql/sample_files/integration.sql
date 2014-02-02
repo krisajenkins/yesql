@@ -1,5 +1,6 @@
 -- name: create-person-table!
 CREATE TABLE person (
+	person_id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY,
 	name VARCHAR(20) UNIQUE NOT NULL,
 	age INTEGER NOT NULL
 )

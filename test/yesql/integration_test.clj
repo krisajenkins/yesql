@@ -1,6 +1,5 @@
 (ns yesql.integration-test
-  (:require [clojure.java.jdbc :as jdbc]
-            [clojure.test :refer :all]
+  (:require [clojure.test :refer :all]
             [yesql.core :refer :all]))
 
 (def derby-db {:subprotocol "derby"
@@ -14,9 +13,9 @@
     (is (create-person-table! derby-db)))
 
   (testing "Insert"
-    (is (= 1 (insert-person! derby-db "Alice" 20)))
-    (is (= 1 (insert-person! derby-db "Bob" 25)))
-    (is (= 1 (insert-person! derby-db "Charlie" 35))))
+    (is (= {:1 1} (insert-person! derby-db "Alice" 20)))
+    (is (= {:1 2} (insert-person! derby-db "Bob" 25)))
+    (is (= {:1 3} (insert-person! derby-db "Charlie" 35))))
   (testing "Select - Post-Insert"
     (is (= 3 (count (find-older-than derby-db 10))))
     (is (= 1 (count (find-older-than derby-db 30))))
