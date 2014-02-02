@@ -45,3 +45,8 @@
   (let [[{time :time}] (jdbc/with-db-transaction [connection derby-db]
                          (current-time-query connection))]
     (is (instance? java.util.Date time))))
+
+(deftest defqueries-test
+  (testing "defqueries returns the list of defined vars."
+    (is (= (set (defqueries "yesql/sample_files/combined_file.sql"))
+           #{(var the-time) (var sums) (var edge)}))))
