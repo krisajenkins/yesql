@@ -1,6 +1,8 @@
 (ns yesql.integration-test
   (:require [clojure.test :refer :all]
-            [yesql.core :refer :all]))
+            [clojure.java.jdbc :as jdbc]
+            [yesql.core :refer :all])
+  (:import [java.sql SQLException]))
 
 (def derby-db {:subprotocol "derby"
                :subname (gensym "memory:")
@@ -35,6 +37,15 @@
     (is (= 2 (count (find-older-than derby-db 10))))
     (is (= 1 (count (find-older-than derby-db 30))))
     (is (= 0 (count (find-older-than derby-db 50)))))
+
+  ;; Insert two rows in a transaction, the second throws a deliberate error, meaning no new rows created.
+  (testing "Failing transaction: Insert with abort."
+    (jdbc/with-db-transaction [connection derby-db]
+      (is (insert-person! connection "David" 20))
+      (is (thrown? SQLException
+                   (insert-person! connection "Bob" 25)))))
+  (testing "Select - Post-Transaction"
+    (is (= 2 (count (find-older-than derby-db 10)))))
 
   (testing "Drop"
     (is (drop-person-table! derby-db))))
