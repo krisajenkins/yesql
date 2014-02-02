@@ -44,6 +44,8 @@
     (clojure.string/join "," (repeat (count args) "?"))))
 
 (defn reassemble-query
+  "Given a query that's been split into text-and-symbols, and some arguments, reassemble
+it as the pair [string-with-?-parameters, args], suitable for supply to clojure.java.jdbc."
   [split-query args]
   (assert (= (count (filter symbol? split-query))
              (count args))
