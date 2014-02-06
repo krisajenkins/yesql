@@ -29,18 +29,16 @@
 
 (deftest defquery-metadata-test
   (let [metadata (meta (var current-time-query))]
-    (is (.startsWith
-          (:doc metadata)
-          "Just selects the current time.\nNothing fancy."))
+    (is (= (:doc metadata)
+           "Just selects the current time.\nNothing fancy."))
     (is (= (:arglists metadata)
-           '([] [db]))))
+           '([db]))))
 
   (let [metadata (meta (var named-parameters-query))]
-    (is (.startsWith
-          (:doc metadata)
-          "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"))
+    (is (= (:doc metadata)
+           "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"))
     (is (= (:arglists metadata)
-           '([value1 value2 ? ?] [db value1 value2 ? ?])))))
+           '([db value1 value2 ? ?])))))
 
 (deftest transaction-handling-test
   ;; Running a query in a transaction and using the result outside of it should work as expected.
@@ -52,10 +50,3 @@
   (testing "defqueries returns the list of defined vars."
     (is (= (set (defqueries "yesql/sample_files/combined_file.sql"))
            #{(var the-time) (var sums) (var edge)}))))
-
-(deftest query-vector-test
-  (is (= (named-parameters-query 1 2 3 4)
-         ["SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1\nWHERE ? = 1\nAND ? = 2\nAND ? = 3\nAND ? = 2\nAND ? = 4"
-          1 2 3 2 4]))
-  (is (= (current-time-query)
-         ["SELECT CURRENT_TIMESTAMP AS time\nFROM SYSIBM.SYSDUMMY1"])))
