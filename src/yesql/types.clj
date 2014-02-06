@@ -4,11 +4,8 @@
             [yesql.util :refer [distinct-except slurp-from-classpath]]))
 
 ;; ## Protocol
-
 (defprotocol Definable
   (emit-def [query]))
-
-;; ## Query Emitter
 
 (defn replace-question-mark-with-gensym
   [parameter]
@@ -76,6 +73,7 @@
        ~(emit-query-assemble-form assemble-id args split-query)
        ~(emit-fn-form id assemble-id docstring querystring args split-query db-fn))))
 
+;; ## Query Emitter
 (defrecord Query [name docstring querystring]
   Definable
   (emit-def [this]
