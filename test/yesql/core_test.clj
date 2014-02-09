@@ -1,6 +1,6 @@
 (ns yesql.core-test
   (:require [clojure.java.jdbc :as jdbc]
-            [clojure.test :refer :all]
+            [expectations :refer :all]
             [yesql.core :refer :all]))
 
 (def derby-db {:subprotocol "derby"
@@ -10,43 +10,38 @@
 (defquery current-time-query "yesql/sample_files/current_time.sql")
 (defquery named-parameters-query "yesql/sample_files/named_parameters.sql")
 
-(deftest startup-test-db
-  (is (= (count (jdbc/query derby-db
-                            ["SELECT CURRENT_TIMESTAMP FROM SYSIBM.SYSDUMMY1"]))
-         1)))
+;;; Check we can start up the test DB.
+(expect java.sql.Timestamp
+        (->> (jdbc/query derby-db ["SELECT CURRENT_TIMESTAMP FROM SYSIBM.SYSDUMMY1"])
+             first
+             :1))
 
-(deftest defquery-test
-  (testing "Simple"
-    (let [[{current-time :time}] (current-time-query derby-db)]
-      (is (instance? java.util.Date current-time)))
+;;; Test querying.
+(expect java.util.Date
+        (:time (first (current-time-query derby-db))))
 
-    (let [[{current-time :time}] (named-parameters-query derby-db 1 2 3 4)]
-      (is (instance? java.util.Date current-time))))
+(expect java.util.Date
+        (:time (first (named-parameters-query derby-db 1 2 3 4))))
 
-  (testing "No rows"
-    (let [result (named-parameters-query derby-db 1 2 0 0)]
-      (is (empty? result)))))
+(expect empty?
+        (:time (first (named-parameters-query derby-db 1 2 0 0))))
 
-(deftest defquery-metadata-test
-  (let [metadata (meta (var current-time-query))]
-    (is (= (:doc metadata)
-           "Just selects the current time.\nNothing fancy."))
-    (is (= (:arglists metadata)
-           '([db]))))
+;;; Test Metadata.
+(expect {:doc "Just selects the current time.\nNothing fancy."
+         :arglists '([db])}
+        (in (meta (var current-time-query))))
 
-  (let [metadata (meta (var named-parameters-query))]
-    (is (= (:doc metadata)
-           "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"))
-    (is (= (:arglists metadata)
-           '([db value1 value2 ? ?])))))
+(expect {:doc "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"
+         :arglists '([db value1 value2 ? ?])}
+        (in (meta (var named-parameters-query))))
 
-(deftest transaction-handling-test
-  ;; Running a query in a transaction and using the result outside of it should work as expected.
-  (let [[{time :time}] (jdbc/with-db-transaction [connection derby-db]
-                         (current-time-query connection))]
-    (is (instance? java.util.Date time))))
+;; Running a query in a transaction and using the result outside of it should work as expected.
+(let [[{time :time}] (jdbc/with-db-transaction [connection derby-db]
+                       (current-time-query connection))]
+  (expect java.util.Date
+          time))
 
-(deftest defqueries-test
-  (testing "defqueries returns the list of defined vars."
-    (is (= (set (defqueries "yesql/sample_files/combined_file.sql"))
-           #{(var the-time) (var sums) (var edge)}))))
+;;; Check defqueries returns the list of defined vars.
+(expect-let [return-value (defqueries "yesql/sample_files/combined_file.sql")]
+  [(var the-time) (var sums) (var edge)]
+  return-value)

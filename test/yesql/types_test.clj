@@ -1,5 +1,5 @@
 (ns yesql.types-test
-  (:require [clojure.test :refer :all]
+  (:require [expectations :refer :all]
             [yesql.types :refer :all]))
 
 (def select-query
@@ -8,14 +8,10 @@
 (def update-query
   (->Query "update-something!" "my docstring" "UPDATE table SET x = 0 WHERE x = :x"))
 
-(deftest emit-query-test
-  (let [form (emit-def select-query)
-        tokens (flatten form)]
-    (is (some #{`clojure.java.jdbc/query} tokens))
-    (is (not-any? #{`clojure.java.jdbc/execute!} tokens))))
+(let [tokens (flatten (emit-def select-query))]
+  (expect (some #{`clojure.java.jdbc/query} tokens))
+  (expect (not-any? #{`clojure.java.jdbc/execute!} tokens)))
 
-(deftest emit-execute-test
-  (let [form (emit-def update-query)
-        tokens (flatten form)]
-    (is (some #{`clojure.java.jdbc/execute!} tokens))
-    (is (not-any? #{`clojure.java.jdbc/query} tokens))))
+(let [tokens (flatten (emit-def update-query))]
+  (expect (some #{`clojure.java.jdbc/execute!} tokens))
+  (expect (not-any? #{`clojure.java.jdbc/query} tokens)))

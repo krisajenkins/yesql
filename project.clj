@@ -8,7 +8,9 @@
                  [org.clojure/algo.monads "0.1.4"]]
   :scm {:name "git"
         :url "https://github.com/krisajenkins/yesql"}
-  :profiles {:dev {:dependencies [[org.apache.derby/derby "10.10.1.1"]]}
+  :profiles {:dev {:dependencies [[org.apache.derby/derby "10.10.1.1"]
+                                  [expectations "1.4.56"]]
+                   :plugins [[lein-autoexpect "1.0"]] }
              :1.4 {:dependencies [[org.clojure/clojure "1.4.1"]]}
              :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0-master-SNAPSHOT"]]}}
