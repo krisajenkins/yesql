@@ -1,41 +1,23 @@
-(ns yesql.named-parameters)
+(ns yesql.named-parameters
+  (:require [clojure.java.io :refer [resource]]
+            [instaparse.core :as instaparse]
+            [yesql.util :refer [str-all]]))
 
-(defn- consume-to
-  [text escape? marker?]
-  (loop [accumulator []
-         [head & remainder :as string] text]
-    (cond (not head) [accumulator nil nil]
-          (and (escape? head)
-               (marker? (first remainder))) (recur (conj accumulator head (first remainder))
-                                                   (rest remainder))
-               (marker? head) [accumulator head remainder]
-               :else (recur (conj accumulator head)
-                            remainder))))
+(def parser
+  (instaparse/parser (resource "yesql/query.bnf")))
 
 (defn split-at-parameters
   [query]
-  (loop [chars []
-         [head & tail :as remainder] query]
-    (case head
-      nil [(apply str chars)]
-      \' (let [[string marker next-bit] (consume-to tail #{\\} #{\'})]
-           (recur (into (conj chars head)
-                        (conj string marker))
-                  next-bit))
-      \? (cons (apply str chars)
-               (cons (symbol (str head))
-                     (split-at-parameters tail)))
-      \: (case (first tail)
-           \: (recur (conj chars head (first tail))
-                     (rest tail))
-           (let [[parameter marker next-bit] (consume-to tail
-                                                         (constantly false)
-                                                         #{\space \newline \, \" \' \: \& \; \( \) \| \= \+ \- \* \% \/ \\ \< \> \^})]
-             (cons (apply str chars)
-                   (cons (symbol (apply str parameter))
-                         (split-at-parameters (cons marker next-bit))))))
-      (recur (conj chars head)
-             tail))))
+  (->> (parser query :start :statement)
+       (instaparse/transform {:statement vector
+                              :substatement str-all
+                              :string str-all
+                              :string-delimiter identity
+                              :string-normal identity
+                              :string-special str-all
+                              :parameter identity
+                              :placeholder-parameter symbol
+                              :named-parameter symbol})))
 
 (defn- args-to-placehoders
   [args]

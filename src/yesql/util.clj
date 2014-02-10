@@ -33,3 +33,8 @@
   (if-let [url (resource path)]
     (slurp url)
     (throw (FileNotFoundException. path))))
+
+(defn str-all
+  "Concatenates all the arguments into a single string. Returns the empty string for 0 arguments."
+  [& args]
+  (apply str "" args))

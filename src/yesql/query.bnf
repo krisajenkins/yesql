@@ -1,0 +1,14 @@
+statement = substatement (parameter substatement)*
+
+substatement = (( #"[^?:']+" | "::") | string)*
+
+string = string-delimiter string-normal* (string-special string-normal*)* string-delimiter
+string-delimiter = "'"
+string-normal = #"[^'\\]*"
+string-special = "\\" #"."
+
+parameter = placeholder-parameter | named-parameter
+
+placeholder-parameter = "?"
+
+named-parameter = <":"> #"[^\s,\"':&;()|=+\-*%/\\<>^]+"

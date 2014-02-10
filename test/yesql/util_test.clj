@@ -30,3 +30,14 @@
 
 (expect java.io.FileNotFoundException
         (slurp-from-classpath "nothing/here"))
+
+
+;;; Test str-all
+(expect ""
+        (str-all))
+
+(expect "1"
+        (str-all 1))
+
+(expect ":a2cd"
+        (str-all :a 2 'c "d"))
