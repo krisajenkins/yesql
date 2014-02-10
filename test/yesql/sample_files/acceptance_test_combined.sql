@@ -19,6 +19,11 @@ SELECT *
 FROM person
 WHERE age > :age
 
+-- name: find-by-age
+SELECT *
+FROM person
+WHERE age IN (:age)
+
 -- name: update-age!
 UPDATE person
 SET age = :age

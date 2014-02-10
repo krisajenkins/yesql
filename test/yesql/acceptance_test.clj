@@ -23,6 +23,9 @@
 (expect 1 (count (find-older-than derby-db 30)))
 (expect 0 (count (find-older-than derby-db 50)))
 
+;;; Select with IN.
+(expect 2 (count (find-by-age derby-db [20 35])))
+
 ;; Update -> Select.
 (expect 1 (update-age! derby-db 38 "Alice"))
 (expect 0 (update-age! derby-db 38 "David"))
