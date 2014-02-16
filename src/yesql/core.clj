@@ -1,7 +1,5 @@
 (ns yesql.core
-  (:require [clojure.string :refer [split-lines]]
-            [yesql.parser :refer [parse-one-tagged-query
-                                  parse-tagged-queries]]
+  (:require [yesql.parser :refer [parse-tagged-queries]]
             [yesql.types :refer [emit-def]]
             [yesql.util :refer [slurp-from-classpath]]))
 
@@ -9,12 +7,11 @@
   "Defines a query function, as defined in the given SQL file.
    Any comments in that file will form the docstring."
   [name filename]
-  (let [lines (->> filename
+  ;;; TODO Now that we have a better parser, this is a somewhat suspicious way of writing this code.
+  (let [query (->> filename
                    slurp-from-classpath
-                   split-lines
-                   (cons (format "-- name: %s" name)))
-        query (->> lines
-                   parse-one-tagged-query
+                   (format "-- name: %s\n%s" name)
+                   parse-tagged-queries
                    first)]
     (emit-def query)))
 
@@ -26,7 +23,6 @@
   [filename]
   (let [queries (->> filename
                      slurp-from-classpath
-                     split-lines
                      parse-tagged-queries)]
     `(doall [~@(for [query queries]
                  (emit-def query))])))

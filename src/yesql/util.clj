@@ -1,6 +1,7 @@
 (ns yesql.util
-  (:require [clojure.java.io :refer [as-file resource]])
-  (:import [java.io FileNotFoundException]))
+  (:require [clojure.java.io :as io]
+            [instaparse.core :as instaparse])
+  (:import (java.io FileNotFoundException)))
 
 (defn distinct-except
   "Same as distinct, but keeps duplicates from the exceptions set."
@@ -27,14 +28,25 @@
   [string]
   (clojure.string/replace string "_" "-"))
 
+(defn str-non-nil
+  "Exactly like `clojure.core/str`, except it returns an empty string
+   with no args (whereas `str` would return `nil`)."
+  [& args]
+  (apply str "" args))
+
 (defn slurp-from-classpath
   "Slurps a file from the classpath."
   [path]
-  (if-let [url (resource path)]
+  (if-let [url (io/resource path)]
     (slurp url)
     (throw (FileNotFoundException. path))))
 
-(defn str-all
-  "Concatenates all the arguments into a single string. Returns the empty string for 0 arguments."
-  [& args]
-  (apply str "" args))
+(defn process-instaparse-result
+  [parsed]
+  (cond
+   (instaparse/failure? parsed) (let [failure (instaparse/get-failure parsed)]
+                                  (instaparse.failure/pprint-failure failure)
+                                  (throw (ex-info "Parse error." failure)))
+   (< 1 (count parsed)) (throw (ex-info "Ambiguous parse - please report this as a bug at https://github.com/krisajenkins/yesql/issues"
+                                        {:variations (count parsed)}))
+   :else (first parsed)))

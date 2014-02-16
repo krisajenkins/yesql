@@ -32,12 +32,12 @@
         (slurp-from-classpath "nothing/here"))
 
 
-;;; Test str-all
+;;; Test str-non-nil
 (expect ""
-        (str-all))
+        (str-non-nil))
 
 (expect "1"
-        (str-all 1))
+        (str-non-nil 1))
 
 (expect ":a2cd"
-        (str-all :a 2 'c "d"))
+        (str-non-nil :a 2 'c "d"))

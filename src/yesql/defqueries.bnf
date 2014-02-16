@@ -1,0 +1,19 @@
+queries = <blank-line*> query*
+query = name docstring? statement
+
+docstring = comment+
+
+statement = line (line | <comment>)*
+
+name = <whitespace? COMMENT_MARKER whitespace? NAME_TAG whitespace?> non-whitespace any? <newline>
+comment = <whitespace? COMMENT_MARKER whitespace?> !NAME_TAG (non-whitespace whitespace?)* newline
+line = whitespace? !COMMENT_MARKER (non-whitespace whitespace?)* newline
+
+COMMENT_MARKER = '--'
+NAME_TAG = "name:"
+
+blank-line = whitespace* newline
+any = (whitespace | non-whitespace)+
+newline = '\n' | '\r\n'
+whitespace = (' ' | '\t')+
+non-whitespace = #'\S+'

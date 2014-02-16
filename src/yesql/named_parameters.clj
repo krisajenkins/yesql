@@ -1,23 +1,28 @@
 (ns yesql.named-parameters
-  (:require [clojure.java.io :refer [resource]]
+  (:require [clojure.java.io :as io]
             [instaparse.core :as instaparse]
-            [yesql.util :refer [str-all]]))
+            [yesql.util :refer [process-instaparse-result str-non-nil]]))
 
 (def parser
-  (instaparse/parser (resource "yesql/query.bnf")))
+  (instaparse/parser (io/resource "yesql/named_parameters.bnf")))
+
+(def parser-transforms
+  {:statement vector
+   :substatement str-non-nil
+   :string str-non-nil
+   :string-special str-non-nil
+   :string-delimiter identity
+   :string-normal identity
+   :parameter identity
+   :placeholder-parameter symbol
+   :named-parameter symbol})
 
 (defn split-at-parameters
   [query]
-  (->> (parser query :start :statement)
-       (instaparse/transform {:statement vector
-                              :substatement str-all
-                              :string str-all
-                              :string-delimiter identity
-                              :string-normal identity
-                              :string-special str-all
-                              :parameter identity
-                              :placeholder-parameter symbol
-                              :named-parameter symbol})))
+  (as-> query <>
+        (instaparse/parses parser <> :start :statement)
+        (instaparse/transform parser-transforms <>)
+        (process-instaparse-result <>)))
 
 (defn- args-to-placehoders
   [args]

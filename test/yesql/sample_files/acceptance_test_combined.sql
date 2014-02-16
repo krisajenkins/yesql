@@ -5,7 +5,7 @@ CREATE TABLE person (
 	age INTEGER NOT NULL
 )
 
--- name: insert-person!
+-- name: insert-person<!
 INSERT INTO person (
 	name,
 	age

@@ -7,7 +7,7 @@
 (defprotocol Definable
   (emit-def [query]))
 
-(defn replace-question-mark-with-gensym
+(defn- replace-question-mark-with-gensym
   [parameter]
   (if (= parameter '?)
     (gensym "P_")
@@ -30,29 +30,45 @@
 
 (defn- fn-symbol
   "Attach metadata (docstring/argument lists) to the given symbol."
-  [id docstring querystring display-args]
+  [id docstring statement display-args]
   (with-meta id
     {:arglists `(quote ([~'db ~@display-args]))
      :doc (or docstring "")
-     ::source (str querystring)}))
+     ::source (str statement)}))
+
+;; Maintainer's note: clojure.java.jdbc.execute! returns a list of
+;; rowcounts, because it takes a list of parameter groups. In our
+;; case, we only ever use one group, so we'll unpack the
+;; single-element list with `first`.
+(defn execute-handler
+  [db sql-and-params]
+  (first (jdbc/execute! db sql-and-params)))
+
+(defn insert-handler
+  [db [statement & params]]
+  (jdbc/db-do-prepared-return-keys db statement params))
 
 (defn- emit-query-fn
-  "Emit function to run a query. If the query name ends in `!` it will call `clojure.java.jdbc/execute!`,
-   otherwise `clojure.java.jdbc/query` will be used."
-  [{:keys [name docstring querystring]}]
-  (let [split-query (split-at-parameters querystring)
+  "Emit function to run a query.
+
+   - If the query name ends in `!` it will call `clojure.java.jdbc/execute!`,
+   - If the query name ends in `<!` it will call `clojure.java.jdbc/insert!`,
+   - otherwise `clojure.java.jdbc/query` will be used."
+  [{:keys [name docstring statement]}]
+  (let [split-query (split-at-parameters statement)
         {:keys [query-args display-args function-args]} (split-query->args split-query)
-        id (symbol name)
-        jdbc-fn (if (= \! (last name))
-                  `jdbc/execute!
-                  `jdbc/query)]
-    `(def ~(fn-symbol id docstring querystring display-args)
+        jdbc-fn (cond
+                 (= [\< \!] (take-last 2 name)) `insert-handler
+                 (= \! (last name)) `execute-handler
+                 :else `jdbc/query)]
+    `(def ~(fn-symbol (symbol name) docstring statement display-args)
        (fn [db# ~@function-args]
          (~jdbc-fn db#
-                   (reassemble-query '~split-query [~@query-args]))))))
+                   (reassemble-query '~split-query
+                                     ~query-args))))))
 
 ;; ## Query Emitter
-(defrecord Query [name docstring querystring]
+(defrecord Query [name docstring statement]
   Definable
   (emit-def [this]
     (emit-query-fn this)))

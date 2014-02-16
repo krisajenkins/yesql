@@ -1,11 +1,11 @@
-
+       
 
 -- name: the-time
 -- This is another time query.
 -- Exciting, huh?
 SELECT CURRENT_TIMESTAMP
 FROM SYSIBM.SYSDUMMY1
-
+  
 -- name: sums
 -- Just in case you've forgotten
 -- I made you a sum.
