@@ -11,6 +11,11 @@
 ;;; Single query.
 (defquery current-time "yesql/sample_files/acceptance_test_single.sql")
 
+(expect java.util.Date
+        (-> (current-time derby-db)
+            first
+            :time))
+
 ;;; Multiple-query workflow.
 (defqueries "yesql/sample_files/acceptance_test_combined.sql")
 
