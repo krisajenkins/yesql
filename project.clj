@@ -13,5 +13,5 @@
                    :plugins [[lein-autoexpect "1.0"]] }
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
              :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
-             :1.6 {:dependencies [[org.clojure/clojure "1.6.0-master-SNAPSHOT"]]}}
+             :1.6 {:dependencies [[org.clojure/clojure "1.6.0-beta1"]]}}
   :aliases {"test-all" ["with-profile" "+1.4:+1.5:+1.6" "test"]})
