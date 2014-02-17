@@ -202,7 +202,7 @@ INSERT INTO person ( name ) VALUES ( :name )
 ```
 
 The exact return value will depend on your database driver. For
-example postgresql returns the whole row, whereas Derby returns just
+example PostgreSQL returns the whole row, whereas Derby returns just
 `{:1 5M}`.
 
 The `<!` suffix is intended to mirror `core.async`, so it should be easy to remember.
