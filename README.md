@@ -6,8 +6,14 @@ Yesql is a Clojure library for _using_ SQL queries.
 
 [Leiningen](https://github.com/technomancy/leiningen) dependency information:
 
+### Stable
 ``` clojure
 [yesql "0.3.0"]
+```
+
+### Latest (includes INSERT/UPDATE/DELETE/etc... support)
+``` clojure
+[yesql "0.4.0-beta1"]
 ```
 
 ## Rationale
@@ -158,9 +164,43 @@ useful feedback while developing.
 As with `defquery`, each function will have a docstring based on the
 comments, and a sensible argument list based on the query parameters.
 
+### Beyond SELECT (v0.4.0-beta1 only)
+
+To do INSERT/UPDATE/DELETE/CREATE/... statements, you just need to add an `!` to the end of the function name, and Yesql will execute the function appropriately. For example:
+
+```sql
+-- name: save-person!
+UPDATE person
+SET name = :name
+WHERE id = :id
+```
+
+```clojure
+(save-person! db-spec "Dave" 1)
+;=> 1
+```
+
+The function will return the number of rows affected. That will cover every query type - not just INSERT/UPDATE/DELETE but also CREATE/DROP/ALTER/BEGIN - pretty much anything your driver will support.
+
+There's just one more variant: when you want to insert data and get back a database-generated primary key, JDBC requires a special call, so Yesql needs to be specially-informed. You can do an insert-returning-primary-key with the `<!` suffix, like so:
+
+```sql
+-- name: create-person<!
+INSERT INTO person ( name ) VALUES ( :name );
+```
+
+```clojure
+(create-person<! db-spec "Dave")
+;=> {:name "Dave" :id 5}
+```
+
+The exact return value will depend on your database driver. For example postgresql returns the whole row, whereas Derby returns just `{:1 5M}`.
+
+(The `<!` suffix is intended to mirror `core.async`, so it should be easy to remember.)
+
 ## Development & Testing
 
-Yesql uses the
+Yesql uses the marvellous
 [expectations library](http://jayfields.com/expectations/index.html)
 for tests. It's very similar to clojure.test, but has slightly lighter
 weight syntax and much better error messages.
