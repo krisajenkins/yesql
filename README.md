@@ -180,13 +180,20 @@ WHERE id = :id
 ;=> 1
 ```
 
-The function will return the number of rows affected. That will cover every query type - not just `INSERT/UPDATE/DELETE` but also `CREATE/DROP/ALTER/BEGIN/...` - anything your driver will support.
+A `!`-tagged function will return the number of rows affected.
 
-There's just one more variant: when you want to insert data and get back a database-generated primary key, JDBC requires a special call, so Yesql needs to be specially-informed. You can do an insert-returning-primary-key with the `<!` suffix, like so:
+`!` enables every statement type - not just `INSERT/UPDATE/DELETE` but
+also `CREATE/DROP/ALTER/BEGIN/...` - anything your driver will
+support.
+
+There's just one more variant: when you want to insert data and get
+back a database-generated primary key, JDBC requires a special call,
+so Yesql needs to be specially-informed. You can do an
+"insert returning primary key" with the `<!` suffix, like so:
 
 ```sql
 -- name: create-person<!
-INSERT INTO person ( name ) VALUES ( :name );
+INSERT INTO person ( name ) VALUES ( :name )
 ```
 
 ```clojure
@@ -194,9 +201,11 @@ INSERT INTO person ( name ) VALUES ( :name );
 ;=> {:name "Dave" :id 5}
 ```
 
-The exact return value will depend on your database driver. For example postgresql returns the whole row, whereas Derby returns just `{:1 5M}`.
+The exact return value will depend on your database driver. For
+example postgresql returns the whole row, whereas Derby returns just
+`{:1 5M}`.
 
-(The `<!` suffix is intended to mirror `core.async`, so it should be easy to remember.)
+The `<!` suffix is intended to mirror `core.async`, so it should be easy to remember.
 
 ## Development & Testing
 
