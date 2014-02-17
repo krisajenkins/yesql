@@ -23,10 +23,9 @@
 For example, `(split-at-parameters \"SELECT * FROM person WHERE :age > age\")`
 becomes: `[\"SELECT * FROM person WHERE \" age \" > age\"]`"
   [query]
-  (as-> query <>
-        (instaparse/parses parser <> :start :statement)
-        (instaparse/transform parser-transforms <>)
-        (process-instaparse-result <>)))
+  (process-instaparse-result
+   (instaparse/transform parser-transforms
+                         (instaparse/parses parser query :start :statement))))
 
 (defn- args-to-placehoders
   [args]

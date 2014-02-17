@@ -27,8 +27,8 @@
 (defn parse-tagged-queries
   "Parses a string with Yesql's defqueries syntax into a sequence of `yesql.types.Query` records."
   [text]
-  (as-> text <>
-        (str <> "\n") ;;; TODO This is a workaround for files with no end-of-line marker.
-        (instaparse/parses parser <> :start :queries)
-        (instaparse/transform parser-transforms <>)
-        (process-instaparse-result <>)))
+  (process-instaparse-result
+   (instaparse/transform parser-transforms
+                         (instaparse/parses parser
+                                            (str text "\n") ;;; TODO This is a workaround for files with no end-of-line marker.
+                                            :start :queries))))
