@@ -17,7 +17,7 @@
 
 (defmacro defqueries
   "Defines several query functions, as defined in the given SQL file.
-   Each query in the file must begin with a '-- name: <function-name>' marker,
+   Each query in the file must begin with a `-- name: <function-name>` marker,
    followed by optional comment lines (which form the docstring), followed by
    the query itself."
   [filename]

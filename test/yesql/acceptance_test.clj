@@ -8,7 +8,10 @@
                :subname (gensym "memory:")
                :create true})
 
+;;; Single query.
 (defquery current-time "yesql/sample_files/acceptance_test_single.sql")
+
+;;; Multiple-query workflow.
 (defqueries "yesql/sample_files/acceptance_test_combined.sql")
 
 ;; Create
@@ -42,7 +45,7 @@
 (expect 0 (count (find-older-than derby-db 50)))
 
 ;; Failing transaction: Insert with abort.
-;; Insert two rows in a transaction, the second throws a deliberate error, meaning no new rows created.
+;; Insert two rows in a transaction. The second throws a deliberate error, meaning no new rows created.
 (expect 2 (count (find-older-than derby-db 10)))
 
 (expect SQLException
