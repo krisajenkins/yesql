@@ -2,6 +2,8 @@
 
 Yesql is a Clojure library for _using_ SQL queries.
 
+[![Build Status](https://travis-ci.org/krisajenkins/yesql.png?branch=travis)](https://travis-ci.org/krisajenkins/yesql)
+
 ## Installation
 
 [Leiningen](https://github.com/technomancy/leiningen) dependency information:
