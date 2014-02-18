@@ -1,6 +1,6 @@
-# Yesql - Clojure SQL queries rethought.
+# Yesql - Clojure & SQL rethought.
 
-Yesql is a Clojure library for _using_ SQL queries.
+Yesql is a Clojure library for _using_ SQL.
 
 [![Build Status](https://travis-ci.org/krisajenkins/yesql.png?branch=travis)](https://travis-ci.org/krisajenkins/yesql)
 
@@ -69,7 +69,7 @@ By keeping the SQL and Clojure separate you get:
   never need to fall back to a `(raw-sql "some('funky'::SYNTAX)")` function.
 - Better editor support. Your editor probably already has great SQL
   support. By keeping the SQL as SQL, you get to use it.
-- Team interoperability. Your DBAs can read and write the queries you
+- Team interoperability. Your DBAs can read and write the SQL you
   use in your Clojure project.
 - Easier performance tuning. Need to `EXPLAIN` that query plan? It's
   much easier when your query is ordinary SQL.
@@ -78,7 +78,7 @@ By keeping the SQL and Clojure separate you get:
 
 ### When Should I Not Use Yesql?
 
-When you need your queries to work with many different kinds of
+When you need your SQL to work with many different kinds of
 database at once. If you want one complex query to be transparently
 translated into different dialects for MySQL, Oracle, Postgres etc.,
 then you genuinely do need an abstraction layer on top of SQL.
@@ -136,7 +136,7 @@ Now we can use it:
 
 ### One File, Many Queries
 
-As an alternative to the above, you can have many SQL queries in a
+As an alternative to the above, you can have many SQL statements in a
 single SQL file. The file format is: `(<name tag> [docstring comments]
 <the query>)*`, like so:
 
