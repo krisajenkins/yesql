@@ -8,14 +8,8 @@ Yesql is a Clojure library for _using_ SQL.
 
 [Leiningen](https://github.com/technomancy/leiningen) dependency information:
 
-### Stable
 ``` clojure
-[yesql "0.3.0"]
-```
-
-### Latest (includes INSERT/UPDATE/DELETE/etc... support)
-``` clojure
-[yesql "0.4.0-beta1"]
+[yesql "0.4.0"]
 ```
 
 ## Rationale
@@ -166,7 +160,7 @@ useful feedback while developing.
 As with `defquery`, each function will have a docstring based on the
 comments, and a sensible argument list based on the query parameters.
 
-### INSERT/UPDATE/DELETE and More (since v0.4.0-beta1)
+### Insert/Update/Delete and More
 
 To do `INSERT/UPDATE/DELETE` statements, you just need to add an `!` to the end of the function name, and Yesql will execute the function appropriately. For example:
 
