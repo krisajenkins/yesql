@@ -1,7 +1,7 @@
 (ns yesql.util
   (:require [clojure.java.io :as io]
             [instaparse.core :as instaparse])
-  (:import (java.io FileNotFoundException)))
+  (:import (java.io FileNotFoundException StringWriter)))
 
 (defn distinct-except
   "Same as distinct, but keeps duplicates from the exceptions set."
@@ -45,8 +45,10 @@
   [parsed]
   (cond
    (instaparse/failure? parsed) (let [failure (instaparse/get-failure parsed)]
-                                  (instaparse.failure/pprint-failure failure)
-                                  (throw (ex-info "Parse error." failure)))
+                                  (binding [*out* (StringWriter.)]
+                                    (instaparse.failure/pprint-failure failure)
+                                    (throw (ex-info (.toString *out*)
+                                                    failure))))
    (< 1 (count parsed)) (throw (ex-info "Ambiguous parse - please report this as a bug at https://github.com/krisajenkins/yesql/issues"
                                         {:variations (count parsed)}))
    :else (first parsed)))
