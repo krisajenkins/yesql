@@ -36,10 +36,10 @@
         (in (meta (var named-parameters-query))))
 
 ;; Running a query in a transaction and using the result outside of it should work as expected.
-(let [[{time :time}] (jdbc/with-db-transaction [connection derby-db]
-                       (current-time-query connection))]
-  (expect java.util.Date
-          time))
+(expect-let [[{time :time}] (jdbc/with-db-transaction [connection derby-db]
+                              (current-time-query connection))]
+  java.util.Date
+  time)
 
 ;;; Check defqueries returns the list of defined vars.
 (expect-let [return-value (defqueries "yesql/sample_files/combined_file.sql")]
