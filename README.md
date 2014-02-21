@@ -110,6 +110,7 @@ Lo! It has automatic, useful docstrings in the REPL:
 ```
 
 Now we can use it:
+
 ```clojure
 ; Define a database connection spec. (This is standard clojure.java.jdbc.)
 (def db-spec {:classname "org.postgresql.Driver"
