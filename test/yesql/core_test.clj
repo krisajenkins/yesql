@@ -45,3 +45,9 @@
 (expect-let [return-value (defqueries "yesql/sample_files/combined_file.sql")]
   [(var the-time) (var sums) (var edge)]
   return-value)
+
+;;; SQL's quoting rules.
+(defquery quoting "yesql/sample_files/quoting.sql")
+
+(expect "'can't'"
+        (:word (first (quoting derby-db))))
