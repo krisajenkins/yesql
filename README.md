@@ -161,6 +161,33 @@ useful feedback while developing.
 As with `defquery`, each function will have a docstring based on the
 comments, and a sensible argument list based on the query parameters.
 
+### IN-list Queries
+
+Yesql supports `IN`-style queries. Define your query with a
+single-element in the `IN` list, like so:
+
+```sql
+-- name: find-users
+-- Find the users with the given ID(s).
+SELECT *
+FROM user
+WHERE user_id IN (:id)
+AND age > :min_age
+```
+
+And then supply the `IN`-list as a vector, like so:
+
+```clojure
+(defqueries "some/where/queryfile.sql")
+(find-users db-spec [1001 1003 1005] 18)
+```
+
+The query will be automatically expanded to `... IN (1001, 1003, 1005)
+...` under the hood, and work as expected.
+
+Just remember that some databases have a limit on the number of values
+in an `IN`-list, and Yesql makes no effort to circumvent such limits*.
+
 ### Insert/Update/Delete and More
 
 To do `INSERT/UPDATE/DELETE` statements, you just need to add an `!` to the end of the function name, and Yesql will execute the function appropriately. For example:
