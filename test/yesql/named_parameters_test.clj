@@ -1,10 +1,13 @@
 (ns yesql.named-parameters-test
   (:require [expectations :refer :all]
+            [clojure.template :refer [do-template]]
             [yesql.named-parameters :refer :all]))
 
 
-(given [query _ split-result] (expect (quote split-result)
-                                      (split-at-parameters query))
+(do-template [query _ split-result]
+  (expect (quote split-result)
+          (split-at-parameters query))
+
   ;; Simple tests
   "SELECT 1 FROM dual"                    => ["SELECT 1 FROM dual"]
   "SELECT ? FROM dual"                    => ["SELECT " ? " FROM dual"]

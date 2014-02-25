@@ -1,5 +1,6 @@
 (ns yesql.util-test
   (:require [expectations :refer :all]
+            [clojure.template :refer [do-template]]
             [yesql.util :refer :all]))
 
 ;;; Test distinct-except
@@ -12,17 +13,20 @@
           (distinct-except coll #{'c})))
 
 ;;; Test underscores-to-dashes
-(given [input output] (expect output
-                              (underscores-to-dashes input))
+(do-template [input output]
+  (expect output
+          (underscores-to-dashes input))
+
   "nochange" "nochange"
   "current_time" "current-time"
   "this_is_it" "this-is-it")
 
 ;;; Test whitespace?
-(expect (whitespace? ""))
-(expect (whitespace? " 	"))
-(expect (not (whitespace? "a")))
-(expect (not (whitespace? " q ")))
+(expect whitespace? "")
+(expect whitespace? (str \space))
+(expect whitespace? (str \tab))
+(expect (complement whitespace?) "a")
+(expect (complement whitespace?) " q ")
 
 ;;; Test slurp-from-classpath
 (expect #"\bSELECT\b"

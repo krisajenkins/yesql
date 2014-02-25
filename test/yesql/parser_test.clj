@@ -1,5 +1,6 @@
 (ns yesql.parser-test
   (:require [clojure.string :refer [join]]
+            [clojure.template :refer [do-template]]
             [expectations :refer :all]
             [instaparse.core :as instaparse]
             [yesql.parser :refer :all]
@@ -7,7 +8,7 @@
             [yesql.util :refer [slurp-from-classpath]])
   (:import [clojure.lang ExceptionInfo]))
 
-(given [start-key input _ expected-output]
+(do-template [start-key input _ expected-output]
   (expect (if expected-output
             (list expected-output)
             (list))
