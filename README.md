@@ -190,7 +190,9 @@ in an `IN`-list, and Yesql makes no effort to circumvent such limits.
 
 ### Insert/Update/Delete and More
 
-To do `INSERT/UPDATE/DELETE` statements, you just need to add an `!` to the end of the function name, and Yesql will execute the function appropriately. For example:
+To do `INSERT/UPDATE/DELETE` statements, you just need to add an `!`
+to the end of the function name, and Yesql will execute the function
+appropriately. For example:
 
 ```sql
 -- name: save-person!
