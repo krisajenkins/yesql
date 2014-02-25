@@ -5,7 +5,7 @@
 
 ;; ## Protocol
 (defprotocol Definable
-  (emit-def [query]))
+  (emit-def [query options]))
 
 (defn- replace-question-mark-with-gensym
   [parameter]
@@ -53,22 +53,30 @@
 
    - If the query name ends in `!` it will call `clojure.java.jdbc/execute!`,
    - If the query name ends in `<!` it will call `clojure.java.jdbc/insert!`,
-   - otherwise `clojure.java.jdbc/query` will be used."
-  [{:keys [name docstring statement]}]
+   - otherwise `clojure.java.jdbc/query` will be used.
+
+   - If options contains a :db-spec key, it will be used as the first
+     parameter to the JDBC calls.
+   - otherwise the generated functions will take an initial db-spec parameter."
+  [{:keys [name docstring statement]} options]
   (let [split-query (split-at-parameters statement)
         {:keys [query-args display-args function-args]} (split-query->args split-query)
         jdbc-fn (cond
                  (= [\< \!] (take-last 2 name)) `insert-handler
                  (= \! (last name)) `execute-handler
-                 :else `jdbc/query)]
+                 :else `jdbc/query)
+        db-param (or (:db-spec options) (gensym "db"))
+        argvec   (if (:db-spec options)
+                   (vec function-args)
+                   (vec (cons db-param function-args)))]
     `(def ~(fn-symbol (symbol name) docstring statement display-args)
-       (fn [db# ~@function-args]
-         (~jdbc-fn db#
+       (fn ~argvec
+         (~jdbc-fn ~db-param
                    (reassemble-query '~split-query
                                      ~query-args))))))
 
 ;; ## Query Emitter
 (defrecord Query [name docstring statement]
   Definable
-  (emit-def [this]
-    (emit-query-fn this)))
+  (emit-def [this options]
+    (emit-query-fn this options)))

@@ -51,3 +51,14 @@
 
 (expect "'can't'"
         (:word (first (quoting derby-db))))
+
+;;; Defining macros with built-in db-spec values
+(defquery dbspec-query "yesql/sample_files/quoting.sql" {:db-spec derby-db})
+
+(expect "'can't'"
+        (:word (first (dbspec-query))))
+
+(defqueries "yesql/sample_files/dbspec.sql" {:db-spec derby-db})
+
+(expect java.util.Date
+        (:time (first (dbspec-parameters-query 1 2 3 4))))
