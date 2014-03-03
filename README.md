@@ -23,8 +23,8 @@ I think we're all agreed that this is a problem:
 ```
 
 Unless these query strings are short, they quickly get hard to read
-and hard to rewrite. Plus the lack of syntax highlighting &
-indentation is a real pain.
+and hard to rewrite. Plus the lack of indentation & syntax
+highlighting is horrible.
 
 But something like this is not the solution:
 
