@@ -269,6 +269,7 @@ for tests. It's like clojure.test, but has lighter-weight syntax and
 much better failure messages.
 
 Call `lein test` to run the test suite.  
+Call `lein typed check` to run core.typed checking.  
 Call `lein test-all` to run the tests against all (supported) versions of Clojure.  
 Call `lein autoexpect` to automatically re-run the tests as source files change.  
 
