@@ -8,7 +8,7 @@
                :create true})
 
 (defquery current-time-query "yesql/sample_files/current_time.sql")
-(defquery named-parameters-query "yesql/sample_files/named_parameters.sql")
+(defquery mixed-parameters-query "yesql/sample_files/mixed_parameters.sql")
 
 ;;; Check we can start up the test DB.
 (expect java.sql.Timestamp
@@ -21,10 +21,10 @@
         (:time (first (current-time-query derby-db))))
 
 (expect java.util.Date
-        (:time (first (named-parameters-query derby-db 1 2 3 4))))
+        (:time (first (mixed-parameters-query derby-db 1 2 3 4))))
 
 (expect empty?
-        (:time (first (named-parameters-query derby-db 1 2 0 0))))
+        (:time (first (mixed-parameters-query derby-db 1 2 0 0))))
 
 ;;; Test Metadata.
 (expect {:doc "Just selects the current time.\nNothing fancy."
@@ -33,7 +33,7 @@
 
 (expect {:doc "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"
          :arglists '([db value1 value2 ? ?])}
-        (in (meta (var named-parameters-query))))
+        (in (meta (var mixed-parameters-query))))
 
 ;; Running a query in a transaction and using the result outside of it should work as expected.
 (expect-let [[{time :time}] (jdbc/with-db-transaction [connection derby-db]
