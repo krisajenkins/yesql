@@ -10,22 +10,17 @@
 
 (ann distinct-except
   (All [x]
-       [(Option (Seq x)) (Option (Set x)) -> (Option (Seq x))]))
+       [[x -> Boolean] (Option (Seq x)) -> (Option (Seq x))]))
 (defn distinct-except
-  "Same as distinct, but keeps duplicates from the exceptions set."
-  [coll exceptions]
-  {:pre [(coll? coll)
-         (set? exceptions)]}
-  (let [step (fn step [xs seen]
-               (lazy-seq
-                ((fn [[f :as xs] seen]
-                   (when-let [s (seq xs)]
-                     (if (and (contains? seen f)
-                              (not (exceptions f)))
-                       (recur (rest s) seen)
-                       (cons f (step (rest s) (conj seen f))))))
-                 xs seen)))]
-    (step coll #{})))
+  "Same as distinct, but keeps duplicates if they pass exception?"
+  [exception? [head & tail :as coll]]
+  (lazy-seq
+   (when head
+     (cons head
+           (distinct-except exception?
+                            (if (exception? head)
+                              tail
+                              (remove (partial = head) tail)))))))
 
 (ann whitespace?
   (IFn [nil -> false]

@@ -26,7 +26,7 @@
         query-args (mapv replace-question-mark-with-gensym args)]
     {:query-args    query-args
      :function-args (distinct query-args)
-     :display-args  (distinct-except args #{'?})}))
+     :display-args  (distinct-except #{'?} args)}))
 
 (defn- fn-symbol
   "Attach metadata (docstring/argument lists) to the given symbol."
