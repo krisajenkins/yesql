@@ -6,11 +6,11 @@
 ;;; Test distinct-except
 (let [coll '[a b c a b]]
   (expect '[a b c a]
-          (distinct-except coll #{'a}))
+          (distinct-except #{'a} coll))
   (expect '[a b c b]
-          (distinct-except coll #{'b}))
+          (distinct-except #{'b} coll))
   (expect '[a b c]
-          (distinct-except coll #{'c})))
+          (distinct-except #{'c} coll)))
 
 ;;; Test underscores-to-dashes
 (do-template [input output]
