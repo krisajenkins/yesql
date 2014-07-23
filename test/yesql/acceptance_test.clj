@@ -62,3 +62,6 @@
 
 ;; Drop
 (expect (drop-person-table! derby-db))
+
+;;; Parsing edge cases.
+(defqueries "yesql/sample_files/parser_edge_cases.sql")
