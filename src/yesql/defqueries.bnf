@@ -5,7 +5,7 @@ docstring = comment+
 
 statement = line (line | <comment>)*
 
-name = <whitespace? COMMENT_MARKER whitespace? NAME_TAG whitespace?> non-whitespace any? <newline>
+name = <whitespace? COMMENT_MARKER whitespace? NAME_TAG whitespace?> non-whitespace <whitespace? newline>
 comment = <whitespace? COMMENT_MARKER whitespace?> !NAME_TAG (non-whitespace whitespace?)* newline
 line = whitespace? !COMMENT_MARKER (non-whitespace whitespace?)* newline
 
