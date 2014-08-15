@@ -6,11 +6,22 @@ Yesql is a Clojure library for _using_ SQL.
 
 ## Installation
 
-[Leiningen](https://github.com/technomancy/leiningen) dependency information:
+Add this to your [Leiningen](https://github.com/technomancy/leiningen) `:dependencies`:
 
 ``` clojure
 [yesql "0.4.0"]
 ```
+
+Plus you'll want a database driver. Here are some examples (but double
+check, because there may be a newer version available):
+
+|Database|`:dependencies` Entry|
+|---|---|
+|PostgreSQL|`[org.postgresql/postgresql "9.3-1102-jdbc41"]`|
+|MySQL|`[mysql/mysql-connector-java "5.1.32"]`|
+|Oracle|`[com.oracle/ojdbc14 "10.2.0.4.0"]`|
+|SQLite|`[org.xerial/sqlite-jdbc "3.7.2"]`|
+|Derby|`[org.apache.derby/derby "10.10.2.0"]`|
 
 ## Rationale
 
