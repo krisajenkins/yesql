@@ -13,6 +13,7 @@
                    :plugins [[lein-autoexpect "1.2.2"]
                              [lein-expectations  "0.0.7"]]}
              :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
-             :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}}
-  :aliases {"test-all" ["with-profile" "+1.5:+1.6" "expectations"]
+             :1.6 {:dependencies [[org.clojure/clojure "1.6.0"]]}
+             :1.7 {:dependencies [[org.clojure/clojure "1.7.0-alpha1"]]}}
+  :aliases {"test-all" ["with-profile" "+1.5:+1.6:+1.7" "expectations"]
             "test-ancient" ["expectations"]})
