@@ -23,6 +23,8 @@ check, because there may be a newer version available):
 |SQLite|`[org.xerial/sqlite-jdbc "3.7.2"]`|
 |Derby|`[org.apache.derby/derby "10.10.2.0"]`|
 
+(If you know of others, please do submit a pull request for this document.)
+
 ## Rationale
 
 You're writing Clojure. You need to write some SQL.
