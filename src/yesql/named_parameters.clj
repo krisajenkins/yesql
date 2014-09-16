@@ -20,8 +20,8 @@
 (defn split-at-parameters
   "Turns a raw SQL query into a vector of SQL-substrings interspersed with clojure symbols for the query's parameters.
 
-For example, `(split-at-parameters \"SELECT * FROM person WHERE :age > age\")`
-becomes: `[\"SELECT * FROM person WHERE \" age \" > age\"]`"
+  For example, `(split-at-parameters \"SELECT * FROM person WHERE :age > age\")`
+  becomes: `[\"SELECT * FROM person WHERE \" age \" > age\"]`"
   [query]
   (process-instaparse-result
    (instaparse/transform parser-transforms
@@ -35,7 +35,7 @@ becomes: `[\"SELECT * FROM person WHERE \" age \" > age\"]`"
 
 (defn reassemble-query
   "Given a query that's been split into text-and-symbols, and some arguments, reassemble
-it as the pair `[string-with-?-parameters args]`, suitable for supply to `clojure.java.jdbc`."
+  it as the pair `[string-with-?-parameters args]`, suitable for supply to `clojure.java.jdbc`."
   [split-query args]
   (assert (= (count (filter symbol? split-query))
              (count args))
