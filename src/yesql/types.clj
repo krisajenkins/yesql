@@ -1,59 +1,77 @@
 (ns yesql.types
   (:require [clojure.java.jdbc :as jdbc]
+            [clojure.core.typed :as t :refer [ann defalias U Seqable Option Any Seq Keyword IFn Map HMap tc-ignore Symbol]]
             [yesql.named-parameters :refer [split-at-parameters reassemble-query]]
             [yesql.util :refer [distinct-except slurp-from-classpath]]))
 
 ;; ## Protocol
-(defprotocol Definable
-  (emit-def [query]))
+(t/defprotocol Definable
+  (emit-def [this] :- (t/List Any)))
 
-(defn- replace-question-mark-with-gensym
-  [parameter]
-  (if (= parameter '?)
-    (gensym "P_")
-    parameter))
+(t/ann-record Query [name :- String
+                     docstring :- String
+                     statement :- String])
+(defrecord Query [name docstring statement])
 
-(defn- split-query->args
+;; (ann replace-question-mark-with-gensym
+;;   [Symbol -> Symbol])
+(tc-ignore
+ (defn- replace-question-mark-with-gensym
+   [parameter]
+   (if (= parameter '?)
+     (gensym "P_")
+     parameter)))
+
+(tc-ignore
+ (defn- split-query->args
   "Use the split-up query string to create the different kinds of argument lists:
 
-   - `:query-args`: the symbols for the tail of the query vector,
-   - `:function-args`: the symbols for the query assembly and execution functions,
-   - `:display-args`: the symbols to be attached in the metadata.
+  - `:query-args`: the symbols for the tail of the query vector,
+  - `:function-args`: the symbols for the query assembly and execution functions,
+  - `:display-args`: the symbols to be attached in the metadata.
 
-   The result will be a map with these fields."
+  The result will be a map with these fields."
   [split-query]
   (let [args (filterv symbol? split-query)
         query-args (mapv replace-question-mark-with-gensym args)]
     {:query-args    query-args
      :function-args (distinct query-args)
-     :display-args  (distinct-except #{'?} args)}))
+     :display-args  (distinct-except #{'?} args)})))
 
-(defn- fn-symbol
+(tc-ignore
+ (defn- fn-symbol
   "Attach metadata (docstring/argument lists) to the given symbol."
   [id docstring statement display-args]
   (with-meta id
     {:arglists `(quote ([~'db ~@display-args]))
      :doc (or docstring "")
-     ::source (str statement)}))
+     ::source (str statement)})))
 
 ;; Maintainer's note: clojure.java.jdbc.execute! returns a list of
 ;; rowcounts, because it takes a list of parameter groups. In our
 ;; case, we only ever use one group, so we'll unpack the
 ;; single-element list with `first`.
-(defn execute-handler
-  [db sql-and-params]
-  (first (jdbc/execute! db sql-and-params)))
 
-(defn insert-handler
-  [db [statement & params]]
-  (jdbc/db-do-prepared-return-keys db statement params))
+(tc-ignore
+ (defn execute-handler
+   [db sql-and-params]
+   (first (jdbc/execute! db sql-and-params))))
 
+(tc-ignore
+ (defn insert-handler
+   [db [statement & params]]
+   (jdbc/db-do-prepared-return-keys db statement params)))
+
+;; (ann emit-query-fn
+;;   [Query -> (t/List Any)])
+
+(ann ^:no-check emit-query-fn [Query -> (t/List Any)])
 (defn- emit-query-fn
   "Emit function to run a query.
 
-   - If the query name ends in `!` it will call `clojure.java.jdbc/execute!`,
-   - If the query name ends in `<!` it will call `clojure.java.jdbc/insert!`,
-   - otherwise `clojure.java.jdbc/query` will be used."
+  - If the query name ends in `!` it will call `clojure.java.jdbc/execute!`,
+  - If the query name ends in `<!` it will call `clojure.java.jdbc/insert!`,
+  - otherwise `clojure.java.jdbc/query` will be used."
   [{:keys [name docstring statement]}]
   (let [split-query (split-at-parameters statement)
         {:keys [query-args display-args function-args]} (split-query->args split-query)
@@ -68,7 +86,13 @@
                                      ~query-args))))))
 
 ;; ## Query Emitter
-(defrecord Query [name docstring statement]
-  Definable
+(extend-protocol Definable
+  Query
   (emit-def [this]
     (emit-query-fn this)))
+
+;; (ann yesql.types/map->Query
+;;     [(HMap :mandatory {:name String
+;;                        :docstring String
+;;                        :statement String})
+;;      -> yesql.types.Query])
