@@ -5,10 +5,10 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/java.jdbc "0.3.5"]
-                 [instaparse "1.3.3"]]
+                 [instaparse "1.3.4"]]
   :scm {:name "git"
         :url "https://github.com/krisajenkins/yesql"}
-  :profiles {:dev {:dependencies [[org.apache.derby/derby "10.10.2.0"]
+  :profiles {:dev {:dependencies [[org.apache.derby/derby "10.11.1.1"]
                                   [expectations "2.0.9"]]
                    :plugins [[lein-autoexpect "1.2.2"]
                              [lein-expectations  "0.0.7"]]}
