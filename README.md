@@ -21,7 +21,7 @@ check, because there may be a newer version available):
 |MySQL|`[mysql/mysql-connector-java "5.1.32"]`|
 |Oracle|`[com.oracle/ojdbc14 "10.2.0.4.0"]`|
 |SQLite|`[org.xerial/sqlite-jdbc "3.7.2"]`|
-|Derby|`[org.apache.derby/derby "10.10.2.0"]`|
+|Derby|`[org.apache.derby/derby "10.11.1.1"]`|
 
 (If you know of others, please do submit a pull request for this document.)
 
