@@ -249,6 +249,16 @@ example PostgreSQL returns the whole row, whereas Derby returns just
 
 The `<!` suffix is intended to mirror `core.async`, so it should be easy to remember.
 
+## Other Languages
+
+Yesql has inspired ports to other languages:
+
+|Language|Project|
+|---|---|
+|JavaScript|[Preql](https://github.com/NGPVAN/preql)|
+|JavaScript|[sqlt](https://github.com/eugeneware/sqlt)|
+|Python|[Anosql](https://github.com/honza/anosql)|
+
 ## Development & Testing
 
 Yesql uses the marvellous
