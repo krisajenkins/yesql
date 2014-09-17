@@ -1,9 +1,9 @@
-(ns yesql.parser-test
+(ns yesql.queryfile-parser-test
   (:require [clojure.string :refer [join]]
             [clojure.template :refer [do-template]]
             [expectations :refer :all]
             [instaparse.core :as instaparse]
-            [yesql.parser :refer :all]
+            [yesql.queryfile-parser :refer :all]
             [yesql.types :refer [map->Query]]
             [yesql.util :refer [slurp-from-classpath]])
   (:import [clojure.lang ExceptionInfo]))

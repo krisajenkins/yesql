@@ -1,27 +1,18 @@
-(ns yesql.parser
+(ns yesql.queryfile-parser
   (:require [clojure.java.io :as io]
             [clojure.string :refer [join trim]]
             [clojure.core.typed :as t :refer [ann tc-ignore U Seqable Option Any Seq Keyword IFn Map All HSequential]]
             [instaparse.core :as instaparse]
             [yesql.types :refer [map->Query]]
-            [yesql.util :refer [process-instaparse-result str-non-nil]]
-            [yesql.annotations])
-  (:import [java.net URL]))
-
-(ann ^:no-check instaparse.core/parser [(U String URL) -> instaparse.core.Parser])
-(ann ^:no-check instaparse.core/parses
-  [instaparse.core.Parser String & :optional {:start Keyword} -> (Seqable Any)])
-(ann ^:no-check instaparse.core/failure? [Any -> Boolean])
-(ann ^:no-check instaparse.core/transform
-  (All [x]
-       [(Map Keyword (IFn [Any * -> x])) (Seqable Any) -> (Seqable x)]))
+            [yesql.util :refer [str-non-nil]]
+            [yesql.instaparse-util :refer [process-instaparse-result]]
+            [yesql.annotations]))
 
 (ann parser instaparse.core.Parser)
 (def parser
-  (let [url (io/resource "yesql/defqueries.bnf")]
+  (let [url (io/resource "yesql/queryfile.bnf")]
     (assert url)
     (instaparse/parser url)))
-
 
 (tc-ignore
  (def parser-transforms

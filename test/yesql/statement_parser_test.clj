@@ -1,7 +1,7 @@
-(ns yesql.named-parameters-test
+(ns yesql.statement-parser-test
   (:require [expectations :refer :all]
             [clojure.template :refer [do-template]]
-            [yesql.named-parameters :refer :all]))
+            [yesql.statement-parser :refer :all]))
 
 
 (do-template [query _ split-result]
