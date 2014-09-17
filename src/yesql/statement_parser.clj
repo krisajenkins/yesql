@@ -1,12 +1,13 @@
-(ns yesql.named-parameters
+(ns yesql.statement-parser
   (:require [clojure.java.io :as io]
             [instaparse.core :as instaparse]
-            [yesql.util :refer [process-instaparse-result str-non-nil]]))
+            [yesql.util :refer [str-non-nil]]
+            [yesql.instaparse-util :refer [process-instaparse-result]]))
 
 (def parser
-  (instaparse/parser (io/resource "yesql/named_parameters.bnf")))
+  (instaparse/parser (io/resource "yesql/statement.bnf")))
 
-(def parser-transforms
+(def ^:private parser-transforms
   {:statement vector
    :substatement str-non-nil
    :string str-non-nil
