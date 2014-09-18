@@ -71,3 +71,9 @@
         (try
           (parse-tagged-queries (slurp-from-classpath "yesql/sample_files/tagged_two_names.sql"))
           (catch ExceptionInfo e (.getMessage e))))
+
+;;; Parsing edge cases.
+
+(expect ["this-has-trailing-whitespace"]
+        (map :name
+             (parse-tagged-queries (slurp-from-classpath "yesql/sample_files/parser_edge_cases.sql"))))

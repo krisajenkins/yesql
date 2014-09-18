@@ -46,13 +46,23 @@
 ;;; Testing reassemble-query
 (expect ["SELECT age FROM users WHERE country = ?" "gb"]
         (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country")
-                          ["gb"]))
+                          {:country "gb"}))
+
+(expect [ "SELECT age FROM users WHERE (country = ? OR country = ?) AND name = ?" "gb" "us" "tom"]
+        (reassemble-query (split-at-parameters "SELECT age FROM users WHERE (country = ? OR country = ?) AND name = :name")
+                          {:? ["gb" "us"]
+                           :name "tom"}))
 
 ;;; Testing reassemble-query IN strings.
 (expect ["SELECT age FROM users WHERE country = ? AND name IN (?,?,?)" "gb" "tom" "dick" "harry"]
         (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)")
-                          ["gb" ["tom" "dick" "harry"]]))
+                          {:country "gb"
+                           :names ["tom" "dick" "harry"]}))
 
 (expect AssertionError
-        (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)")
-                          ["gb"]))
+        (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name = :name")
+                          {:country "gb"}))
+
+(expect AssertionError
+        (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = ? AND name = ?")
+                          {}))

@@ -28,32 +28,41 @@
    (instaparse/transform parser-transforms
                          (instaparse/parses parser query :start :statement))))
 
-(defn- args-to-placehoders
+(defn- args-to-placeholders
   [args]
   (if-not (coll? args)
     "?"
     (clojure.string/join "," (repeat (count args) "?"))))
 
 (defn reassemble-query
-  "Given a query that's been split into text-and-symbols, and some arguments, reassemble
-  it as the pair `[string-with-?-parameters args]`, suitable for supply to `clojure.java.jdbc`."
-  [split-query args]
-  (assert (= (count (filter symbol? split-query))
-             (count args))
-          "Query parameter count must match args count.")
-  (loop [query-string ""
-         final-args []
-         [query-head & query-tail] split-query
-         [args-head & args-tail :as remaining-args] args]
-    (cond
-     (nil? query-head) (vec (cons query-string final-args))
-     (string? query-head) (recur (str query-string query-head)
-                                 final-args
-                                 query-tail
-                                 remaining-args)
-     (symbol? query-head) (recur (str query-string (args-to-placehoders args-head))
-                                 (if (coll? args-head)
-                                   (apply conj final-args args-head)
-                                   (conj final-args args-head))
-                                 query-tail
-                                 args-tail))))
+  [split-query initial-args]
+  (let [expected-keys (set (map keyword (remove (partial = '?)
+                                                (filter symbol? split-query))))
+        actual-keys (set (keys (dissoc initial-args :?)))
+        expected-positional-count (count (filter (partial = '?)
+                                                 split-query))
+        actual-positional-count (count (:? initial-args))]
+    (assert (= expected-keys actual-keys)
+            (format "Query argument mismatch.\nExpected keys: %s\nActual keys: %s\n"
+                    (str (seq expected-keys))
+                    (str actual-keys)))
+    (assert (= expected-positional-count actual-positional-count)
+            (format "Query argument mismatch.\nExpected %d positional parameters. Got %d.\nSupply positional parameters as {:? [...]}"
+                    expected-positional-count actual-positional-count))
+    (let [[final-query final-parameters _]
+          (reduce (fn [[query parameters args] token]
+                    (cond
+                     (string? token) [(str query token)
+                                      parameters
+                                      args]
+                     (symbol? token) (let [[arg new-args] (if (= '? token)
+                                                            [(first (:? args)) (update-in args [:?] rest)]
+                                                            [(get args (keyword token)) args])]
+                                       [(str query (args-to-placeholders arg))
+                                        (if (coll? arg)
+                                          (concat parameters arg)
+                                          (conj parameters arg))
+                                        new-args])))
+                  ["" [] initial-args]
+                  split-query)]
+      (vec (cons final-query final-parameters)))))
