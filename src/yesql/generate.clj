@@ -25,11 +25,11 @@
 
   The result will be a map with these fields."
   [split-query]
-  (let [args (filterv symbol? split-query)
-        query-args (mapv replace-question-mark-with-gensym args)]
+  (let [raw-args (filterv symbol? split-query)
+        query-args (mapv replace-question-mark-with-gensym raw-args)]
     {:query-args    query-args
      :function-args (distinct query-args)
-     :display-args  (distinct-except #{'?} args)})))
+     :display-args  (distinct-except #{'?} raw-args)})))
 
 ;; Maintainer's note: clojure.java.jdbc.execute! returns a list of
 ;; rowcounts, because it takes a list of parameter groups. In our
@@ -47,43 +47,75 @@
 
 ;; (ann ^:no-check generate-query-fn
 ;;   [yesql.types.Query -> (IFn [Any * -> Any])])
+
 (defn generate-query-fn
   "Generate a function to run a query.
 
   - If the query name ends in `!` it will call `clojure.java.jdbc/execute!`,
   - If the query name ends in `<!` it will call `clojure.java.jdbc/insert!`,
   - otherwise `clojure.java.jdbc/query` will be used."
-  [{:keys [name docstring statement]}]
-  (assert name "Query name is mandatory.")
+  [{:keys [name docstring statement]
+    :as query}
+   query-options]
+  (assert name      "Query name is mandatory.")
   (assert statement "Query statement is mandatory.")
   (let [split-query (split-at-parameters statement)
         {:keys [query-args display-args function-args]} (split-query->args split-query)
         jdbc-fn (cond
-                 (= [\< \!] (take-last 2 name)) `insert-handler
-                 (= \! (last name)) `execute-handler
-                 :else `jdbc/query)]
-    (eval `(with-meta
-             (fn [db# ~@function-args]
-               (~jdbc-fn db#
-                         (reassemble-query '~split-query
-                                           ~query-args)))
-             (merge {:arglists (quote ([~'db ~@display-args]))
-                     :name ~name
-                     ::source ~(str statement)}
-                    ~(when docstring
-                       {:doc docstring}))))))
+                 (= (take-last 2 name) [\< \!]) insert-handler
+                 (= (last name) \!) execute-handler
+                 :else jdbc/query)
+        real-fn (fn [args call-options]
+                  (let [connection (:connection (merge query-options
+                                                       call-options))]
+                    (assert connection
+                            (format "No database connection supplied to function '%s',\nCheck the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."
+                                    name))
+                    (jdbc-fn (:connection (merge query-options
+                                                 call-options))
+                             (reassemble-query split-query args)))) ]
+    (with-meta
+;;; TODO The next step is to get the query args generated.
+      #_(cond
+         (and (:connection query-options)
+              (empty? expected-args))
+         anonymous-version
+
+         (:connection query-options)
+         single-arg-version
+
+         :else double-arg-version)
+      (fn foo
+        ([]
+           (foo {}))
+        ([args]
+           (foo args {}))
+        ([args call-options]
+           (real-fn args call-options)))
+      (merge {:name name
+              :arglists (list [display-args]
+                              [display-args {:connection '...}])
+              ::source (str statement)}
+             (when docstring
+               {:doc docstring})))))
+
+(generate-query-fn (yesql.types/map->Query {:name "fetch"
+                                            :statement "SELECT * FROM users WHERE user_id = ?"})
+                   {:dofault-db {:subprotocol "derby"
+                                 :subname (gensym "memory:")
+                                 :create true}})
 
 (defprotocol FunctionGenerator
-  (generate-fn [this]))
+  (generate-fn [this options]))
 
 (defprotocol VarGenerator
-  (generate-var [this]))
+  (generate-var [this options]))
 
 (extend-type Query
   FunctionGenerator
-  (generate-fn [this]
-    (generate-query-fn this))
+  (generate-fn [this options]
+    (generate-query-fn this options))
   VarGenerator
-  (generate-var [this]
+  (generate-var [this options]
     (create-root-var (:name this)
-                     (generate-fn this))))
+                     (generate-fn this options))))
