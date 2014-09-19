@@ -39,13 +39,13 @@
 ;;; Test Metadata.
 (expect {:doc "Just selects the current time.\nNothing fancy."
          :arglists (list '[]
-                         '[_ {:keys [connection]}])}
+                         '[{} {:keys [connection]}])}
         (in (meta (var current-time-query))))
 
 (expect {:doc "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"
-         :arglists (list '[]
-                         '[{:keys [value1 value2 ?]}]
-                         '[{:keys [value1 value2 ?]} {:keys [connection]}])}
+         :name 'mixed-parameters-query
+         :arglists (list '[{:keys [? value2 value1]}]
+                         '[{:keys [? value2 value1]} {:keys [connection]}])}
         (in (meta (var mixed-parameters-query))))
 
 ;; Running a query in a transaction and using the result outside of it should work as expected.

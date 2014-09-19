@@ -1,9 +1,10 @@
 (ns yesql.generate
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.core.typed :as t :refer [ann HMap tc-ignore Any IFn]]
+            [clojure.string :refer [join]]
             [yesql.util :refer [distinct-except create-root-var]]
             [yesql.types :refer [map->Query]]
-            [yesql.statement-parser :refer [split-at-parameters reassemble-query]])
+            [yesql.statement-parser :refer [expected-parameter-list rewrite-query-for-jdbc]])
   (:import [yesql.types Query]))
 
 ;; (ann replace-question-mark-with-gensym
@@ -59,51 +60,48 @@
    query-options]
   (assert name      "Query name is mandatory.")
   (assert statement "Query statement is mandatory.")
-  (let [split-query (split-at-parameters statement)
-        {:keys [query-args display-args function-args]} (split-query->args split-query)
-        jdbc-fn (cond
+  (let [jdbc-fn (cond
                  (= (take-last 2 name) [\< \!]) insert-handler
                  (= (last name) \!) execute-handler
                  :else jdbc/query)
+        required-args (expected-parameter-list statement)
+        global-connection (:connection query-options)
         real-fn (fn [args call-options]
-                  (let [connection (:connection (merge query-options
-                                                       call-options))]
+                  (let [connection (or (:connection call-options)
+                                       global-connection)]
                     (assert connection
-                            (format "No database connection supplied to function '%s',\nCheck the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."
+                            (format (join "\n"
+                                          ["No database connection supplied to function '%s',"
+                                           "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
                                     name))
-                    (jdbc-fn (:connection (merge query-options
-                                                 call-options))
-                             (reassemble-query split-query args)))) ]
-    (with-meta
-;;; TODO The next step is to get the query args generated.
-      #_(cond
-         (and (:connection query-options)
-              (empty? expected-args))
-         anonymous-version
-
-         (:connection query-options)
-         single-arg-version
-
-         :else double-arg-version)
-      (fn foo
-        ([]
-           (foo {}))
-        ([args]
-           (foo args {}))
-        ([args call-options]
-           (real-fn args call-options)))
+                    (jdbc-fn connection
+                             (rewrite-query-for-jdbc statement args))))
+        [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
+                                                                                      required-args))]
+                                                             {:keys as-vec}
+                                                             {})
+                                                global-args {:keys ['connection]}]
+                                            (if global-connection
+                                              (if (empty? required-args)
+                                                [(list []
+                                                       [named-args global-args])
+                                                 (fn foo
+                                                   ([] (foo {} {}))
+                                                   ([args call-options] (real-fn args call-options)))]
+                                                [(list [named-args]
+                                                       [named-args global-args])
+                                                 (fn foo
+                                                   ([args] (foo args {}))
+                                                   ([args call-options] (real-fn args call-options)))])
+                                              [(list [named-args global-args])
+                                               (fn foo
+                                                 ([args call-options] (real-fn args call-options)))]))]
+    (with-meta generated-function
       (merge {:name name
-              :arglists (list [display-args]
-                              [display-args {:connection '...}])
+              :arglists display-args
               ::source (str statement)}
              (when docstring
                {:doc docstring})))))
-
-(generate-query-fn (yesql.types/map->Query {:name "fetch"
-                                            :statement "SELECT * FROM users WHERE user_id = ?"})
-                   {:dofault-db {:subprotocol "derby"
-                                 :subname (gensym "memory:")
-                                 :create true}})
 
 (defprotocol FunctionGenerator
   (generate-fn [this options]))

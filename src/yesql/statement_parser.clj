@@ -1,5 +1,7 @@
 (ns yesql.statement-parser
   (:require [clojure.java.io :as io]
+            [clojure.set :as set]
+            [clojure.string :refer [join]]
             [instaparse.core :as instaparse]
             [yesql.util :refer [str-non-nil]]
             [yesql.instaparse-util :refer [process-instaparse-result]]))
@@ -34,22 +36,41 @@
     "?"
     (clojure.string/join "," (repeat (count args) "?"))))
 
-(defn reassemble-query
-  [split-query initial-args]
-  (let [expected-keys (set (map keyword (remove (partial = '?)
-                                                (filter symbol? split-query))))
+(defn- analyse-split-query
+  [split-query]
+  {:expected-keys (set (map keyword (remove (partial = '?)
+                                            (filter symbol? split-query))))
+   :expected-positional-count (count (filter (partial = '?)
+                                             split-query))})
+
+(defn expected-parameter-list
+  [statement]
+  (let [split-query (split-at-parameters statement)
+        {:keys [expected-keys expected-positional-count]} (analyse-split-query split-query)]
+    (if (zero? expected-positional-count)
+      expected-keys
+      (conj expected-keys :?))))
+
+
+(defn rewrite-query-for-jdbc
+  [statement initial-args]
+  (let [split-query (split-at-parameters statement)
+        {:keys [expected-keys expected-positional-count]} (analyse-split-query split-query)
         actual-keys (set (keys (dissoc initial-args :?)))
-        expected-positional-count (count (filter (partial = '?)
-                                                 split-query))
-        actual-positional-count (count (:? initial-args))]
-    (assert (= expected-keys actual-keys)
-            (format "Query argument mismatch.\nExpected keys: %s\nActual keys: %s\n"
+        actual-positional-count (count (:? initial-args))
+        missing-keys (set/difference expected-keys actual-keys)]
+    (assert (empty? missing-keys)
+            (format "Query argument mismatch.\nExpected keys: %s\nActual keys: %s\nMissing keys: %s"
                     (str (seq expected-keys))
-                    (str actual-keys)))
+                    (str (seq actual-keys))
+                    (str (seq missing-keys))))
     (assert (= expected-positional-count actual-positional-count)
-            (format "Query argument mismatch.\nExpected %d positional parameters. Got %d.\nSupply positional parameters as {:? [...]}"
+            (format (join "\n"
+                          ["Query argument mismatch."
+                           "Expected %d positional parameters. Got %d."
+                           "Supply positional parameters as {:? [...]}"])
                     expected-positional-count actual-positional-count))
-    (let [[final-query final-parameters _]
+    (let [[final-query final-parameters consumed-args]
           (reduce (fn [[query parameters args] token]
                     (cond
                      (string? token) [(str query token)
@@ -65,4 +86,4 @@
                                         new-args])))
                   ["" [] initial-args]
                   split-query)]
-      (vec (cons final-query final-parameters)))))
+      (concat [final-query] final-parameters))))
