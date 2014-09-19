@@ -43,26 +43,40 @@
   "SELECT :value1 + ? + value2 + ? + :value1\nFROM SYSIBM.SYSDUMMY1"
   => ["SELECT " value1 " + " ? " + value2 + " ? " + " value1 "\nFROM SYSIBM.SYSDUMMY1"])
 
+
+(expect #{}
+        (expected-parameter-list "SELECT * FROM user"))
+
+(expect #{:?}
+        (expected-parameter-list "SELECT * FROM user WHERE user_id = ?"))
+
+(expect #{:name}
+        (expected-parameter-list "SELECT * FROM user WHERE user_id = :name"))
+
+
+(expect #{:name :country :?}
+        (expected-parameter-list "SELECT * FROM user WHERE user_id = :name AND country = :country AND age IN (?,?)"))
+
 ;;; Testing reassemble-query
 (expect ["SELECT age FROM users WHERE country = ?" "gb"]
-        (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country")
-                          {:country "gb"}))
+        (rewrite-query-for-jdbc "SELECT age FROM users WHERE country = :country"
+                                {:country "gb"}))
 
-(expect [ "SELECT age FROM users WHERE (country = ? OR country = ?) AND name = ?" "gb" "us" "tom"]
-        (reassemble-query (split-at-parameters "SELECT age FROM users WHERE (country = ? OR country = ?) AND name = :name")
-                          {:? ["gb" "us"]
-                           :name "tom"}))
+(expect ["SELECT age FROM users WHERE (country = ? OR country = ?) AND name = ?" "gb" "us" "tom"]
+        (rewrite-query-for-jdbc "SELECT age FROM users WHERE (country = ? OR country = ?) AND name = :name"
+                                {:? ["gb" "us"]
+                                 :name "tom"}))
 
 ;;; Testing reassemble-query IN strings.
 (expect ["SELECT age FROM users WHERE country = ? AND name IN (?,?,?)" "gb" "tom" "dick" "harry"]
-        (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)")
-                          {:country "gb"
-                           :names ["tom" "dick" "harry"]}))
+        (rewrite-query-for-jdbc "SELECT age FROM users WHERE country = :country AND name IN (:names)"
+                                {:country "gb"
+                                 :names ["tom" "dick" "harry"]}))
 
 (expect AssertionError
-        (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name = :name")
-                          {:country "gb"}))
+        (rewrite-query-for-jdbc "SELECT age FROM users WHERE country = :country AND name = :name"
+                                {:country "gb"}))
 
 (expect AssertionError
-        (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = ? AND name = ?")
-                          {}))
+        (rewrite-query-for-jdbc "SELECT age FROM users WHERE country = ? AND name = ?"
+                                {}))
