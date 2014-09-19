@@ -37,16 +37,24 @@
                                  :? [0 0]}))
 
 ;;; Test Metadata.
-(expect {:doc "Just selects the current time.\nNothing fancy."
-         :arglists (list '[]
-                         '[{} {:keys [connection]}])}
-        (in (meta (var current-time-query))))
+(expect (more-> "Just selects the current time.\nNothing fancy." :doc
+                'current-time-query :name
+                (list '[] '[{} {:keys [connection]}]) :arglists)
+        (meta (var current-time-query)))
 
-(expect {:doc "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)"
-         :name 'mixed-parameters-query
-         :arglists (list '[{:keys [? value2 value1]}]
-                         '[{:keys [? value2 value1]} {:keys [connection]}])}
-        (in (meta (var mixed-parameters-query))))
+(expect (more->  "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)" :doc
+                 'mixed-parameters-query :name
+                 true (-> :arglists list?)
+                 ;; TODO We could improve the clarity of what this is testing.
+                 2 (-> :arglists count)
+
+                 1 (-> :arglists first count)
+                 #{'? 'value1 'value2} (-> :arglists first first   :keys set)
+
+                 2 (-> :arglists second count)
+                 #{'? 'value1 'value2} (-> :arglists second first  :keys set)
+                 #{'connection}        (-> :arglists second second :keys set))
+        (meta (var mixed-parameters-query)))
 
 ;; Running a query in a transaction and using the result outside of it should work as expected.
 (expect-let [[{time :time}] (jdbc/with-db-transaction [connection derby-db]
