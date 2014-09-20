@@ -9,9 +9,14 @@ Yesql is a Clojure library for _using_ SQL.
 Add this to your [Leiningen](https://github.com/technomancy/leiningen) `:dependencies`:
 
 ``` clojure
-[yesql "0.5.0"]
+[yesql "0.5.0-beta1"]
 ```
 
+## Migrating From Previous Versions
+
+See the [Migration Guide](https://github.com/krisajenkins/yesql/wiki/Migration).
+
+## Driver
 Plus you'll want a database driver. Here are some examples (but double
 check, because there may be a newer version available):
 
