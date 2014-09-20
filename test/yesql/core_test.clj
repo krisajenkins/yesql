@@ -36,6 +36,11 @@
                                  :value2 2
                                  :? [0 0]}))
 
+;;; Processor functions
+(expect java.util.Date
+        (current-time-query {} {:result-set-fn first
+                                :row-fn :time}))
+
 ;;; Test Metadata.
 (expect (more-> "Just selects the current time.\nNothing fancy." :doc
                 'current-time-query :name

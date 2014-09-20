@@ -38,13 +38,24 @@
 ;; single-element list with `first`.
 (tc-ignore
  (defn execute-handler
-   [db sql-and-params]
+   [db sql-and-params call-options]
    (first (jdbc/execute! db sql-and-params))))
 
 (tc-ignore
  (defn insert-handler
-   [db [statement & params]]
+   [db [statement & params] call-options]
    (jdbc/db-do-prepared-return-keys db statement params)))
+
+(tc-ignore
+ (defn query-handler
+   [db sql-and-params
+    {:keys [row-fn result-set-fn]
+     :or {row-fn identity
+          result-set-fn doall}
+     :as call-options}]
+   (jdbc/query db sql-and-params
+               :row-fn row-fn
+               :result-set-fn result-set-fn)))
 
 ;; (ann ^:no-check generate-query-fn
 ;;   [yesql.types.Query -> (IFn [Any * -> Any])])
@@ -63,7 +74,7 @@
   (let [jdbc-fn (cond
                  (= (take-last 2 name) [\< \!]) insert-handler
                  (= (last name) \!) execute-handler
-                 :else jdbc/query)
+                 :else query-handler)
         required-args (expected-parameter-list statement)
         global-connection (:connection query-options)
         real-fn (fn [args call-options]
@@ -75,7 +86,8 @@
                                            "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
                                     name))
                     (jdbc-fn connection
-                             (rewrite-query-for-jdbc statement args))))
+                             (rewrite-query-for-jdbc statement args)
+                             call-options)))
         [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
                                                                                       required-args))]
                                                              {:keys as-vec}
