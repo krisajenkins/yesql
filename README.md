@@ -57,16 +57,21 @@ So what's the solution? Keep the SQL as SQL. Have one file with your
 query:
 
 ``` sql
+-- name: users-by-country
 SELECT *
 FROM users
-WHERE country_code = ?
+WHERE country_code = :country
 ```
 
-...and then pull it in and use it as a regular Clojure function:
+...and then read that file to turn it into a regular Clojure function:
 
 ``` clojure
-(defquery users-by-country "some/where/users_by_country.sql")
-(users-by-country db-spec "GB")
+(defqueries "some/where/users_by_country.sql"
+  {:connection db-spec})
+
+;;; A function with the name `users-by-country` is created. Let's use it:
+
+(users-by-country {:country "GB"})
 ```
 
 By keeping the SQL and Clojure separate you get:
@@ -107,9 +112,17 @@ Make sure it's on the classpath. For this example, it's in
 `src/some/where/`. Now we can use it in our Clojure program.
 
 ```clojure
-; Import the SQL query as a function.
 (require '[yesql.core :refer [defquery]])
-(defquery users-by-country "some/where/users_by_country.sql")
+
+; Define a database connection spec. (This is standard clojure.java.jdbc.)
+(def db-spec {:classname "org.postgresql.Driver"
+              :subprotocol "postgresql"
+              :subname "//localhost:5432/demo"
+              :user "me"})
+
+; Import the SQL query as a function.
+(defquery users-by-country "some/where/users_by_country.sql"
+  {:connection db-spec})
 ```
 
 Lo! It has automatic, useful docstrings in the REPL:
@@ -119,28 +132,25 @@ Lo! It has automatic, useful docstrings in the REPL:
 
 ;=> -------------------------
 ;=> user/users-by-country
-;=> ([db country_code])
+;=> ([{:keys [country_code]}] 
+;=>  [{:keys [country_code]} {:keys [connection]}])
+;=>
 ;=>   Counts the users in a given country.
 ```
 
 Now we can use it:
 
 ```clojure
-; Define a database connection spec. (This is standard clojure.java.jdbc.)
-(def db-spec {:classname "org.postgresql.Driver"
-              :subprotocol "postgresql"
-              :subname "//localhost:5432/demo"
-              :user "me"})
-
 ; Use it standalone. Note that the first argument is the db-spec.
-(users-by-country db-spec "GB")
+(users-by-country {:country "GB"})
 ;=> ({:count 58})
 
 ; Use it in a clojure.java.jdbc transaction.
 (require '[clojure.java.jdbc :as jdbc])
+
 (jdbc/with-db-transaction [connection db-spec]
-   {:limeys (users-by-country connection "GB")
-    :yanks  (users-by-country connection "US")})
+   {:limeys (users-by-country {:country "GB"} {:connection connection})
+    :yanks  (users-by-country {:country "US"} {:connection connection})})
 ```
 
 ### One File, Many Queries
@@ -166,7 +176,8 @@ Then read the file in like so:
 
 ```clojure
 (require '[yesql.core :refer [defqueries]])
-(defqueries "some/where/queryfile.sql")
+(defqueries "some/where/queryfile.sql"
+  {:connection db-spec})
 ```
 
 `defqueries` returns a sequence of the vars it binds, which can be
@@ -192,8 +203,11 @@ AND age > :min_age
 And then supply the `IN`-list as a vector, like so:
 
 ```clojure
-(defqueries "some/where/queryfile.sql")
-(find-users db-spec [1001 1003 1005] 18)
+(defqueries "some/where/queryfile.sql"
+  {:connection db-spec})
+
+(find-users {:id [1001 1003 1005]
+             :maxage 18})
 ```
 
 The query will be automatically expanded to `... IN (1001, 1003, 1005)
@@ -216,7 +230,8 @@ WHERE id = :id
 ```
 
 ```clojure
-(save-person! db-spec "Dave" 1)
+(save-person! {:name "Dave"
+               :id 1})
 ;=> 1
 ```
 
@@ -239,7 +254,7 @@ INSERT INTO person ( name ) VALUES ( :name )
 ```
 
 ```clojure
-(create-person<! db-spec "Dave")
+(create-person<! {:name "Dave"})
 ;=> {:name "Dave" :id 5}
 ```
 
