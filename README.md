@@ -9,7 +9,7 @@ Yesql is a Clojure library for _using_ SQL.
 Add this to your [Leiningen](https://github.com/technomancy/leiningen) `:dependencies`:
 
 ``` clojure
-[yesql "0.4.0"]
+[yesql "0.5.0"]
 ```
 
 Plus you'll want a database driver. Here are some examples (but double
@@ -67,7 +67,7 @@ WHERE country_code = :country
 
 ``` clojure
 (defqueries "some/where/users_by_country.sql"
-  {:connection db-spec})
+   {:connection db-spec})
 
 ;;; A function with the name `users-by-country` is created. Let's use it:
 
@@ -122,7 +122,7 @@ Make sure it's on the classpath. For this example, it's in
 
 ; Import the SQL query as a function.
 (defquery users-by-country "some/where/users_by_country.sql"
-  {:connection db-spec})
+   {:connection db-spec})
 ```
 
 Lo! It has automatic, useful docstrings in the REPL:
@@ -177,7 +177,7 @@ Then read the file in like so:
 ```clojure
 (require '[yesql.core :refer [defqueries]])
 (defqueries "some/where/queryfile.sql"
-  {:connection db-spec})
+   {:connection db-spec})
 ```
 
 `defqueries` returns a sequence of the vars it binds, which can be
@@ -185,6 +185,29 @@ useful feedback while developing.
 
 As with `defquery`, each function will have a docstring based on the
 comments, and a sensible argument list based on the query parameters.
+
+### ? Parameters
+
+Yesql supports named parameters, and `?`-style positional parameters. Here's an example:
+
+```sql
+-- name: young-users-by-country
+SELECT *
+FROM user
+WHERE (
+  country_code = ?
+  OR
+  country_code = ?
+)
+AND age < :maxage
+```
+
+Supply the `?` parameters as a vector under the `:?` key, like so:
+
+```clojure
+(young-users-by-country {:? ["GB" "US"]
+                         :maxage 18})
+```
 
 ### IN-list Queries
 
@@ -204,7 +227,7 @@ And then supply the `IN`-list as a vector, like so:
 
 ```clojure
 (defqueries "some/where/queryfile.sql"
-  {:connection db-spec})
+   {:connection db-spec})
 
 (find-users {:id [1001 1003 1005]
              :maxage 18})
@@ -230,8 +253,8 @@ WHERE id = :id
 ```
 
 ```clojure
-(save-person! {:name "Dave"
-               :id 1})
+(save-person! {:id 1
+               :name "Dave"})
 ;=> 1
 ```
 
