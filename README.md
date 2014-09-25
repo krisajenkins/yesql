@@ -9,7 +9,7 @@ Yesql is a Clojure library for _using_ SQL.
 Add this to your [Leiningen](https://github.com/technomancy/leiningen) `:dependencies`:
 
 ``` clojure
-[yesql "0.5.0-beta1"]
+[yesql "0.5.0-beta2"]
 ```
 
 ### Driver
