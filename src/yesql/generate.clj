@@ -7,31 +7,6 @@
             [yesql.statement-parser :refer [expected-parameter-list rewrite-query-for-jdbc]])
   (:import [yesql.types Query]))
 
-;; (ann replace-question-mark-with-gensym
-;;   [Symbol -> Symbol])
-(tc-ignore
- (defn- replace-question-mark-with-gensym
-   [parameter]
-   (if (= parameter '?)
-     (gensym "P_")
-     parameter)))
-
-(tc-ignore
- (defn- split-query->args
-  "Use the split-up query string to create the different kinds of argument lists:
-
-  - `:query-args`: the symbols for the tail of the query vector,
-  - `:function-args`: the symbols for the query assembly and execution functions,
-  - `:display-args`: the symbols to be attached in the metadata.
-
-  The result will be a map with these fields."
-  [split-query]
-  (let [raw-args (filterv symbol? split-query)
-        query-args (mapv replace-question-mark-with-gensym raw-args)]
-    {:query-args    query-args
-     :function-args (distinct query-args)
-     :display-args  (distinct-except #{'?} raw-args)})))
-
 ;; Maintainer's note: clojure.java.jdbc.execute! returns a list of
 ;; rowcounts, because it takes a list of parameter groups. In our
 ;; case, we only ever use one group, so we'll unpack the
