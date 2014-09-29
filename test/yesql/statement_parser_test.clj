@@ -104,6 +104,8 @@
         (rewrite-query-for-jdbc "INSERT INTO json (data, source) VALUES (:data, :source)"
                                 {:source "google"
                                  :data {:a 1}}))
+
+;;; Incorrect parameters.
 (expect AssertionError
         (rewrite-query-for-jdbc "SELECT age FROM users WHERE country = :country AND name = :name"
                                 {:country "gb"}))
