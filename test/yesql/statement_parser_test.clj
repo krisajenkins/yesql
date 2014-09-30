@@ -105,6 +105,12 @@
                                 {:source "google"
                                  :data {:a 1}}))
 
+;;; Empty IN-lists are allowed by Yesql - though most DBs will complain.
+(expect ["SELECT age FROM users WHERE country = ? AND name IN ()" "gb"]
+        (rewrite-query-for-jdbc "SELECT age FROM users WHERE country = :country AND name IN (:names)"
+                                {:country "gb"
+                                 :names []}))
+
 ;;; Incorrect parameters.
 (expect AssertionError
         (rewrite-query-for-jdbc "SELECT age FROM users WHERE country = :country AND name = :name"
