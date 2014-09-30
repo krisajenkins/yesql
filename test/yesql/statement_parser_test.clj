@@ -16,7 +16,6 @@
   "SELECT 'test'\nFROM dual"              => ["SELECT 'test'\nFROM dual"]
   "SELECT :value, :other_value FROM dual" => ["SELECT " value ", " other_value " FROM dual"]
 
-
   ;; Tokenization rules
   "SELECT :age-5 FROM dual"
   => ["SELECT " age "-5 FROM dual"]
