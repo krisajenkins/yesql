@@ -249,6 +249,42 @@ The query will be automatically expanded to `... IN (1001, 1003, 1005)
 Just remember that some databases have a limit on the number of values
 in an `IN`-list, and Yesql makes no effort to circumvent such limits.
 
+### Row And Result Processors
+
+Like `clojure.java.jdbc`, Yesql accepts functions to pre-process each
+row, and the final result, like so:
+
+```sql
+-- name: current-time
+-- Selects the current time, according to the database.
+SELECT sysdate
+FROM dual;
+```
+
+```clojure
+(defqueries "/some/where/queryfile.sql"
+  {:connection db-spec})
+
+;;; Without processors, this query returns a list with one element,
+;;;   containing a map with one key:
+(current-time)
+;=> ({:sysdate #inst "2014-09-30T07:30:06.764000000-00:00"})
+
+;;; With processors we just get the value we want:
+(current-time {} {:result-set-fn first
+                  :row-fn :sysdate})
+;=> #inst "2014-09-30T07:30:06.764000000-00:00"
+```
+
+As with `clojure.java.jdbc` the default `:result-set-fn` is `doall`,
+and the default `:row-fn` is `identity`.
+
+_A note of caution_: Remember you're often better off doing your
+processing directly in SQL. For example, if you're counting a million
+rows, you can do it with `{:result-set-fn count}` or
+`SELECT count(*) ...`. Both wil give the same answer, but the
+SQL-version will avoid sending a million rows over the wire to do it.
+
 ### Insert/Update/Delete and More
 
 To do `INSERT/UPDATE/DELETE` statements, you just need to add an `!`
