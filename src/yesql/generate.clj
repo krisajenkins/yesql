@@ -1,6 +1,6 @@
 (ns yesql.generate
   (:require [clojure.java.jdbc :as jdbc]
-            [clojure.core.typed :as t :refer [ann HMap tc-ignore Any IFn]]
+            [clojure.core.typed :as t :refer [tc-ignore]]
             [clojure.string :refer [join]]
             [yesql.statement-parser :refer [expected-parameter-list rewrite-query-for-jdbc]]))
 
