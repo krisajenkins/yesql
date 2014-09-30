@@ -2,7 +2,7 @@
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.core.typed :as t :refer [ann HMap tc-ignore Any IFn]]
             [clojure.string :refer [join]]
-            [yesql.util :refer [distinct-except create-root-var]]
+            [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer [expected-parameter-list rewrite-query-for-jdbc]])
   (:import [yesql.types Query]))
@@ -31,9 +31,6 @@
    (jdbc/query db sql-and-params
                :row-fn row-fn
                :result-set-fn result-set-fn)))
-
-;; (ann ^:no-check generate-query-fn
-;;   [yesql.types.Query -> (IFn [Any * -> Any])])
 
 (defn generate-query-fn
   "Generate a function to run a query.
