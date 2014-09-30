@@ -366,3 +366,8 @@ Ready to use. The API is subject to change. Feedback is welcomed.
 Copyright © 2013-2014 Kris Jenkins
 
 Distributed under the Eclipse Public License, the same as Clojure.
+
+## PS - Is Yesql An ORM?
+
+No. There are no Objects here, only Values. Yesql is a VRM. This is
+better because it's pronounced, "Vroom!"
