@@ -6,31 +6,6 @@
             [yesql.annotations])
   (:import [java.io FileNotFoundException]))
 
-(ann distinct-except
-  (All [x]
-       [[(Option x) -> Any] (Option (Seqable x)) -> (Seqable (Option x))]))
-(defn distinct-except
-  "Same as distinct, but keeps duplicates if they pass exception?"
-  [exception? coll]
-  (lazy-seq
-   (when-let [[head & tail] (seq coll)]
-     (cons head
-           (distinct-except exception?
-                            (if (exception? head)
-                              tail
-                              (remove #(= head %)
-                                      tail)))))))
-
-(ann whitespace?
-  (IFn [nil -> false]
-       [String -> Boolean]))
-(defn whitespace?
-  [string]
-  (if string
-    (boolean
-     (re-matches #"^\s*$" string))
-    false))
-
 (ann underscores-to-dashes
   (IFn [nil -> nil]
        [String -> String]))
@@ -55,14 +30,6 @@
               io/resource
               slurp)
       (throw (FileNotFoundException. path))))
-
-(defn pprint-with-meta
-  [thing]
-  (when (instance? clojure.lang.IMeta thing)
-    (print "^")
-    (pprint (meta thing))
-    (print " "))
-  (pprint thing))
 
 ;;; TODO There may well be a built-in for this. If there is, I have not found it.
 (tc-ignore
