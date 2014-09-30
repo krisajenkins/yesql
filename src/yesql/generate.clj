@@ -1,4 +1,5 @@
 (ns yesql.generate
+  {:core.typed  {:collect-only true}}
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.core.typed :as t :refer [tc-ignore]]
             [clojure.string :refer [join]]

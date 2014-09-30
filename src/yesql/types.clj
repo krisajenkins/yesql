@@ -1,4 +1,5 @@
 (ns yesql.types
+  {:core.typed  {:collect-only true}}
   (:require
     [clojure.core.typed :as t]
     [yesql.util :refer [create-root-var]]
