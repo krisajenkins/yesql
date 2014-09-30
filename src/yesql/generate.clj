@@ -2,10 +2,7 @@
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.core.typed :as t :refer [ann HMap tc-ignore Any IFn]]
             [clojure.string :refer [join]]
-            [yesql.util :refer [create-root-var]]
-            [yesql.types :refer [map->Query]]
-            [yesql.statement-parser :refer [expected-parameter-list rewrite-query-for-jdbc]])
-  (:import [yesql.types Query]))
+            [yesql.statement-parser :refer [expected-parameter-list rewrite-query-for-jdbc]]))
 
 ;; Maintainer's note: clojure.java.jdbc.execute! returns a list of
 ;; rowcounts, because it takes a list of parameter groups. In our
@@ -86,18 +83,3 @@
               ::source (str statement)}
              (when docstring
                {:doc docstring})))))
-
-(defprotocol FunctionGenerator
-  (generate-fn [this options]))
-
-(defprotocol VarGenerator
-  (generate-var [this options]))
-
-(extend-type Query
-  FunctionGenerator
-  (generate-fn [this options]
-    (generate-query-fn this options))
-  VarGenerator
-  (generate-var [this options]
-    (create-root-var (:name this)
-                     (generate-fn this options))))

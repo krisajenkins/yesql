@@ -1,6 +1,6 @@
 (ns yesql.core
   (:require [yesql.util :refer [slurp-from-classpath]]
-            [yesql.generate :refer [generate-fn generate-var]]
+            [yesql.types :as types]
             [yesql.queryfile-parser :refer [parse-tagged-queries]]))
 
 (defn defqueries
@@ -14,7 +14,7 @@
      (doall (->> filename
                  slurp-from-classpath
                  parse-tagged-queries
-                 (map #(generate-var % options))))))
+                 (map #(types/generate-var % options))))))
 
 ;;; Query is a macro solely because of the unquoted symbol it accepts
 ;;; as its first argument. It is tempting to deprecate defquery. There
@@ -27,7 +27,7 @@
               slurp-from-classpath
               (format "-- name: %s\n%s" name)
               parse-tagged-queries
-              (map #(generate-var % options)))))
+              (map #(types/generate-var % options)))))
 
 (defmacro defquery
   "Defines a query function, as defined in the given SQL file.
