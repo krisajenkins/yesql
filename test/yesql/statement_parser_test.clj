@@ -36,6 +36,10 @@
   "SELECT :value, :other_value, 5::text FROM dual"
   => ["SELECT " value ", " other_value ", 5::text FROM dual"]
 
+  ;; Newlines are preserved.
+  "SELECT :value, :other_value, 5::text\nFROM dual"
+  => ["SELECT " value ", " other_value ", 5::text\nFROM dual"]
+
   ;; Complex
   "SELECT :a+2*:b+age::int FROM users WHERE username = ? AND :b > 0"
   => ["SELECT " a "+2*" b "+age::int FROM users WHERE username = " ? " AND " b " > 0"]
