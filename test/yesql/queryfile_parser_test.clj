@@ -37,12 +37,12 @@
   :query (join "\n" ["-- name: a-query"
                      "-- This is"
                      "-- a long comment"
-                     "SELECT *"
+                     "SELECT * -- With embedded comments."
                      "FROM dual"
                      ""])
   => (map->Query {:name "a-query"
                   :docstring "This is\na long comment"
-                  :statement "SELECT *\nFROM dual"}))
+                  :statement "SELECT * -- With embedded comments.\nFROM dual"}))
 
 (expect
  [(map->Query {:name "the-time"
