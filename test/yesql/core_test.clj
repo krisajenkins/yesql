@@ -20,10 +20,6 @@
   "yesql/sample_files/mixed_parameters.sql"
   {:connection derby-db})
 
-(defquery inline-comments-query
-  "yesql/sample_files/inline_comments.sql"
-  {:connection derby-db})
-
 ;;; Test querying.
 (expect (more-> java.util.Date
                 (-> first :time))
@@ -46,11 +42,13 @@
                                 :row-fn :time}))
 
 ;;; Test comment rules.
-(expect java.util.Date
-        (:time (first (inline-comments-query derby-db))))
+(defquery inline-comments-query
+  "yesql/sample_files/inline_comments.sql"
+  {:connection derby-db})
 
-(expect "Not -- a comment"
-        (:string (first (inline-comments-query derby-db))))
+(expect (more-> java.util.Date :time
+                "Not -- a comment" :string)
+        (inline-comments-query {} {:result-set-fn first}))
 
 ;;; Test Metadata.
 (expect (more-> "Just selects the current time.\nNothing fancy." :doc
