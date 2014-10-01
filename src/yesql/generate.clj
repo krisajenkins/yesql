@@ -1,12 +1,11 @@
 (ns yesql.generate
+  {:core.typed  {:collect-only true}}
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.set :as set]
-            [clojure.core.typed :as t :refer [ann HMap tc-ignore Any IFn]]
+            [clojure.core.typed :as t :refer [tc-ignore]]
             [clojure.string :refer [join]]
             [yesql.util :refer [create-root-var]]
-            [yesql.types :refer [map->Query]]
-            [yesql.statement-parser :refer [parse-statement]])
-  (:import [yesql.types Query]))
+            [yesql.statement-parser :refer [parse-statement]]))
 
 (def in-list-parameter?
   "Check if a type triggers IN-list expansion."
@@ -148,18 +147,3 @@
               ::source (str statement)}
              (when docstring
                {:doc docstring})))))
-
-(defprotocol FunctionGenerator
-  (generate-fn [this options]))
-
-(defprotocol VarGenerator
-  (generate-var [this options]))
-
-(extend-type Query
-  FunctionGenerator
-  (generate-fn [this options]
-    (generate-query-fn this options))
-  VarGenerator
-  (generate-var [this options]
-    (create-root-var (:name this)
-                     (generate-fn this options))))
