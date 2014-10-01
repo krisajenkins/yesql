@@ -18,25 +18,25 @@
     (clojure.string/join "," (repeat (count args) "?"))
     "?"))
 
-(defn- analyse-split-query
-  [split-query]
+(defn- analyse-split-statement
+  [split-statement]
   {:expected-keys (set (map keyword (remove (partial = '?)
-                                            (filter symbol? split-query))))
+                                            (filter symbol? split-statement))))
    :expected-positional-count (count (filter (partial = '?)
-                                             split-query))})
+                                             split-statement))})
 
 (defn expected-parameter-list
   [statement]
-  (let [split-query (parse-statement statement)
-        {:keys [expected-keys expected-positional-count]} (analyse-split-query split-query)]
+  (let [split-statement (parse-statement statement)
+        {:keys [expected-keys expected-positional-count]} (analyse-split-statement split-statement)]
     (if (zero? expected-positional-count)
       expected-keys
       (conj expected-keys :?))))
 
 (defn rewrite-query-for-jdbc
   [statement initial-args]
-  (let [split-query (parse-statement statement)
-        {:keys [expected-keys expected-positional-count]} (analyse-split-query split-query)
+  (let [split-statement (parse-statement statement)
+        {:keys [expected-keys expected-positional-count]} (analyse-split-statement split-statement)
         actual-keys (set (keys (dissoc initial-args :?)))
         actual-positional-count (count (:? initial-args))
         missing-keys (set/difference expected-keys actual-keys)]
@@ -66,7 +66,7 @@
                                           (conj parameters arg))
                                         new-args])))
                   ["" [] initial-args]
-                  split-query)]
+                  split-statement)]
       (concat [final-query] final-parameters))))
 
 ;; Maintainer's note: clojure.java.jdbc.execute! returns a list of
