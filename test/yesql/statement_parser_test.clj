@@ -3,10 +3,9 @@
             [clojure.template :refer [do-template]]
             [yesql.statement-parser :refer :all]))
 
-
 (do-template [query _ split-result]
   (expect (quote split-result)
-          (split-at-parameters query))
+          (parse-statement query))
 
   ;; Simple tests
   "SELECT 1 FROM dual"                    => ["SELECT 1 FROM dual"]

@@ -20,15 +20,16 @@
    :placeholder-parameter symbol
    :named-parameter symbol})
 
-(defn split-at-parameters
-  "Turns a raw SQL query into a vector of SQL-substrings interspersed with clojure symbols for the query's parameters.
+(defn parse-statement
+  "Parse a raw SQL statement into a vector of SQL-substrings
+  interspersed with clojure symbols for the query's parameters.
 
-  For example, `(split-at-parameters \"SELECT * FROM person WHERE :age > age\")`
+  For example, `(parse-statement \"SELECT * FROM person WHERE :age > age\")`
   becomes: `[\"SELECT * FROM person WHERE \" age \" > age\"]`"
-  [query]
+  [statement]
   (process-instaparse-result
    (instaparse/transform parser-transforms
-                         (instaparse/parses parser query :start :statement))))
+                         (instaparse/parses parser statement :start :statement))))
 
 (def in-list-parameter?
   "Check if a type triggers IN-list expansion."
@@ -49,7 +50,7 @@
 
 (defn expected-parameter-list
   [statement]
-  (let [split-query (split-at-parameters statement)
+  (let [split-query (parse-statement statement)
         {:keys [expected-keys expected-positional-count]} (analyse-split-query split-query)]
     (if (zero? expected-positional-count)
       expected-keys
@@ -57,7 +58,7 @@
 
 (defn rewrite-query-for-jdbc
   [statement initial-args]
-  (let [split-query (split-at-parameters statement)
+  (let [split-query (parse-statement statement)
         {:keys [expected-keys expected-positional-count]} (analyse-split-query split-query)
         actual-keys (set (keys (dissoc initial-args :?)))
         actual-positional-count (count (:? initial-args))
