@@ -16,7 +16,6 @@
   "SELECT 'test'\nFROM dual"              => ["SELECT 'test'\nFROM dual"]
   "SELECT :value, :other_value FROM dual" => ["SELECT " value ", " other_value " FROM dual"]
 
-
   ;; Tokenization rules
   "SELECT :age-5 FROM dual"
   => ["SELECT " age "-5 FROM dual"]
@@ -35,6 +34,10 @@
   ;; Casting
   "SELECT :value, :other_value, 5::text FROM dual"
   => ["SELECT " value ", " other_value ", 5::text FROM dual"]
+
+  ;; Newlines are preserved.
+  "SELECT :value, :other_value, 5::text\nFROM dual"
+  => ["SELECT " value ", " other_value ", 5::text\nFROM dual"]
 
   ;; Complex
   "SELECT :a+2*:b+age::int FROM users WHERE username = ? AND :b > 0"
@@ -104,6 +107,12 @@
         (rewrite-query-for-jdbc "INSERT INTO json (data, source) VALUES (:data, :source)"
                                 {:source "google"
                                  :data {:a 1}}))
+
+;;; Empty IN-lists are allowed by Yesql - though most DBs will complain.
+(expect ["SELECT age FROM users WHERE country = ? AND name IN ()" "gb"]
+        (rewrite-query-for-jdbc "SELECT age FROM users WHERE country = :country AND name IN (:names)"
+                                {:country "gb"
+                                 :names []}))
 
 ;;; Incorrect parameters.
 (expect AssertionError
