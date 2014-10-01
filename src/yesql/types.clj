@@ -3,7 +3,7 @@
   (:require
     [clojure.core.typed :as t]
     [yesql.util :refer [create-root-var]]
-    [yesql.generate :as generate]))
+    [yesql.generate :as g]))
 
 (defprotocol FunctionGenerator
   (generate-fn [this options]))
@@ -18,7 +18,7 @@
   [name docstring statement]
   FunctionGenerator
   (generate-fn [this options]
-    (generate/generate-query-fn this options))
+    (g/generate-query-fn this options))
   VarGenerator
   (generate-var [this options]
     (create-root-var (:name this)
