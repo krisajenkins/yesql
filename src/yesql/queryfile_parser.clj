@@ -40,4 +40,5 @@
    (instaparse/transform parser-transforms
                          (instaparse/parses parser
                                             (str text "\n") ;;; TODO This is a workaround for files with no end-of-line marker.
-                                            :start :queries))))
+                                            :start :queries))
+   {}))

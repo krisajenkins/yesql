@@ -5,7 +5,7 @@
 
 (do-template [query _ split-result]
   (expect (quote split-result)
-          (parse-statement query))
+          (tokenize query))
 
   ;; Simple tests
   "SELECT 1 FROM dual"                    => ["SELECT 1 FROM dual"]

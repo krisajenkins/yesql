@@ -3,7 +3,8 @@
             [clojure.string :refer [join]]
             [instaparse.core :as instaparse]
             [yesql.util :refer [str-non-nil]]
-            [yesql.instaparse-util :refer [process-instaparse-result]]))
+            [yesql.instaparse-util :refer [process-instaparse-result]])
+  (:import [yesql.types Query]))
 
 (def parser
   (instaparse/parser (io/resource "yesql/statement.bnf")))
@@ -19,13 +20,25 @@
    :placeholder-parameter symbol
    :named-parameter symbol})
 
-(defn parse-statement
-  "Parse a raw SQL statement into a vector of SQL-substrings
+(defn- parse-statement
+  [statement context]
+  (process-instaparse-result
+   (instaparse/transform parser-transforms
+                         (instaparse/parses parser statement :start :statement))
+   context))
+
+(defprotocol IStatement
+  (tokenize [this]
+    "Parse a raw SQL statement into a vector of SQL-substrings
   interspersed with clojure symbols for the query's parameters.
 
   For example, `(parse-statement \"SELECT * FROM person WHERE :age > age\")`
-  becomes: `[\"SELECT * FROM person WHERE \" age \" > age\"]`"
-  [statement]
-  (process-instaparse-result
-   (instaparse/transform parser-transforms
-                         (instaparse/parses parser statement :start :statement))))
+  becomes: `[\"SELECT * FROM person WHERE \" age \" > age\"]`"))
+
+(extend-protocol IStatement
+  String
+  (tokenize [this]
+    (parse-statement this nil))
+  Query
+  (tokenize [{:keys [statement]}]
+    (parse-statement statement nil)))
