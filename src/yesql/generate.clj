@@ -5,7 +5,7 @@
             [clojure.string :refer [join]]
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
-            [yesql.statement-parser :refer [parse-statement]])
+            [yesql.statement-parser :refer [tokenize]])
   (:import [yesql.types Query]))
 
 (def in-list-parameter?
@@ -18,25 +18,25 @@
     (clojure.string/join "," (repeat (count args) "?"))
     "?"))
 
-(defn- analyse-split-statement
-  [split-statement]
+(defn- analyse-statement-tokens
+  [tokens]
   {:expected-keys (set (map keyword (remove (partial = '?)
-                                            (filter symbol? split-statement))))
+                                            (filter symbol? tokens))))
    :expected-positional-count (count (filter (partial = '?)
-                                             split-statement))})
+                                             tokens))})
 
 (defn expected-parameter-list
-  [statement]
-  (let [split-statement (parse-statement statement)
-        {:keys [expected-keys expected-positional-count]} (analyse-split-statement split-statement)]
+  [query]
+  (let [tokens (tokenize query)
+        {:keys [expected-keys expected-positional-count]} (analyse-statement-tokens tokens)]
     (if (zero? expected-positional-count)
       expected-keys
       (conj expected-keys :?))))
 
 (defn rewrite-query-for-jdbc
-  [statement initial-args]
-  (let [split-statement (parse-statement statement)
-        {:keys [expected-keys expected-positional-count]} (analyse-split-statement split-statement)
+  [query initial-args]
+  (let [tokens (tokenize query)
+        {:keys [expected-keys expected-positional-count]} (analyse-statement-tokens tokens)
         actual-keys (set (keys (dissoc initial-args :?)))
         actual-positional-count (count (:? initial-args))
         missing-keys (set/difference expected-keys actual-keys)]
@@ -66,7 +66,7 @@
                                           (conj parameters arg))
                                         new-args])))
                   ["" [] initial-args]
-                  split-statement)]
+                  tokens)]
       (concat [final-query] final-parameters))))
 
 ;; Maintainer's note: clojure.java.jdbc.execute! returns a list of
