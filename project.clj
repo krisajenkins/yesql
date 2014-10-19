@@ -6,11 +6,11 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/java.jdbc "0.3.5"]
                  [instaparse "1.3.4"]
-                 [org.clojure/core.typed.rt "0.2.68"]]
+                 [org.clojure/core.typed.rt "0.2.72"]]
   :scm {:name "git"
         :url "https://github.com/krisajenkins/yesql"}
   :profiles {:dev {:dependencies [[expectations "2.0.12"]
-                                  [org.clojure/core.typed "0.2.68"]
+                                  [org.clojure/core.typed "0.2.72"]
                                   [org.apache.derby/derby "10.11.1.1"]]
                    :plugins [[lein-autoexpect "1.2.2"]
                              [lein-typed "0.3.5"]
