@@ -28,7 +28,7 @@
     :statement (fn [& lines]
                  [:statement (trim (join lines))])
     :query (fn [& args]
-             (map->Query (apply merge {} args)))
+             (map->Query (into {} args)))
     :queries list}))
 
 (ann ^:no-check parse-tagged-queries
