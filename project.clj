@@ -25,7 +25,8 @@
                        yesql.queryfile-parser
                        yesql.statement-parser
                        yesql.types]}
-  :aliases {"test-all" ["do"
+  :aliases {"test-all" ["with-profile" "+1.5:+1.6:+1.7" "do"
+                        ["clean"]
                         ["typed" "check"]
-                        ["with-profile" "+1.5:+1.6:+1.7" "expectations"]]
+                        ["expectations"]]
             "test-ancient" ["expectations"]})
