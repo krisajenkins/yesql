@@ -16,10 +16,6 @@
                  parse-tagged-queries
                  (map #(generate-var % options))))))
 
-;;; Query is a macro solely because of the unquoted symbol it accepts
-;;; as its first argument. It is tempting to deprecate defquery. There
-;;; again, it makes things so easy to get started with yesql it might
-;;; be worth keeping for that reason alone.
 (defn defquery*
   [name filename options]
   ;;; TODO Now that we have a better parser, this is a somewhat suspicious way of writing this code.
@@ -29,6 +25,10 @@
               parse-tagged-queries
               (map #(generate-var % options)))))
 
+;;; defquery is a macro solely because of the unquoted symbol it accepts
+;;; as its first argument. It is tempting to deprecate defquery. There
+;;; again, it makes things so easy to get started with yesql it might
+;;; be worth keeping for that reason alone.
 (defmacro defquery
   "Defines a query function, as defined in the given SQL file.
   Any comments in that file will form the docstring."
