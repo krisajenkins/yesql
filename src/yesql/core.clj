@@ -1,6 +1,6 @@
 (ns yesql.core
   (:require [yesql.util :refer [slurp-from-classpath]]
-            [yesql.generate :refer [generate-fn generate-var]]
+            [yesql.generate :refer [generate-var]]
             [yesql.queryfile-parser :refer [parse-tagged-queries]]))
 
 (defn defqueries
