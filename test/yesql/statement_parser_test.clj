@@ -1,11 +1,16 @@
 (ns yesql.statement-parser-test
   (:require [expectations :refer :all]
             [clojure.template :refer [do-template]]
+            [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer :all]))
 
-(do-template [query _ split-result]
-  (expect (quote split-result)
-          (tokenize query))
+(do-template [statement _ split-result]
+  (do (expect (quote split-result)
+              (tokenize statement))
+      (expect (quote split-result)
+              (tokenize (map->Query {:name "test"
+                                     :doctstring "A test case."
+                                     :statement statement}))))
 
   ;; Simple tests
   "SELECT 1 FROM dual"                    => ["SELECT 1 FROM dual"]
