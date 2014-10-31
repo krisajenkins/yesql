@@ -48,6 +48,15 @@
   [db [statement & params]]
   (jdbc/db-do-prepared-return-keys db statement params))
 
+(defn query-handler
+  [db sql-and-params]
+  (try
+    (jdbc/query db sql-and-params)
+    (catch java.sql.SQLException e
+      (throw (ex-info "You must append a '!' to the name of INSERT/UPDATE/DELETE queries"
+                      {:sql sql-and-params}
+                      e)))))
+
 (defn- emit-query-fn
   "Emit function to run a query.
 
@@ -60,7 +69,7 @@
         jdbc-fn (cond
                  (= [\< \!] (take-last 2 name)) `insert-handler
                  (= \! (last name)) `execute-handler
-                 :else `jdbc/query)]
+                 :else `query-handler)]
     `(def ~(fn-symbol (symbol name) docstring statement display-args)
        (fn [db# ~@function-args]
          (~jdbc-fn db#
