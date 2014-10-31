@@ -2,7 +2,8 @@
   (:require [expectations :refer :all]
             [clojure.java.jdbc :as jdbc]
             [yesql.core :refer :all])
-  (:import [java.sql SQLException]))
+  (:import [java.sql SQLException]
+           [clojure.lang ExceptionInfo]))
 
 (def derby-db {:subprotocol "derby"
                :subname (gensym "memory:")
@@ -59,6 +60,12 @@
           (insert-person<! connection "Bob" 25)))
 
 (expect 2 (count (find-older-than derby-db 10)))
+
+;; Not marking executes with an exclamation mark
+(expect #"You must append a '!' to the name of INSERT/UPDATE/DELETE queries"
+        (try
+          (update-age derby-db 38 "Alice")
+          (catch ExceptionInfo e (.getMessage e))))
 
 ;; Drop
 (expect (drop-person-table! derby-db))

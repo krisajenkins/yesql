@@ -29,6 +29,11 @@ UPDATE person
 SET age = :age
 WHERE name = :name
 
+-- name: update-age
+UPDATE person
+SET age = :age
+WHERE name = :name
+
 -- name: delete-person!
 DELETE FROM person
 WHERE name = :name
