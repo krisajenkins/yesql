@@ -131,16 +131,16 @@
                                               (if (empty? required-args)
                                                 [(list []
                                                        [named-args global-args])
-                                                 (fn foo
-                                                   ([] (foo {} {}))
+                                                 (fn query-wrapper-fn
+                                                   ([] (query-wrapper-fn {} {}))
                                                    ([args call-options] (real-fn args call-options)))]
                                                 [(list [named-args]
                                                        [named-args global-args])
-                                                 (fn foo
-                                                   ([args] (foo args {}))
+                                                 (fn query-wrapper-fn
+                                                   ([args] (query-wrapper-fn args {}))
                                                    ([args call-options] (real-fn args call-options)))])
                                               [(list [named-args global-args])
-                                               (fn foo
+                                               (fn query-wrapper-fn
                                                  ([args call-options] (real-fn args call-options)))]))]
     (with-meta generated-function
       (merge {:name name
