@@ -149,17 +149,6 @@
              (when docstring
                {:doc docstring})))))
 
-(defprotocol FunctionGenerator
-  (generate-fn [this options]))
-
-(defprotocol VarGenerator
-  (generate-var [this options]))
-
-(extend-type Query
-  FunctionGenerator
-  (generate-fn [this options]
-    (generate-query-fn this options))
-  VarGenerator
-  (generate-var [this options]
-    (create-root-var (:name this)
-                     (generate-fn this options))))
+(defn generate-var [this options]
+  (create-root-var (:name this)
+                   (generate-query-fn this options)))
