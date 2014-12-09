@@ -27,18 +27,18 @@
                          (instaparse/parses parser statement :start :statement))
    context))
 
-(defprotocol IStatement
-  (tokenize [this]
-    "Parse a raw SQL statement into a vector of SQL-substrings
+(defmulti tokenize
+  "Turn a raw SQL statement into a vector of SQL-substrings
   interspersed with clojure symbols for the query's parameters.
 
   For example, `(parse-statement \"SELECT * FROM person WHERE :age > age\")`
-  becomes: `[\"SELECT * FROM person WHERE \" age \" > age\"]`"))
+  becomes: `[\"SELECT * FROM person WHERE \" age \" > age\"]`"
+  (fn [this] (type this)))
 
-(extend-protocol IStatement
-  String
-  (tokenize [this]
-    (parse-statement this nil))
-  Query
-  (tokenize [{:keys [statement]}]
-    (parse-statement statement nil)))
+(defmethod tokenize String
+  [this]
+  (parse-statement this nil))
+
+(defmethod tokenize Query
+  [{:keys [statement]}]
+  (parse-statement statement nil))
