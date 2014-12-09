@@ -2,7 +2,7 @@
   (:require [expectations :refer :all]
             [clojure.java.jdbc :as jdbc]
             [yesql.core :refer :all])
-  (:import [java.sql SQLException]))
+  (:import [java.sql SQLException SQLSyntaxErrorException SQLDataException]))
 
 (def derby-db {:subprotocol "derby"
                :subname (gensym "memory:")
@@ -70,7 +70,22 @@
                             :age 25}
                            {:connection connection} )))
 
-(expect 2 (count (find-older-than {:age 10})))
+(expect 2
+        (count (find-older-than {:age 10})))
+
+;;; Type error.
+(expect SQLDataException
+        (insert-person<! {:name 5
+                          :age "Eamonn"}
+                         {:connection derby-db}))
 
 ;; Drop
 (expect (drop-person-table!))
+
+;; Syntax error handling.
+(defquery syntax-error
+  "yesql/sample_files/syntax_error.sql"
+  {:connection derby-db})
+
+(expect SQLSyntaxErrorException
+        (syntax-error))

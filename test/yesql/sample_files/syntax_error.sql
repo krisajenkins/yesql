@@ -1,0 +1,2 @@
+SELOCT *
+FROM user;
