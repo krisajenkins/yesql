@@ -261,6 +261,7 @@ Yesql has inspired ports to other languages:
 |Go|[DotSql](https://github.com/gchaincl/dotsql)|
 |C#|[JaSql](https://bitbucket.org/rick/jasql)|
 |Ruby|[yayql](https://github.com/gnarmis/yayql)|
+|Erlang|[eql](https://github.com/artemeff/eql)|
 
 ## Development & Testing
 
