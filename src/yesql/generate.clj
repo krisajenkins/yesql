@@ -16,10 +16,9 @@
 
 (defn- analyse-statement-tokens
   [tokens]
-  {:expected-keys (set (map keyword (remove (partial = '?)
-                                            (filter symbol? tokens))))
-   :expected-positional-count (count (filter (partial = '?)
-                                             tokens))})
+  (let [args (mapv keyword (filter symbol? tokens))]
+    {:expected-keys (set (remove #{:?} args))
+     :expected-positional-count (count (filterv #{:?} args))}))
 
 (defn expected-parameter-list
   [query]
