@@ -8,13 +8,9 @@
             [yesql.statement-parser :refer [tokenize]])
   (:import [yesql.types Query]))
 
-(def in-list-parameter?
-  "Check if a type triggers IN-list expansion."
-  (some-fn list? vector? seq?))
-
 (defn- args-to-placeholders
   [args]
-  (if (in-list-parameter? args)
+  (if (sequential? args)
     (clojure.string/join "," (repeat (count args) "?"))
     "?"))
 
@@ -61,7 +57,7 @@
                                                             [(first (:? args)) (update-in args [:?] rest)]
                                                             [(get args (keyword token)) args])]
                                        [(str query (args-to-placeholders arg))
-                                        (if (in-list-parameter? arg)
+                                        (if (sequential? arg)
                                           (concat parameters arg)
                                           (conj parameters arg))
                                         new-args])))

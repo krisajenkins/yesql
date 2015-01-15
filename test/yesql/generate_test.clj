@@ -19,15 +19,6 @@
   "SELECT * FROM user WHERE user_id = :name AND country = :country AND age IN (?,?)"
   => #{:name :country :?})
 
-;;; Testing in-list-parmaeter for "IN-list" statements.
-(expect [true true true false false]
-        (map in-list-parameter?
-             (list []
-                   (list)
-                   (lazy-seq (cons 1 [2]))
-                   {:a 1}
-                   #{1 2 3})))
-
 ;;; Testing reassemble-query
 (do-template [statement parameters _ rewritten-form]
   (expect rewritten-form
