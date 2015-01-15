@@ -28,4 +28,5 @@
                         ["clean"]
                         ["typed" "check"]
                         ["expectations"]]
-            "test-ancient" ["expectations"]})
+            "test-ancient" ["expectations"]}
+  :jvm-opts ["-server" "-Xms3G"])

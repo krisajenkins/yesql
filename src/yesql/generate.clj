@@ -11,8 +11,8 @@
 (defn- args-to-placeholders
   [args]
   (if (sequential? args)
-    (clojure.string/join "," (repeat (count args) "?"))
-    "?"))
+    (join \, (map (constantly \?) args))
+    \?))
 
 (defn- analyse-statement-tokens
   [tokens]
