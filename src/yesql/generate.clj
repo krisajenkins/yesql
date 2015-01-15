@@ -3,7 +3,6 @@
             [clojure.set :as set]
             [clojure.core.typed :as t :refer [ann HMap tc-ignore Any IFn]]
             [clojure.string :refer [join]]
-            [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer [tokenize]])
   (:import [yesql.types Query]))
@@ -145,5 +144,6 @@
                {:doc docstring})))))
 
 (defn generate-var [this options]
-  (create-root-var (:name this)
-                   (generate-query-fn this options)))
+  (let [value (generate-query-fn this options)
+        name (with-meta (symbol (:name this)) (meta value))]
+    (intern *ns* name value)))

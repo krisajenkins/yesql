@@ -30,16 +30,3 @@
               io/resource
               slurp)
       (throw (FileNotFoundException. path))))
-
-;;; TODO There may well be a built-in for this. If there is, I have not found it.
-(tc-ignore
- (defn create-root-var
-  "Given a name and a value, intern a var in the current namespace, taking metadata from the value."
-  ([name value]
-     (create-root-var *ns* name value))
-
-  ([ns name value]
-     (intern *ns*
-             (with-meta (symbol name)
-               (meta value))
-             value))))
