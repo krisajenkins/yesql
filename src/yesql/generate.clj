@@ -61,9 +61,9 @@
                                                             [(first (:? args)) (update-in args [:?] rest)]
                                                             [(get args (keyword token)) args])]
                                        [(str query (args-to-placeholders arg))
-                                        (if (in-list-parameter? arg)
-                                          (concat parameters arg)
-                                          (conj parameters arg))
+                                        (vec (if (in-list-parameter? arg)
+                                               (concat parameters arg)
+                                               (conj parameters arg)))
                                         new-args])))
                   ["" [] initial-args]
                   tokens)]

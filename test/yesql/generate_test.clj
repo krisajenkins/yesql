@@ -76,7 +76,12 @@
   "SELECT age FROM users WHERE country = :country AND name IN (:names)"
   {:country "gb"
    :names []}
-  => ["SELECT age FROM users WHERE country = ? AND name IN ()" "gb"])
+  => ["SELECT age FROM users WHERE country = ? AND name IN ()" "gb"]
+
+  "SELECT * FROM users WHERE group_ids IN(:group_ids) AND parent_id = :parent_id"
+  {:group_ids [1 2]
+   :parent_id 3}
+  => ["SELECT * FROM users WHERE group_ids IN(?,?) AND parent_id = ?" 1 2 3]) 
 
 ;;; Incorrect parameters.
 (expect AssertionError
