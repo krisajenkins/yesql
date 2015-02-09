@@ -94,49 +94,38 @@
   - If the query name ends in `!` it will call `clojure.java.jdbc/execute!`,
   - If the query name ends in `<!` it will call `clojure.java.jdbc/insert!`,
   - otherwise `clojure.java.jdbc/query` will be used."
-  [{:keys [name docstring statement]
-    :as query}
-   query-options]
+  [{:keys [name docstring statement]} query-options]
   (assert name      "Query name is mandatory.")
   (assert statement "Query statement is mandatory.")
   (let [jdbc-fn (cond
-                 (= (take-last 2 name) [\< \!]) insert-handler
-                 (= (last name) \!) execute-handler
+                 (.endsWith name "<!") insert-handler
+                 (.endsWith name "!")  execute-handler
                  :else query-handler)
+        default-conn (:connection query-options)
+        query-fn (fn [args opts]
+                   (if-let [conn (or (:connection opts) default-conn)]
+                     (jdbc-fn conn (rewrite-query-for-jdbc statement args) opts)
+                     (throw
+                      (AssertionError.
+                       (str "No database connection specified to '" name "'.\n"
+                            "Options must include a :connection key associated "
+                            "with a valid clojure.java.jdbc db-spec.")))))
         required-args (expected-parameter-list statement)
-        global-connection (:connection query-options)
-        real-fn (fn [args call-options]
-                  (let [connection (or (:connection call-options)
-                                       global-connection)]
-                    (assert connection
-                            (format (join "\n"
-                                          ["No database connection supplied to function '%s',"
-                                           "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
-                                    name))
-                    (jdbc-fn connection
-                             (rewrite-query-for-jdbc statement args)
-                             call-options)))
-        [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
-                                                                                      required-args))]
-                                                             {:keys as-vec}
-                                                             {})
-                                                global-args {:keys ['connection]}]
-                                            (if global-connection
-                                              (if (empty? required-args)
-                                                [(list []
-                                                       [named-args global-args])
-                                                 (fn query-wrapper-fn
-                                                   ([] (query-wrapper-fn {} {}))
-                                                   ([args call-options] (real-fn args call-options)))]
-                                                [(list [named-args]
-                                                       [named-args global-args])
-                                                 (fn query-wrapper-fn
-                                                   ([args] (query-wrapper-fn args {}))
-                                                   ([args call-options] (real-fn args call-options)))])
-                                              [(list [named-args global-args])
-                                               (fn query-wrapper-fn
-                                                 ([args call-options] (real-fn args call-options)))]))]
-    (with-meta generated-function
+        named-args (when-not (empty? required-args)
+                     {:keys (mapv (comp symbol clojure.core/name) required-args)})
+        display-args (-> (if named-args [named-args] [])
+                         (list [(or named-args {}) {:keys ['connection]}])
+                         ((fn [args] (if default-conn args (rest args)))))
+        generated-fn (if default-conn
+                       (if (empty? required-args)
+                         (fn wrapper-fn
+                           ([] (wrapper-fn {} {}))
+                           ([args opts] (query-fn args opts)))
+                         (fn wrapper-fn
+                           ([args] (wrapper-fn args {}))
+                           ([args opts] (query-fn args opts))))
+                       (fn [args opts] (query-fn args opts)))]
+    (with-meta generated-fn
       (merge {:name name
               :arglists display-args
               ::source (str statement)}
