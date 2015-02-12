@@ -272,12 +272,14 @@ FROM dual;
 
 ;;; With processors we just get the value we want:
 (current-time {} {:result-set-fn first
-                  :row-fn :sysdate})
+                  :row-fn :sysdate
+                  :identifiers identity})
 ;=> #inst "2014-09-30T07:30:06.764000000-00:00"
 ```
 
 As with `clojure.java.jdbc` the default `:result-set-fn` is `doall`,
-and the default `:row-fn` is `identity`.
+the default `:row-fn` is `identity`, and the default `:identifiers` is
+`clojure.string/lower-case`.
 
 _A note of caution_: Remember you're often better off doing your
 processing directly in SQL. For example, if you're counting a million
