@@ -26,3 +26,26 @@
                      parse-tagged-queries)]
     `(doall [~@(for [query queries]
                  (emit-def query))])))
+
+(defmacro require-sql
+  "Require-like behavior for yesql, to prevent namespace pollution.
+   Parameter is a list of [sql-source-file-name [:as alias] [:refer [var1 var2]]]
+   At least one of :as or :refer is required
+   Usage: (require-sql [\"sql/foo.sql\" :as foo-sql :refer [some-query-fn])"
+  [[sql-file & {:keys [as refer]} :as require-args]]
+  (when-not (or as refer)
+    (throw (Exception. "Missing an :as or a :refer")))
+  (let [current-ns (ns-name *ns*)
+        ;; Keep this .sql file's defqueries in a predictable place:
+        target-ns (symbol (str "yesquire/" sql-file))]
+    `(do
+       (ns-unalias *ns* '~as)
+       (create-ns '~target-ns)
+       (in-ns '~target-ns)
+       (clojure.core/require '[yesql.core])
+       (yesql.core/defqueries ~sql-file)
+       (clojure.core/in-ns '~current-ns)
+       ~(when as
+          `(clojure.core/alias '~as '~target-ns))
+       ~(when refer
+          `(clojure.core/refer '~target-ns :only '~refer)))))
