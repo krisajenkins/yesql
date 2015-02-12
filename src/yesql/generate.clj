@@ -2,7 +2,7 @@
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.set :as set]
             [clojure.core.typed :as t :refer [ann HMap tc-ignore Any IFn]]
-            [clojure.string :refer [join]]
+            [clojure.string :refer [join lower-case]]
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer [tokenize]])
@@ -86,11 +86,13 @@
 (tc-ignore
  (defn query-handler
    [db sql-and-params
-    {:keys [row-fn result-set-fn]
-     :or {row-fn identity
+    {:keys [row-fn result-set-fn identifiers]
+     :or {identifiers lower-case
+          row-fn identity
           result-set-fn doall}
      :as call-options}]
    (jdbc/query db sql-and-params
+               :identifiers identifiers
                :row-fn row-fn
                :result-set-fn result-set-fn)))
 
