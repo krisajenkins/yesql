@@ -175,6 +175,28 @@ useful feedback while developing.
 As with `defquery`, each function will have a docstring based on the
 comments, and a sensible argument list based on the query parameters.
 
+#### Selectively import queries
+
+Similarly to `defqueries`, `require-sql` lets you create a number of
+query functions at a time, but with a syntax more like
+`clojure.core/require`.
+
+Using the `queryfile.sql` from the previous example:
+
+```clojure
+(require '[yesql.core :refer [require-sql]])
+
+; Use :as to alias the entire namespace, and :refer to refer functions
+; into the current namespace. Use one or both.
+(require-sql ["some/where/queryfile.sql" :as user :refer [user-count])
+
+(user-count)
+;=> ({:count 132})
+
+(user/users-by-country db-spec "GB")
+;=> ({:count 58})
+```
+
 ### IN-list Queries
 
 Yesql supports `IN`-style queries. Define your query with a
