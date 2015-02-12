@@ -99,3 +99,16 @@
 (expect "'can't'"
         (:word (first (quoting {}
                                {:connection derby-db}))))
+
+;;; Switch into a fresh namespace
+(ns yesql.core-test.test-require-sql
+  (:require [expectations :refer :all]
+            [yesql.core :refer :all]))
+
+(require-sql ["yesql/sample_files/combined_file.sql" :as combined])
+
+(expect var? #'combined/edge)
+
+(require-sql ["yesql/sample_files/combined_file.sql" :refer [the-time]])
+
+(expect var? #'the-time)
