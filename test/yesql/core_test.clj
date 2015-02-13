@@ -1,5 +1,6 @@
 (ns yesql.core-test
   (:require [clojure.java.jdbc :as jdbc]
+            [clojure.string :refer [upper-case]]
             [expectations :refer :all]
             [yesql.core :refer :all]))
 
@@ -37,9 +38,19 @@
                                  :? [0 0]}))
 
 ;;; Processor functions
+(expect (more-> java.util.Date :time)
+        (current-time-query {} {:result-set-fn first}))
+
+(expect (more-> java.util.Date first)
+        (current-time-query {} {:row-fn :time}))
+
+(expect (more-> java.util.Date (-> first :TIME))
+        (current-time-query {} {:identifiers upper-case}))
+
 (expect java.util.Date
         (current-time-query {} {:result-set-fn first
-                                :row-fn :time}))
+                                :identifiers clojure.string/upper-case
+                                :row-fn :TIME}))
 
 ;;; Test comment rules.
 (defquery inline-comments-query
