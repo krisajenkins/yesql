@@ -3,7 +3,7 @@
             [clojure.template :refer [do-template]]
             [yesql.generate :refer :all]))
 
-(do-template [statement _ expected-parameters]
+#_(do-template [statement _ expected-parameters]
   (expect expected-parameters
           (expected-parameter-list statement))
 

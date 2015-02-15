@@ -2,66 +2,61 @@
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.set :as set]
             [clojure.core.typed :as t :refer [ann HMap tc-ignore Any IFn]]
-            [clojure.string :refer [join]]
-            [yesql.types :refer [map->Query]]
-            [yesql.statement-parser :refer [tokenize]])
+            [clojure.string :as string :refer [join]]
+            [yesql.types :refer [map->Query]])
   (:import [yesql.types Query]))
 
-(defn- args-to-placeholders
-  [args]
-  (if (sequential? args)
-    (join \, (map (constantly \?) args))
-    \?))
-
-(defn- analyse-statement-tokens
-  [tokens]
-  (let [args (mapv keyword (filter symbol? tokens))]
-    {:expected-keys (set (remove #{:?} args))
-     :expected-positional-count (count (filterv #{:?} args))}))
-
-(defn expected-parameter-list
+(defn- parameter-list
   [query]
-  (let [tokens (tokenize query)
-        {:keys [expected-keys expected-positional-count]} (analyse-statement-tokens tokens)]
-    (if (zero? expected-positional-count)
-      expected-keys
-      (conj expected-keys :?))))
+  (->> (re-seq #"(?:\?|:[^\s,\)]+)" query)
+       (map #(if (= % "?") % (keyword (.substring % 1))))))
 
-(defn rewrite-query-for-jdbc
-  [query initial-args]
-  (let [tokens (tokenize query)
-        {:keys [expected-keys expected-positional-count]} (analyse-statement-tokens tokens)
-        actual-keys (set (keys (dissoc initial-args :?)))
-        actual-positional-count (count (:? initial-args))
-        missing-keys (set/difference expected-keys actual-keys)]
+(defn- parameter-replacements
+  [args]
+  (into {}
+    (for [[k v] (dissoc args :?)]
+      [k (if (sequential? v) (string/join \, (map (constantly \?) v)) "?")])))
+
+(defn- replace-named-args
+  [query args]
+  (replace args (parameter-list query)))
+
+(defn- replace-positional-args
+  [parameters args]
+  (loop [jdbc-args [] parameters parameters args args]
+    (if (seq args)
+      (if (= (first parameters) "?")
+        (recur (conj jdbc-args (first args)) (next parameters) (next args))
+        (recur (conj jdbc-args (first parameters)) (next parameters) args))
+      (concat jdbc-args parameters))))
+
+(defn- jdbc-args
+  [query args]
+  (let [named-args (replace-named-args query args)
+        expected-count (count (filter #{"?"} named-args))
+        actual-count (count (:? args))
+        jdbc-args (flatten (if (:? args)
+                             (replace-positional-args named-args (:? args))
+                             named-args))
+        missing-keys (filter keyword? jdbc-args)]
+    (assert (= expected-count actual-count)
+            (str "Query argument mismatch.\n"
+                 "Expected " expected-count " positional parameters. "
+                 "Got " actual-count ". "
+                 "Supply positional parameters as {:? [....]}."))
     (assert (empty? missing-keys)
-            (format "Query argument mismatch.\nExpected keys: %s\nActual keys: %s\nMissing keys: %s"
-                    (str (seq expected-keys))
-                    (str (seq actual-keys))
-                    (str (seq missing-keys))))
-    (assert (= expected-positional-count actual-positional-count)
-            (format (join "\n"
-                          ["Query argument mismatch."
-                           "Expected %d positional parameters. Got %d."
-                           "Supply positional parameters as {:? [...]}"])
-                    expected-positional-count actual-positional-count))
-    (let [[final-query final-parameters consumed-args]
-          (reduce (fn [[query parameters args] token]
-                    (cond
-                     (string? token) [(str query token)
-                                      parameters
-                                      args]
-                     (symbol? token) (let [[arg new-args] (if (= '? token)
-                                                            [(first (:? args)) (update-in args [:?] rest)]
-                                                            [(get args (keyword token)) args])]
-                                       [(str query (args-to-placeholders arg))
-                                        (if (sequential? arg)
-                                          (concat parameters arg)
-                                          (conj parameters arg))
-                                        new-args])))
-                  ["" [] initial-args]
-                  tokens)]
-      (concat [final-query] final-parameters))))
+            (str "Query argument mismatch.\n"
+                 "Missing keys: " (seq missing-keys)))
+    jdbc-args))
+
+(defn- jdbc-query
+  [query args]
+  (let [replacements (parameter-replacements args)]
+    (reduce-kv #(string/replace %1 (str %2) %3) query replacements)))
+
+(defn  rewrite-query-for-jdbc
+  [query args]
+  (concat [(jdbc-query query args)] (jdbc-args query args)))
 
 ;; Maintainer's note: clojure.java.jdbc.execute! returns a list of
 ;; rowcounts, because it takes a list of parameter groups. In our
@@ -88,6 +83,10 @@
                :row-fn row-fn
                :result-set-fn result-set-fn)))
 
+(defn- keyword->symbol
+  [kw]
+  (symbol (name kw)))
+
 (defn generate-query-fn
   "Generate a function to run a query.
 
@@ -98,10 +97,15 @@
   (assert name      "Query name is mandatory.")
   (assert statement "Query statement is mandatory.")
   (let [jdbc-fn (cond
-                 (.endsWith name "<!") insert-handler
-                 (.endsWith name "!")  execute-handler
-                 :else query-handler)
+                  (.endsWith name "<!") insert-handler
+                  (.endsWith name "!")  execute-handler
+                  :else query-handler)
         default-conn (:connection query-options)
+        required-args (mapv keyword->symbol (set (parameter-list statement)))
+        named-args (when-not (empty? required-args) {:keys required-args})
+        display-args (-> (if named-args [named-args] [])
+                         (list [(or named-args {}) {:keys ['connection]}])
+                         ((fn [args] (if default-conn args (rest args)))))
         query-fn (fn [args opts]
                    (if-let [conn (or (:connection opts) default-conn)]
                      (jdbc-fn conn (rewrite-query-for-jdbc statement args) opts)
@@ -110,21 +114,15 @@
                        (str "No database connection specified to '" name "'.\n"
                             "Options must include a :connection key associated "
                             "with a valid clojure.java.jdbc db-spec.")))))
-        required-args (expected-parameter-list statement)
-        named-args (when-not (empty? required-args)
-                     {:keys (mapv (comp symbol clojure.core/name) required-args)})
-        display-args (-> (if named-args [named-args] [])
-                         (list [(or named-args {}) {:keys ['connection]}])
-                         ((fn [args] (if default-conn args (rest args)))))
         generated-fn (if default-conn
                        (if (empty? required-args)
-                         (fn wrapper-fn
-                           ([] (wrapper-fn {} {}))
+                         (fn
+                           ([] (query-fn {} {}))
                            ([args opts] (query-fn args opts)))
-                         (fn wrapper-fn
-                           ([args] (wrapper-fn args {}))
+                         (fn
+                           ([args] (query-fn args {}))
                            ([args opts] (query-fn args opts))))
-                       (fn [args opts] (query-fn args opts)))]
+                       query-fn)]
     (with-meta generated-fn
       (merge {:name name
               :arglists display-args
