@@ -8,8 +8,8 @@
 
 (defn- parameter-list
   [query]
-  (->> (re-seq #"(?:\?|:[^\s,\)]+)" query)
-       (map #(if (= % "?") % (keyword (.substring % 1))))))
+  (let [parameters (re-seq #"(?:\?|:[^\s,\)]+)" query)]
+    (map #(if (= % "?") % (keyword (.substring % 1))) parameters)))
 
 (defn- parameter-replacements
   [args]
