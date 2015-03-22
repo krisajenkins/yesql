@@ -1,5 +1,7 @@
 # Yesql - Clojure & SQL rethought.
 
+[![Join the chat at https://gitter.im/krisajenkins/yesql](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/krisajenkins/yesql?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Yesql is a Clojure library for _using_ SQL.
 
 [![Build Status](https://travis-ci.org/krisajenkins/yesql.png?branch=travis)](https://travis-ci.org/krisajenkins/yesql)
