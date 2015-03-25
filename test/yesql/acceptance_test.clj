@@ -24,7 +24,7 @@
 
 ;; Insert -> Select.
 (expect {:1 1M} (insert-person<! derby-db "Alice" 20))
-(expect {:1 2M} (insert-person<! derby-db "Bob" 25))
+(expect {:1 2M} (insert-person<! derby-db {:name "Bob", :age 25}))
 (expect {:1 3M} (insert-person<! derby-db "Charlie" 35))
 
 (expect 3 (count (find-older-than derby-db 10)))
