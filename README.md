@@ -94,7 +94,7 @@ then you genuinely do need an abstraction layer on top of SQL.
 ## Usage
 ### One File, One Query
 
-Create an SQL query. Note we can supply named parameters and a comment string:
+Create an SQL query. Note we can supply named parameters and a comment string. The named parameters must use underscores rather than dashes:
 
 ```sql
 -- Counts the users in a given country.
