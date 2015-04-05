@@ -1,6 +1,9 @@
 statement = substatement (parameter substatement)*
 
-substatement = (( #"[^?:']+" | "::") | string)*
+substatement = (( #"[^?:']+" | "::" ) | comment | string)*
+
+comment = (whitespace? COMMENT_MARKER whitespace? (non-whitespace whitespace*)* newline)
+COMMENT_MARKER = "--"
 
 string = string-delimiter string-normal* (string-special string-normal*)* string-delimiter
 string-delimiter = "'"
@@ -13,4 +16,6 @@ placeholder-parameter = "?"
 
 named-parameter = <":"> #"[^\s,\"':&;()|=+\-*%/\\<>^]+"
 
+newline = '\n' | '\r\n'
+non-whitespace = #'\S+'
 whitespace = (' ' | '\t')+

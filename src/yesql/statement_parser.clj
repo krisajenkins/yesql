@@ -10,7 +10,8 @@
   (instaparse/parser (io/resource "yesql/statement.bnf")))
 
 (def ^:private parser-transforms
-  {:statement vector
+  {:whitespace str-non-nil
+   :statement vector
    :substatement str-non-nil
    :string str-non-nil
    :string-special str-non-nil
@@ -18,7 +19,11 @@
    :string-normal identity
    :parameter identity
    :placeholder-parameter symbol
-   :named-parameter symbol})
+   :non-whitespace str-non-nil
+   :newline identity
+   :named-parameter symbol
+   :COMMENT_MARKER identity
+   :comment str-non-nil})
 
 (defn- parse-statement
   [statement context]
