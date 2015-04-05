@@ -81,7 +81,13 @@
   "SELECT * FROM users WHERE group_ids IN(:group_ids) AND parent_id = :parent_id"
   {:group_ids [1 2]
    :parent_id 3}
-  => ["SELECT * FROM users WHERE group_ids IN(?,?) AND parent_id = ?" 1 2 3]) 
+  => ["SELECT * FROM users WHERE group_ids IN(?,?) AND parent_id = ?" 1 2 3]
+
+;;; Allow apostrophes within in-line comments 
+  "SELECT age FROM users WHERE country = :country -- '\nAND name = :name"
+  {:country "gb"
+   :name "tom"}
+  => ["SELECT age FROM users WHERE country = ? -- '\nAND name = ?" "gb" "tom"])
 
 ;;; Incorrect parameters.
 (expect AssertionError
