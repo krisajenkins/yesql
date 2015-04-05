@@ -52,7 +52,7 @@ it as the pair `[string-with-?-parameters args]`, suitable for supply to `clojur
                                  remaining-args)
      (symbol? query-head) (recur (str query-string (args-to-placehoders args-head))
                                  (if (coll? args-head)
-                                   (apply conj final-args args-head)
+                                   (concat final-args args-head)
                                    (conj final-args args-head))
                                  query-tail
                                  args-tail))))
