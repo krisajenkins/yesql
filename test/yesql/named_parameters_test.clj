@@ -53,6 +53,11 @@
         (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)")
                           ["gb" ["tom" "dick" "harry"]]))
 
+;; Empty IN parameters are allowed to pass through to database
+(expect ["SELECT age FROM users WHERE country = ? AND name IN ()" "gb"]
+        (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)")
+                          ["gb" []]))
+
 (expect AssertionError
         (reassemble-query (split-at-parameters "SELECT age FROM users WHERE country = :country AND name IN (:names)")
                           ["gb"]))

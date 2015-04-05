@@ -200,7 +200,7 @@ The query will be automatically expanded to `... IN (1001, 1003, 1005)
 ...` under the hood, and work as expected.
 
 Just remember that some databases have a limit on the number of values
-in an `IN`-list, and Yesql makes no effort to circumvent such limits.
+in an `IN`-list, and Yesql makes no effort to circumvent such limits. Yesql won't protect you from empty `IN`-lists either. `([])` will be expanded to `... IN ()`.
 
 ### Insert/Update/Delete and More
 
