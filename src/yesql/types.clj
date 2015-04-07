@@ -51,21 +51,26 @@
 (defn- emit-query-fn
   "Emit function to run a query.
 
+   - If the query name ends in `-q!`, it will call `clojure.java.jdbc/execute` and not process params,
    - If the query name ends in `!` it will call `clojure.java.jdbc/execute!`,
    - If the query name ends in `<!` it will call `clojure.java.jdbc/insert!`,
    - otherwise `clojure.java.jdbc/query` will be used."
   [{:keys [name docstring statement]}]
-  (let [split-query (split-at-parameters statement)
-        {:keys [query-args display-args function-args]} (split-query->args split-query)
-        jdbc-fn (cond
-                 (= [\< \!] (take-last 2 name)) `insert-handler
-                 (= \! (last name)) `execute-handler
-                 :else `jdbc/query)]
-    `(def ~(fn-symbol (symbol name) docstring statement display-args)
-       (fn [db# ~@function-args]
-         (~jdbc-fn db#
-                   (reassemble-query '~split-query
-                                     ~query-args))))))
+  (if (= [\- \q \!] (take-last 3 name))
+    `(def ~(fn-symbol (symbol name) docstring statement [])
+       (fn [db#] 
+         (~`execute-handler db# [~statement])))
+    (let [split-query (split-at-parameters statement)
+          {:keys [query-args display-args function-args]} (split-query->args split-query)
+          jdbc-fn (cond
+                    (= [\< \!] (take-last 2 name)) `insert-handler
+                    (= \! (last name)) `execute-handler
+                    :else `jdbc/query)]
+      `(def ~(fn-symbol (symbol name) docstring statement display-args)
+         (fn [db# ~@function-args]
+           (~jdbc-fn db#
+                     (reassemble-query '~split-query
+                                       ~query-args)))))))
 
 ;; ## Query Emitter
 (defrecord Query [name docstring statement]
