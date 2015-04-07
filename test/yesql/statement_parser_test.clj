@@ -39,6 +39,10 @@
   "SELECT :value, :other_value, 5::text FROM dual"
   => ["SELECT " value ", " other_value ", 5::text FROM dual"]
 
+  ;; Assignment
+  "DECLARE some varchar:='a value';BEGIN SELECT :value, :other_value FROM dual;END;"
+  => ["DECLARE some varchar:='a value';BEGIN SELECT " value ", " other_value " FROM dual;END;"]
+
   ;; Newlines are preserved.
   "SELECT :value, :other_value, 5::text\nFROM dual"
   => ["SELECT " value ", " other_value ", 5::text\nFROM dual"]

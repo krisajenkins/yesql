@@ -1,6 +1,6 @@
 statement = substatement (parameter substatement)*
 
-substatement = (( #"[^?:']+" | "::") | string)*
+substatement = (( #"[^?:']+" | "::" | ":=") | string)*
 
 string = string-delimiter string-normal* (string-special string-normal*)* string-delimiter
 string-delimiter = "'"
