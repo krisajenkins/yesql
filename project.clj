@@ -4,12 +4,12 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
-                 [org.clojure/java.jdbc "0.3.5"]
-                 [instaparse "1.3.4"]]
+                 [org.clojure/java.jdbc "0.3.6"]
+                 [instaparse "1.3.6"]]
   :scm {:name "git"
         :url "https://github.com/krisajenkins/yesql"}
   :profiles {:dev {:dependencies [[org.apache.derby/derby "10.11.1.1"]
-                                  [expectations "2.0.9"]]
+                                  [expectations "2.1.0"]]
                    :plugins [[lein-autoexpect "1.2.2"]
                              [lein-expectations  "0.0.7"]]}
              :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
