@@ -17,7 +17,7 @@ check, because there may be a newer version available):
 
 |Database|`:dependencies` Entry|
 |---|---|
-|PostgreSQL|`[org.postgresql/postgresql "9.3-1102-jdbc41"]`|
+|PostgreSQL|`[org.postgresql/postgresql "9.4-1201-jdbc41"]`|
 |MySQL|`[mysql/mysql-connector-java "5.1.32"]`|
 |Oracle|`[com.oracle/ojdbc14 "10.2.0.4.0"]`|
 |SQLite|`[org.xerial/sqlite-jdbc "3.7.2"]`|
