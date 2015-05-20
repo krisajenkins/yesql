@@ -1,7 +1,6 @@
 (ns yesql.generate
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.set :as set]
-            [clojure.core.typed :as t :refer [ann HMap tc-ignore Any IFn]]
             [clojure.string :refer [join lower-case]]
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
@@ -54,17 +53,17 @@
     (let [[final-query final-parameters consumed-args]
           (reduce (fn [[query parameters args] token]
                     (cond
-                     (string? token) [(str query token)
-                                      parameters
-                                      args]
-                     (symbol? token) (let [[arg new-args] (if (= '? token)
-                                                            [(first (:? args)) (update-in args [:?] rest)]
-                                                            [(get args (keyword token)) args])]
-                                       [(str query (args-to-placeholders arg))
-                                        (vec (if (in-list-parameter? arg)
-                                               (concat parameters arg)
-                                               (conj parameters arg)))
-                                        new-args])))
+                      (string? token) [(str query token)
+                                       parameters
+                                       args]
+                      (symbol? token) (let [[arg new-args] (if (= '? token)
+                                                             [(first (:? args)) (update-in args [:?] rest)]
+                                                             [(get args (keyword token)) args])]
+                                        [(str query (args-to-placeholders arg))
+                                         (vec (if (in-list-parameter? arg)
+                                                (concat parameters arg)
+                                                (conj parameters arg)))
+                                         new-args])))
                   ["" [] initial-args]
                   tokens)]
       (concat [final-query] final-parameters))))
@@ -73,28 +72,25 @@
 ;; rowcounts, because it takes a list of parameter groups. In our
 ;; case, we only ever use one group, so we'll unpack the
 ;; single-element list with `first`.
-(tc-ignore
- (defn execute-handler
-   [db sql-and-params call-options]
-   (first (jdbc/execute! db sql-and-params))))
+(defn execute-handler
+  [db sql-and-params call-options]
+  (first (jdbc/execute! db sql-and-params)))
 
-(tc-ignore
- (defn insert-handler
-   [db [statement & params] call-options]
-   (jdbc/db-do-prepared-return-keys db statement params)))
+(defn insert-handler
+  [db [statement & params] call-options]
+  (jdbc/db-do-prepared-return-keys db statement params))
 
-(tc-ignore
- (defn query-handler
-   [db sql-and-params
-    {:keys [row-fn result-set-fn identifiers]
-     :or {identifiers lower-case
-          row-fn identity
-          result-set-fn doall}
-     :as call-options}]
-   (jdbc/query db sql-and-params
-               :identifiers identifiers
-               :row-fn row-fn
-               :result-set-fn result-set-fn)))
+(defn query-handler
+  [db sql-and-params
+   {:keys [row-fn result-set-fn identifiers]
+    :or {identifiers lower-case
+         row-fn identity
+         result-set-fn doall}
+    :as call-options}]
+  (jdbc/query db sql-and-params
+              :identifiers identifiers
+              :row-fn row-fn
+              :result-set-fn result-set-fn))
 
 (defn generate-query-fn
   "Generate a function to run a query.
@@ -108,9 +104,9 @@
   (assert name      "Query name is mandatory.")
   (assert statement "Query statement is mandatory.")
   (let [jdbc-fn (cond
-                 (= (take-last 2 name) [\< \!]) insert-handler
-                 (= (last name) \!) execute-handler
-                 :else query-handler)
+                  (= (take-last 2 name) [\< \!]) insert-handler
+                  (= (last name) \!) execute-handler
+                  :else query-handler)
         required-args (expected-parameter-list statement)
         global-connection (:connection query-options)
         real-fn (fn [args call-options]

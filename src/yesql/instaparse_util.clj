@@ -1,15 +1,7 @@
 (ns yesql.instaparse-util
-  (:require [instaparse.core :as instaparse]
-            [clojure.core.typed :as t :refer [ann Seqable Option All IFn U Any HMap]]
-            [yesql.annotations])
+  (:require [instaparse.core :as instaparse])
   (:import [java.io StringWriter]))
 
-(ann ^:no-check instaparse.core/get-failure [Any -> (Option instaparse.gll.Failure)])
-(ann ^:no-check instaparse.failure/pprint-failure [instaparse.gll.Failure -> nil])
-
-(ann process-instaparse-result
-  (All [x]
-       [(Seqable x) HMap -> (Option x)]))
 (defn process-instaparse-result
   [parse-results context]
   (if-let [failure (instaparse/get-failure parse-results)]
