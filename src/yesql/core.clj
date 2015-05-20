@@ -9,12 +9,12 @@
   followed by optional comment lines (which form the docstring), followed by
   the query itself."
   ([filename]
-     (defqueries filename {}))
+   (defqueries filename {}))
   ([filename options]
-     (doall (->> filename
-                 slurp-from-classpath
-                 parse-tagged-queries
-                 (map #(generate-var % options))))))
+   (doall (->> filename
+               slurp-from-classpath
+               parse-tagged-queries
+               (map #(generate-var % options))))))
 
 (defn defquery*
   [name filename options]
@@ -33,6 +33,6 @@
   "Defines a query function, as defined in the given SQL file.
   Any comments in that file will form the docstring."
   ([name filename]
-     `(defquery ~name ~filename {}))
+   `(defquery ~name ~filename {}))
   ([name filename options]
-     `(defquery* ~(str name) ~filename ~options)))
+   `(defquery* ~(str name) ~filename ~options)))
