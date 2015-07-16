@@ -46,6 +46,20 @@
   [(var the-time) (var sums) (var edge)]
   return-value)
 
+;;; Check that a function returning the path can be passed to the defquery
+;;; and defqueries macros
+
+(defn path-to-sql [filename]
+  (clojure.string/join "/" ["yesql/sample_files" filename]))
+
+(expect
+  (defqueries (path-to-sql "combined_file.sql"))
+  (defqueries "yesql/sample_files/combined_file.sql"))
+
+(expect
+  (defquery mixed-params (path-to-sql "combined_file.sql"))
+  (defquery mixed-params "yesql/sample_files/mixed_parameters.sql"))
+
 ;;; SQL's quoting rules.
 (defquery quoting "yesql/sample_files/quoting.sql")
 

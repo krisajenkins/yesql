@@ -8,7 +8,7 @@
    Any comments in that file will form the docstring."
   [name filename]
   ;;; TODO Now that we have a better parser, this is a somewhat suspicious way of writing this code.
-  (let [query (->> filename
+  (let [query (->> (eval filename)
                    slurp-from-classpath
                    (format "-- name: %s\n%s" name)
                    parse-tagged-queries
@@ -21,7 +21,7 @@
    followed by optional comment lines (which form the docstring), followed by
    the query itself."
   [filename]
-  (let [queries (->> filename
+  (let [queries (->> (eval filename)
                      slurp-from-classpath
                      parse-tagged-queries)]
     `(doall [~@(for [query queries]
