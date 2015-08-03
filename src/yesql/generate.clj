@@ -33,9 +33,8 @@
       (conj expected-keys :?))))
 
 (defn rewrite-query-for-jdbc
-  [query initial-args]
-  (let [tokens (tokenize query)
-        {:keys [expected-keys expected-positional-count]} (analyse-statement-tokens tokens)
+  [tokens initial-args]
+  (let [{:keys [expected-keys expected-positional-count]} (analyse-statement-tokens tokens)
         actual-keys (set (keys (dissoc initial-args :?)))
         actual-positional-count (count (:? initial-args))
         missing-keys (set/difference expected-keys actual-keys)]
@@ -109,6 +108,7 @@
                   :else query-handler)
         required-args (expected-parameter-list statement)
         global-connection (:connection query-options)
+        tokens (tokenize statement)
         real-fn (fn [args call-options]
                   (let [connection (or (:connection call-options)
                                        global-connection)]
@@ -118,7 +118,7 @@
                                            "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
                                     name))
                     (jdbc-fn connection
-                             (rewrite-query-for-jdbc statement args)
+                             (rewrite-query-for-jdbc tokens args)
                              call-options)))
         [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
                                                                                       required-args))]

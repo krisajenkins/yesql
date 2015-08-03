@@ -1,6 +1,7 @@
 (ns yesql.generate-test
   (:require [expectations :refer :all]
             [clojure.template :refer [do-template]]
+            [yesql.statement-parser :refer [tokenize]]
             [yesql.generate :refer :all]))
 
 (do-template [statement _ expected-parameters]
@@ -31,7 +32,7 @@
 ;;; Testing reassemble-query
 (do-template [statement parameters _ rewritten-form]
   (expect rewritten-form
-          (rewrite-query-for-jdbc statement
+          (rewrite-query-for-jdbc (tokenize statement)
                                   parameters))
 
   "SELECT age FROM users WHERE country = :country"
@@ -85,9 +86,9 @@
 
 ;;; Incorrect parameters.
 (expect AssertionError
-        (rewrite-query-for-jdbc "SELECT age FROM users WHERE country = :country AND name = :name"
+        (rewrite-query-for-jdbc (tokenize "SELECT age FROM users WHERE country = :country AND name = :name")
                                 {:country "gb"}))
 
 (expect AssertionError
-        (rewrite-query-for-jdbc "SELECT age FROM users WHERE country = ? AND name = ?"
+        (rewrite-query-for-jdbc (tokenize "SELECT age FROM users WHERE country = ? AND name = ?")
                                 {}))
