@@ -2,6 +2,7 @@
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.set :as set]
             [clojure.string :refer [join lower-case]]
+            [clojure.core.memoize :as memoize]
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer [tokenize]])
@@ -91,12 +92,22 @@
               :row-fn row-fn
               :result-set-fn result-set-fn))
 
+(defn- with-caching
+  "Wraps a database query function with caching"
+  [f]
+  (let [ttl 60000] ; time to keep results cached in milliseconds
+    (memoize/ttl f :ttl/threshold ttl)))
+
 (defn generate-query-fn
   "Generate a function to run a query.
 
   - If the query name ends in `!` it will call `clojure.java.jdbc/execute!`,
   - If the query name ends in `<!` it will call `clojure.java.jdbc/insert!`,
-  - otherwise `clojure.java.jdbc/query` will be used."
+  - If the query name ends in `$` will use `clojure.java.jdbc/query` with
+    caching. WARNING: Do not use this for queries that require up-to-the-second
+    data or queries that modify the database.
+  - otherwise `clojure.java.jdbc/query` will be used.
+  "
   [{:keys [name docstring statement]
     :as query}
    query-options]
@@ -109,17 +120,19 @@
         required-args (expected-parameter-list statement)
         global-connection (:connection query-options)
         tokens (tokenize statement)
-        real-fn (fn [args call-options]
-                  (let [connection (or (:connection call-options)
-                                       global-connection)]
-                    (assert connection
-                            (format (join "\n"
-                                          ["No database connection supplied to function '%s',"
-                                           "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
-                                    name))
-                    (jdbc-fn connection
-                             (rewrite-query-for-jdbc tokens args)
-                             call-options)))
+        cache-wrapper (if (= (last name) \$) with-caching identity)
+        real-fn (cache-wrapper
+                  (fn [args call-options]
+                    (let [connection (or (:connection call-options)
+                                         global-connection)]
+                      (assert connection
+                              (format (join "\n"
+                                            ["No database connection supplied to function '%s',"
+                                             "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
+                                      name))
+                      (jdbc-fn connection
+                               (rewrite-query-for-jdbc tokens args)
+                               call-options))))
         [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
                                                                                       required-args))]
                                                              {:keys as-vec}
