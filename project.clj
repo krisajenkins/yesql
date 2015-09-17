@@ -5,7 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/java.jdbc "0.3.7"]
-                 [instaparse "1.4.1"]]
+                 [instaparse "1.4.1"]
+                 [org.clojure/core.memoize "0.5.6"]]
   :scm {:name "git"
         :url "https://github.com/krisajenkins/yesql"}
   :profiles {:dev {:dependencies [[expectations "2.1.2"]
