@@ -1,4 +1,4 @@
-(defproject yesql "0.5.0-rc4"
+(defproject org.clojars.seivadmas.yesql "0.5.0-rc4-sam-memoization-SNAPSHOT"
   :description "A Clojure library for using SQL"
   :url "https://github.com/krisajenkins/yesql"
   :license {:name "Eclipse Public License"
@@ -8,7 +8,7 @@
                  [instaparse "1.4.1"]
                  [org.clojure/core.memoize "0.5.6"]]
   :scm {:name "git"
-        :url "https://github.com/krisajenkins/yesql"}
+        :url "https://github.com/samphilipd/yesql"}
   :profiles {:dev {:dependencies [[expectations "2.1.2"]
                                   [org.apache.derby/derby "10.11.1.1"]]
                    :plugins [[lein-autoexpect "1.4.0"]
