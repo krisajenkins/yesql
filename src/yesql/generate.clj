@@ -108,16 +108,16 @@
     data or queries that modify the database.
   - otherwise `clojure.java.jdbc/query` will be used.
   "
-  [{:keys [name docstring statement]
-    :as query}
-   query-options]
+  ([{:keys [name] :as query} query-options]
+    (generate-query-fn query query-options
+      (cond
+        (= (take-last 2 name) [\< \!]) insert-handler
+        (= (last name) \!) execute-handler
+        :else query-handler)))
+  ([{:keys [name docstring statement] :as query} query-options jdbc-fn]
   (assert name      "Query name is mandatory.")
   (assert statement "Query statement is mandatory.")
-  (let [jdbc-fn (cond
-                  (= (take-last 2 name) [\< \!]) insert-handler
-                  (= (last name) \!) execute-handler
-                  :else query-handler)
-        required-args (expected-parameter-list statement)
+  (let [required-args (expected-parameter-list statement)
         global-connection (:connection query-options)
         tokens (tokenize statement)
         cache-wrapper (if (= (last name) \$) with-caching identity)
@@ -158,8 +158,18 @@
               :arglists display-args
               ::source (str statement)}
              (when docstring
-               {:doc docstring})))))
+               {:doc docstring}))))))
+
+(defn args-as-vector
+  "Returns a vector of arguments as would be passed to jdbc"
+  [& args]
+  (vec args))
 
 (defn generate-var [this options]
   (create-root-var (:name this)
-                   (generate-query-fn this options)))
+                   (generate-query-fn this options))
+  ; for every query method with name, add a corresponding name-raw method that
+  ; when called returns the params we would have used to call JDBC with, but
+  ; does not actually perform the query
+  (create-root-var (str (:name this) "-raw")
+                   (generate-query-fn this options args-as-vector)))
