@@ -358,6 +358,7 @@ Yesql has inspired ports to other languages:
 |Python|[Anosql](https://github.com/honza/anosql)|
 |Go|[DotSql](https://github.com/gchaincl/dotsql)|
 |C#|[JaSql](https://bitbucket.org/rick/jasql)|
+|Clojure|[YeSPARQL](https://github.com/joelkuiper/yesparql)|
 
 ## Status
 
