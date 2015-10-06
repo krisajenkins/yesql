@@ -60,12 +60,28 @@
         jdbc-fn (cond
                  (= [\< \!] (take-last 2 name)) `insert-handler
                  (= \! (last name)) `execute-handler
-                 :else `jdbc/query)]
-    `(def ~(fn-symbol (symbol name) docstring statement display-args)
-       (fn [db# ~@function-args]
-         (~jdbc-fn db#
-                   (reassemble-query '~split-query
-                                     ~query-args))))))
+                 :else `jdbc/query)
+        keys (mapv #(keyword %) display-args)]
+    (if (= (count function-args) 1)
+      `(def ~(fn-symbol (symbol name) docstring statement display-args)
+         (fn [db# ~@function-args]
+           (if (map? ~@function-args)
+             (~jdbc-fn db#
+               (reassemble-query '~split-query
+                                 (mapv (fn [a#] (get ~(first function-args) a#) ) ~keys)))
+             (~jdbc-fn db#
+               (reassemble-query '~split-query
+                                 ~query-args)))))
+      `(def ~(fn-symbol (symbol name) docstring statement display-args)
+         (fn
+           ([db# r#]
+             (~jdbc-fn db#
+               (reassemble-query '~split-query
+                                 (mapv (fn [a#] (get r# a#) ) ~keys))))
+           ([db# ~@function-args]
+             (~jdbc-fn db#
+               (reassemble-query '~split-query
+                                 ~query-args))))))))
 
 ;; ## Query Emitter
 (defrecord Query [name docstring statement]
