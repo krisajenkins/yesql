@@ -105,7 +105,9 @@ then you genuinely do need an abstraction layer on top of SQL.
 ## Usage
 ### One File, One Query
 
-Create an SQL query. Note we can supply named parameters and a comment string:
+Create an SQL query. Note we can supply named parameters ([in
+`snake_case`](https://github.com/krisajenkins/yesql/issues/0))
+and a comment string:
 
 ```sql
 -- Counts the users in a given country.
