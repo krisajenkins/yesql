@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/java.jdbc "0.3.7"]
                  [instaparse "1.4.1"]]
+  :pedantic? :abort
   :scm {:name "git"
         :url "https://github.com/krisajenkins/yesql"}
   :profiles {:dev {:dependencies [[expectations "2.1.2"]
