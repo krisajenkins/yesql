@@ -1,54 +1,36 @@
 (ns yesql.util
   (:require [clojure.java.io :as io]
-            [instaparse.core :as instaparse])
-  (:import (java.io FileNotFoundException StringWriter)))
-
-(defn distinct-except
-  "Same as distinct, but keeps duplicates from the exceptions set."
-  [coll exceptions]
-  {:pre [(coll? coll)
-         (set? exceptions)]}
-  (let [step (fn step [xs seen]
-               (lazy-seq
-                ((fn [[f :as xs] seen]
-                   (when-let [s (seq xs)]
-                     (if (and (contains? seen f)
-                              (not (exceptions f)))
-                       (recur (rest s) seen)
-                       (cons f (step (rest s) (conj seen f))))))
-                 xs seen)))]
-    (step coll #{})))
-
-(defn whitespace?
-  [string]
-  (boolean
-   (re-matches #"^\s*$" string)))
+            [clojure.string :as string]
+            [clojure.pprint :refer [pprint]])
+  (:import [java.io FileNotFoundException]))
 
 (defn underscores-to-dashes
   [string]
-  (clojure.string/replace string "_" "-"))
+  (when string
+    (string/replace string "_" "-")))
 
 (defn str-non-nil
   "Exactly like `clojure.core/str`, except it returns an empty string
-   with no args (whereas `str` would return `nil`)."
+  with no args (whereas `str` would return `nil`)."
   [& args]
   (apply str "" args))
 
 (defn slurp-from-classpath
   "Slurps a file from the classpath."
   [path]
-  (if-let [url (io/resource path)]
-    (slurp url)
-    (throw (FileNotFoundException. path))))
+  (or (some-> path
+              io/resource
+              slurp)
+      (throw (FileNotFoundException. path))))
 
-(defn process-instaparse-result
-  [parsed]
-  (cond
-   (instaparse/failure? parsed) (let [failure (instaparse/get-failure parsed)]
-                                  (binding [*out* (StringWriter.)]
-                                    (instaparse.failure/pprint-failure failure)
-                                    (throw (ex-info (.toString *out*)
-                                                    failure))))
-   (< 1 (count parsed)) (throw (ex-info "Ambiguous parse - please report this as a bug at https://github.com/krisajenkins/yesql/issues"
-                                        {:variations (count parsed)}))
-   :else (first parsed)))
+;;; TODO There may well be a built-in for this. If there is, I have not found it.
+(defn create-root-var
+  "Given a name and a value, intern a var in the current namespace, taking metadata from the value."
+  ([name value]
+   (create-root-var *ns* name value))
+
+  ([ns name value]
+   (intern *ns*
+           (with-meta (symbol name)
+             (meta value))
+           value)))

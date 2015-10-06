@@ -1,12 +1,15 @@
-(ns yesql.parser
+(ns yesql.queryfile-parser
   (:require [clojure.java.io :as io]
             [clojure.string :refer [join trim]]
             [instaparse.core :as instaparse]
             [yesql.types :refer [map->Query]]
-            [yesql.util :refer [process-instaparse-result str-non-nil]]))
+            [yesql.util :refer [str-non-nil]]
+            [yesql.instaparse-util :refer [process-instaparse-result]]))
 
 (def parser
-  (instaparse/parser (io/resource "yesql/defqueries.bnf")))
+  (let [url (io/resource "yesql/queryfile.bnf")]
+    (assert url)
+    (instaparse/parser url)))
 
 (def parser-transforms
   {:whitespace str-non-nil
@@ -21,14 +24,15 @@
    :statement (fn [& lines]
                 [:statement (trim (join lines))])
    :query (fn [& args]
-            (map->Query (apply merge {} args)))
+            (map->Query (into {} args)))
    :queries list})
 
 (defn parse-tagged-queries
-  "Parses a string with Yesql's defqueries syntax into a sequence of `yesql.types.Query` records."
+  "Parses a string with Yesql's defqueries syntax into a sequence of maps."
   [text]
   (process-instaparse-result
    (instaparse/transform parser-transforms
                          (instaparse/parses parser
                                             (str text "\n") ;;; TODO This is a workaround for files with no end-of-line marker.
-                                            :start :queries))))
+                                            :start :queries))
+   {}))

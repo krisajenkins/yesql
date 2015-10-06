@@ -1,9 +1,9 @@
-(ns yesql.parser-test
+(ns yesql.queryfile-parser-test
   (:require [clojure.string :refer [join]]
             [clojure.template :refer [do-template]]
             [expectations :refer :all]
             [instaparse.core :as instaparse]
-            [yesql.parser :refer :all]
+            [yesql.queryfile-parser :refer :all]
             [yesql.types :refer [map->Query]]
             [yesql.util :refer [slurp-from-classpath]])
   (:import [clojure.lang ExceptionInfo]))
@@ -37,12 +37,12 @@
   :query (join "\n" ["-- name: a-query"
                      "-- This is"
                      "-- a long comment"
-                     "SELECT *"
+                     "SELECT * -- With embedded comments."
                      "FROM dual"
                      ""])
   => (map->Query {:name "a-query"
                   :docstring "This is\na long comment"
-                  :statement "SELECT *\nFROM dual"}))
+                  :statement "SELECT * -- With embedded comments.\nFROM dual"}))
 
 (expect
  [(map->Query {:name "the-time"
@@ -71,3 +71,9 @@
         (try
           (parse-tagged-queries (slurp-from-classpath "yesql/sample_files/tagged_two_names.sql"))
           (catch ExceptionInfo e (.getMessage e))))
+
+;;; Parsing edge cases.
+
+(expect ["this-has-trailing-whitespace"]
+        (map :name
+             (parse-tagged-queries (slurp-from-classpath "yesql/sample_files/parser_edge_cases.sql"))))
