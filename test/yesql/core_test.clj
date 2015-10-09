@@ -52,6 +52,13 @@
                                 :identifiers clojure.string/upper-case
                                 :row-fn :TIME}))
 
+;;; Check that :as-arrays? option returns a seq of ordered vectors instead of unordered maps
+(expect [:time] (current-time-query {} {:result-set-fn first
+                                        :as-arrays? true}))
+
+(expect java.util.Date (first (current-time-query {} {:result-set-fn second
+                                                      :as-arrays? true})))
+
 ;;; Test comment rules.
 (defquery inline-comments-query
   "yesql/sample_files/inline_comments.sql"

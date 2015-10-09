@@ -81,7 +81,7 @@
 
 (defn query-handler
   [db sql-and-params
-   {:keys [row-fn result-set-fn identifiers]
+   {:keys [row-fn result-set-fn identifiers as-arrays?]
     :or {identifiers lower-case
          row-fn identity
          result-set-fn doall}
@@ -89,7 +89,8 @@
   (jdbc/query db sql-and-params
               :identifiers identifiers
               :row-fn row-fn
-              :result-set-fn result-set-fn))
+              :result-set-fn result-set-fn
+              :as-arrays? as-arrays?))
 
 (defn generate-query-fn
   "Generate a function to run a query.
