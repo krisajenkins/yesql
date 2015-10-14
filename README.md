@@ -197,7 +197,7 @@ comments, and a parameter map based on the SQL parameters.
 
 #### Making a Query Map
 
-There is also a way to read SQL queries from a file and without binding them directly to the namespace.
+There is also a way to read SQL queries from a file without binding them directly to the namespace.
 For example to use them in local scopes, i.e. let bindings, pass them arround as variables, etc.
 
 ```clojure
