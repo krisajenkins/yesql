@@ -100,6 +100,25 @@
         (:word (first (quoting {}
                                {:connection derby-db}))))
 
+;;; Making queries for use in local scopes
+
+(def mq (make-queries "yesql/sample_files/acceptance_test_combined.sql" 
+                      {:connection derby-db}))
+
+(expect-let [{:keys [create-person-table!
+                     insert-person<!
+                     find-by-age
+                     drop-person-table!]} mq]
+  [(create-person-table!) 
+   (insert-person<! {:name "Leeloo" :age 24}) 
+   (find-by-age {:age 24})
+   (drop-person-table!)]
+
+  [0 
+   {:1 1M} 
+   '({:name "Leeloo" :age 24 :person_id 1})
+   0])
+
 ;;; Switch into a fresh namespace
 (ns yesql.core-test.test-require-sql
   (:require [expectations :refer :all]

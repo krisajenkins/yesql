@@ -195,6 +195,31 @@ useful feedback while developing.
 As with `defquery`, each function will have a docstring based on the
 comments, and a parameter map based on the SQL parameters.
 
+#### Making a Query Map
+
+There is also a way to read SQL queries from a file and without binding them directly to the namespace.
+For example to use them in local scopes, i.e. let bindings, pass them arround as variables, etc.
+
+```clojure
+(require '[yesql.core :refer [make-queries]])
+(make-queries "some/where/queryfile.sql"
+              {:connection db-spec})
+```
+
+`make-queries` returns a map with query names as keys and query functions as values. Here is an example:
+
+```clojure
+(let [{:keys [insert-person<! 
+              find-by-age
+              create-person-table!]} (make-queries "some/where/queryfile.sql" 
+                                                   {:connection db-spec})] 
+  (create-person-table!)
+  (insert-person<! {:name "Leeloo" :age 23.998})
+  (find-by-age {:age 23.998}))
+
+;=> ({:age 23.998, :name "Leeloo", :person_id 1})
+```
+
 ### ? Parameters
 
 Yesql supports named parameters, and `?`-style positional

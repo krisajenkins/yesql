@@ -1,6 +1,6 @@
 (ns yesql.core
   (:require [yesql.util :refer [slurp-from-classpath]]
-            [yesql.generate :refer [generate-var]]
+            [yesql.generate :refer [generate-var generate-query-fn]]
             [yesql.queryfile-parser :refer [parse-tagged-queries]]))
 
 (defn defqueries
@@ -59,3 +59,19 @@
           `(clojure.core/alias '~as '~target-ns))
        ~(when refer
           `(clojure.core/refer '~target-ns :only '~refer)))))
+
+(defn make-queries
+  "Makes several query functions, as defined in the given SQL file.
+  Each query in the file must begin with a `-- name: <function-name>` marker,
+  followed by optional comment lines (which form the docstring), followed by
+  the query itself.
+  Returns a map with query names as keys and query functions as values."
+  ([filename]
+     (make-queries filename {}))
+  ([filename options]
+     (doall (->> filename
+                 slurp-from-classpath
+                 parse-tagged-queries
+                 (reduce (fn [m {:keys [name] :as q}]
+                           (assoc m (keyword name)
+                                  (generate-query-fn q options))) {})))))
