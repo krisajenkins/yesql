@@ -1,6 +1,6 @@
 (ns yesql.queryfile-parser
   (:require [clojure.java.io :as io]
-            [clojure.string :refer [join trim]]
+            [clojure.string :as str :refer [join trim]]
             [instaparse.core :as instaparse]
             [yesql.types :refer [map->Query]]
             [yesql.util :refer [str-non-nil]]
@@ -10,6 +10,9 @@
   (let [url (io/resource "yesql/queryfile.bnf")]
     (assert url)
     (instaparse/parser url)))
+
+(defn- rm-semicolon [s]
+  (str/replace s #";$" ""))
 
 (def parser-transforms
   {:whitespace str-non-nil
@@ -22,7 +25,7 @@
    :docstring (fn [& comments]
                 [:docstring (trim (join (map second comments)))])
    :statement (fn [& lines]
-                [:statement (trim (join lines))])
+                [:statement (rm-semicolon (trim (join lines)))])
    :query (fn [& args]
             (map->Query (into {} args)))
    :queries list})
