@@ -378,6 +378,7 @@ Yesql has inspired ports to other languages:
 |JavaScript|[sqlt](https://github.com/eugeneware/sqlt)|
 |Python|[Anosql](https://github.com/honza/anosql)|
 |Go|[DotSql](https://github.com/gchaincl/dotsql)|
+|Go|[goyesql](https://github.com/nleof/goyesql)|
 |C#|[JaSql](https://bitbucket.org/rick/jasql)|
 |Ruby|[yayql](https://github.com/gnarmis/yayql)|
 |Erlang|[eql](https://github.com/artemeff/eql)|
