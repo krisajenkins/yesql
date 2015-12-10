@@ -113,7 +113,7 @@ and a comment string:
 -- Counts the users in a given country.
 SELECT count(*) AS count
 FROM user
-WHERE country_code = :country_code
+WHERE country_code = :country
 ```
 
 Make sure it's on the classpath. For this example, it's in
@@ -141,8 +141,8 @@ in the REPL:
 
 ;=> -------------------------
 ;=> user/users-by-country
-;=> ([{:keys [country_code]}] 
-;=>  [{:keys [country_code]} {:keys [connection]}])
+;=> ([{:keys [country]}] 
+;=>  [{:keys [country]} {:keys [connection]}])
 ;=>
 ;=>   Counts the users in a given country.
 ```
@@ -173,7 +173,7 @@ single SQL file. The file format is: `(<name tag> [docstring comments]
 -- Counts the users in a given country.
 SELECT count(*) AS count
 FROM user
-WHERE country_code = :country_code
+WHERE country_code = :country
 
 -- name: user-count
 -- Counts all the users.
@@ -237,7 +237,8 @@ Using the `queryfile.sql` from the previous example:
 (user-count)
 ;=> ({:count 132})
 
-(user/users-by-country db-spec "GB")
+#_(user/users-by-country db-spec "GB")  ; orig
+(user/users-by-country db-spec {:country "GB"})  ; should it be this one?
 ;=> ({:count 58})
 ```
 
