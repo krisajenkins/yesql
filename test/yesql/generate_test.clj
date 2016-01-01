@@ -73,11 +73,11 @@
    :data {:a 1}}
   => ["INSERT INTO json (data, source) VALUES (?, ?)" {:a 1} "google"]
 
-;;; Empty IN-lists are allowed by Yesql - though most DBs will complain.
+;;; Empty IN-lists are allowed by Yesql: They will be expanded into NULL
   "SELECT age FROM users WHERE country = :country AND name IN (:names)"
   {:country "gb"
    :names []}
-  => ["SELECT age FROM users WHERE country = ? AND name IN ()" "gb"]
+  => ["SELECT age FROM users WHERE country = ? AND name IN (NULL)" "gb"]
 
   "SELECT * FROM users WHERE group_ids IN(:group_ids) AND parent_id = :parent_id"
   {:group_ids [1 2]

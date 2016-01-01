@@ -13,9 +13,15 @@
 
 (defn- args-to-placeholders
   [args]
-  (if (in-list-parameter? args)
-    (clojure.string/join "," (repeat (count args) "?"))
-    "?"))
+  ;; First clause is a workaround to get [] () and nil to work the same in a
+  ;; query. It has the additional benefit that empty arguments to IN-clauses
+  ;; always expands into "IN (NULL)", and according to the SQL spec this will
+  ;; never match anything.
+  (cond (and (in-list-parameter? args) (empty? args))
+          "NULL"
+        (in-list-parameter? args)
+          (clojure.string/join "," (repeat (count args) "?"))
+        :else "?"))
 
 (defn- analyse-statement-tokens
   [tokens]
