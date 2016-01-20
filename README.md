@@ -390,7 +390,7 @@ Ready to use. The API is subject to change. Feedback is welcomed.
 
 ## License
 
-Copyright © 2013-2015 Kris Jenkins
+Copyright © 2013-2016 Kris Jenkins
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
