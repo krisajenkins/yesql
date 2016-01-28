@@ -48,4 +48,7 @@
   => ["SELECT " a "+2*" b "+age::int FROM users WHERE username = " ? " AND " b " > 0"]
 
   "SELECT :value1 + ? + value2 + ? + :value1\nFROM SYSIBM.SYSDUMMY1"
-  => ["SELECT " value1 " + " ? " + value2 + " ? " + " value1 "\nFROM SYSIBM.SYSDUMMY1"])
+  => ["SELECT " value1 " + " ? " + value2 + " ? " + " value1 "\nFROM SYSIBM.SYSDUMMY1"]
+
+  "SELECT ARRAY [:value1] FROM dual"
+  => ["SELECT ARRAY [" value1 "] FROM dual"])
