@@ -65,7 +65,7 @@ query:
 -- name: users-by-country
 SELECT *
 FROM users
-WHERE country_code = :country
+WHERE country_code = :country_code
 ```
 
 ...and then read that file to turn it into a regular Clojure function:
@@ -76,8 +76,8 @@ WHERE country_code = :country
 
 ;;; A function with the name `users-by-country` has been created.
 ;;; Let's use it:
-(users-by-country {:country "GB"})
-;=> ({:name "Kris" :country "GB" ...} ...)
+(users-by-country {:country_code "GB"})
+;=> ({:name "Kris" :country_code "GB" ...} ...)
 ```
 
 By keeping the SQL and Clojure separate you get:
@@ -141,7 +141,7 @@ in the REPL:
 
 ;=> -------------------------
 ;=> user/users-by-country
-;=> ([{:keys [country_code]}] 
+;=> ([{:keys [country_code]}]
 ;=>  [{:keys [country_code]} {:keys [connection]}])
 ;=>
 ;=>   Counts the users in a given country.
@@ -151,15 +151,15 @@ Now we can use it:
 
 ```clojure
 ; Use it standalone.
-(users-by-country {:country "GB"})
+(users-by-country {:country_code "GB"})
 ;=> ({:count 58})
 
 ; Use it in a clojure.java.jdbc transaction.
 (require '[clojure.java.jdbc :as jdbc])
 
 (jdbc/with-db-transaction [tx db-spec]
-   {:limeys (users-by-country {:country "GB"} {:connection tx})
-    :yanks  (users-by-country {:country "US"} {:connection tx})})
+   {:limeys (users-by-country {:country_code "GB"} {:connection tx})
+    :yanks  (users-by-country {:country_code "US"} {:connection tx})})
 ```
 
 ### One File, Many Queries
