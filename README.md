@@ -209,14 +209,14 @@ WHERE (
   OR
   country_code = ?
 )
-AND age < :maxage
+AND age < :max_age
 ```
 
 Supply the `?` parameters as a vector under the `:?` key, like so:
 
 ```clojure
 (young-users-by-country {:? ["GB" "US"]
-                         :maxage 18})
+                         :max_age 18})
 ```
 
 #### Selectively import queries
