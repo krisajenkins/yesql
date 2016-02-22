@@ -262,7 +262,7 @@ And then supply the `IN`-list as a vector, like so:
    {:connection db-spec})
 
 (find-users {:id [1001 1003 1005]
-             :maxage 18})
+             :min_age 18})
 ```
 
 The query will be automatically expanded to `... IN (1001, 1003, 1005)
