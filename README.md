@@ -21,6 +21,7 @@ check, because there may be a newer version available):
 |Oracle|`[com.oracle/ojdbc14 "10.2.0.4.0"]`|
 |SQLite|`[org.xerial/sqlite-jdbc "3.7.2"]`|
 |Derby|`[org.apache.derby/derby "10.11.1.1"]`|
+|h2|`[com.h2database/h2 "1.4.191"]`|
 
 (Any database with a JDBC driver should work. If you know of a driver
 that's not listed here, please open a pull request to update this
