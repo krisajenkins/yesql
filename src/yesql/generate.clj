@@ -125,7 +125,6 @@
                     (jdbc-fn connection
                              tokens
                              args
-                             ;(rewrite-query-for-jdbc tokens args)
                              call-options)))
         [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
                                                                                       required-args))]
