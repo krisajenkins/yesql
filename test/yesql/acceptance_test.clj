@@ -29,7 +29,7 @@
 (expect (list {:1 1M}) (insert-person<! {:name "Alice" :age 20}))
 (expect (list {:1 2M}) (insert-person<! {:name "Bob" :age 25}))
 (expect (list {:1 3M}) (insert-person<! {:name "Charlie" :age 35}))
-(expect (list {:1 4M}) (insert-person<! [{:name "Pepper" :age 50} {:name "Tony" :age 55}]))
+(expect (list {:1 4M} {:1 5M}) (insert-person<! [{:name "Pepper" :age 50} {:name "Tony" :age 55}]))
 
 (expect 5 (count (find-older-than {:age 10})))
 (expect 3 (count (find-older-than {:age 30})))
