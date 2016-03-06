@@ -1,7 +1,7 @@
 (ns yesql.generate
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.set :as set]
-            [clojure.string :refer [join lower-case]]
+            [clojure.string :refer [join lower-case split]]
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer [tokenize]])
@@ -72,21 +72,26 @@
 ;; case, we only ever use one group, so we'll unpack the
 ;; single-element list with `first`.
 (defn execute-handler
-  [db sql-and-params call-options]
-  (first (jdbc/execute! db sql-and-params)))
+  [db sql params call-options]
+  (first (jdbc/execute! db (rewrite-query-for-jdbc sql params))))
 
 (defn insert-handler
-  [db [statement & params] call-options]
-  (jdbc/db-do-prepared-return-keys db statement params))
+  [db sql params call-options]
+  (let [table-string-position 0
+        table-position        2
+        table-keyword         (keyword ((split (sql table-string-position) #" ") table-position))]
+    (if (vector? params)
+      (apply jdbc/insert! db table-keyword params)
+      (jdbc/insert! db table-keyword params))))
 
 (defn query-handler
-  [db sql-and-params
+  [db sql params
    {:keys [row-fn result-set-fn identifiers]
     :or {identifiers lower-case
          row-fn identity
          result-set-fn doall}
     :as call-options}]
-  (jdbc/query db sql-and-params
+  (jdbc/query db (rewrite-query-for-jdbc sql params)
               :identifiers identifiers
               :row-fn row-fn
               :result-set-fn result-set-fn))
@@ -118,7 +123,9 @@
                                            "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
                                     name))
                     (jdbc-fn connection
-                             (rewrite-query-for-jdbc tokens args)
+                             tokens
+                             args
+                             ;(rewrite-query-for-jdbc tokens args)
                              call-options)))
         [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
                                                                                       required-args))]
