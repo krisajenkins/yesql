@@ -77,12 +77,13 @@
 
 (defn insert-handler
   [db sql params call-options]
-  (let [table-string-position 0
-        table-position        2
-        table-keyword         (keyword ((split (sql table-string-position) #" ") table-position))]
-    (if (vector? params)
-      (apply jdbc/insert! db table-keyword params)
-      (jdbc/insert! db table-keyword params))))
+  (if (vector? params)
+    (let [table-string-position 0
+          table-position        2
+          table-keyword         (keyword ((split (sql table-string-position) #" ") table-position))]
+      (apply jdbc/insert! db table-keyword params))
+    (let [[rewritten-sql & rewritten-params] (rewrite-query-for-jdbc sql params)]
+      (jdbc/db-do-prepared-return-keys db rewritten-sql rewritten-params))))
 
 (defn query-handler
   [db sql params
