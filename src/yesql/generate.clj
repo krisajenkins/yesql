@@ -1,7 +1,7 @@
 (ns yesql.generate
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.set :as set]
-            [clojure.string :refer [join lower-case trim]]
+            [clojure.string :refer [join lower-case]]
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer [tokenize insert-table-name-regex]])
