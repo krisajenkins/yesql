@@ -66,7 +66,7 @@
                            {:connection connection})
           (insert-person<! {:name "Bob"
                             :age 25}
-                           {:connection connection} )))
+                           {:connection connection})))
 
 (expect 4 (count (find-older-than {:age 10})))
 
@@ -75,6 +75,11 @@
         (insert-person<! {:name 5
                           :age "Eamonn"}
                          {:connection derby-db}))
+
+;;; Attempt insert with incorrect parameters
+(expect SQLSyntaxErrorException
+        (insert-person<! [{:name "Mary" :height 20}
+                          {:name "Parker" :age 20}]))
 
 ;; Drop
 (expect (drop-person-table!))
