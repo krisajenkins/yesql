@@ -6,6 +6,8 @@
             [yesql.instaparse-util :refer [process-instaparse-result]])
   (:import [yesql.types Query]))
 
+(def insert-table-name-regex #"(?i)(?<=INSERT INTO\s).*?(?=\sVALUES|\s\()")
+
 (def parser
   (instaparse/parser (io/resource "yesql/statement.bnf")))
 

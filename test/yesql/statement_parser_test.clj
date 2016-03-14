@@ -4,6 +4,16 @@
             [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer :all]))
 
+(do-template [statement _ table-name-result]
+  (do (expect (quote table-name-result)
+              (re-find insert-table-name-regex statement)))
+
+  "INSERT INTO table (:column1, :column2) VALUES (a, b)"  => "table"
+  "insert into table (:column1, :column2) VALUES (a, b)"  => "table"
+  "INSERT INTO table VALUES (a, b)"  => "table"
+  "insert into table VALUES (a, b)"  => "table"
+  "insert into table values (a, b)"  => "table")
+
 (do-template [statement _ split-result]
   (do (expect (quote split-result)
               (tokenize statement))

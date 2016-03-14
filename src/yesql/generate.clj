@@ -1,10 +1,10 @@
 (ns yesql.generate
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.set :as set]
-            [clojure.string :refer [join lower-case split]]
+            [clojure.string :refer [join lower-case trim]]
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
-            [yesql.statement-parser :refer [tokenize]])
+            [yesql.statement-parser :refer [tokenize insert-table-name-regex]])
   (:import [yesql.types Query]))
 
 (def in-list-parameter?
@@ -78,10 +78,9 @@
 (defn insert-handler
   [db sql params call-options]
   (if (vector? params)
-    (let [table-string-position 0
-          table-position        2
-          table-keyword         (keyword ((split (sql table-string-position) #" ") table-position))]
-      (apply jdbc/insert! db table-keyword params))
+    (let [full-query            (apply str sql)
+          table-name            (re-find insert-table-name-regex full-query)]
+      (apply jdbc/insert! db table-name params))
     (let [[rewritten-sql & rewritten-params] (rewrite-query-for-jdbc sql params)]
       (jdbc/db-do-prepared-return-keys db rewritten-sql rewritten-params))))
 
