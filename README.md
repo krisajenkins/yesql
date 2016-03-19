@@ -141,7 +141,7 @@ in the REPL:
 
 ;=> -------------------------
 ;=> user/users-by-country
-;=> ([{:keys [country_code]}] 
+;=> ([{:keys [country_code]}]
 ;=>  [{:keys [country_code]} {:keys [connection]}])
 ;=>
 ;=>   Counts the users in a given country.
@@ -349,6 +349,13 @@ INSERT INTO person (name) VALUES (:name)
 ```clojure
 (create-person<! {:name "Dave"})
 ;=> {:name "Dave" :id 5}
+```
+
+To batch insert, Yesql will take a vector of maps.
+
+```clojure
+(create-person<! [{:name "Dave"} {:name "Jill"}])
+;=> '({:name "Dave" :id 5} {:name "Jill" :id 6})
 ```
 
 The exact return value will depend on your database driver. For

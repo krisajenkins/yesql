@@ -83,8 +83,8 @@
 (defn insert-handler
   [db sql params call-options]
   (if (vector? params)
-    (let [full-query            (apply str sql)
-          table-name            (re-find insert-table-name-regex full-query)]
+    (let [full-query (apply str sql)
+          table-name (re-find insert-table-name-regex full-query)]
       (sane-query? sql params)
       (apply jdbc/insert! db table-name params))
     (let [[rewritten-sql & rewritten-params] (rewrite-query-for-jdbc sql params)]
