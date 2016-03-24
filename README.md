@@ -297,6 +297,11 @@ FROM dual;
                   :row-fn :sysdate
                   :identifiers identity})
 ;=> #inst "2014-09-30T07:30:06.764000000-00:00"
+
+;;; With :as-arrays? you get ordered vectors instead of unordered maps.
+;;; Useful if you want to preserve the column ordering of your SQL statement:
+(find-older-than {:age 20} {:as-arrays? true})
+;=> ([:person_id :name :age] [1 "Betty" 21] [2 "Betsy" 22] [3 "Becky" 23])
 ```
 
 As with `clojure.java.jdbc` the default `:result-set-fn` is `doall`,
