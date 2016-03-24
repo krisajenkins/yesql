@@ -10,7 +10,7 @@
   :scm {:name "git"
         :url "https://github.com/krisajenkins/yesql"}
   :profiles {:dev {:dependencies [[expectations "2.1.3" :exclusions [org.clojure/clojure]]
-                                  [org.apache.derby/derby "10.11.1.1"]]
+                                  [org.apache.derby/derby "10.12.1.1"]]
                    :plugins [[lein-autoexpect "1.4.0"]
                              [lein-expectations "0.0.8"]]}
              :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
