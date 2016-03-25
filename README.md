@@ -351,6 +351,13 @@ INSERT INTO person (name) VALUES (:name)
 ;=> {:name "Dave" :id 5}
 ```
 
+To batch insert, Yesql will take a vector of maps.
+
+```clojure
+(create-person<! [{:name "Dave"} {:name "Jill"}])
+;=> '({:name "Dave" :id 5} {:name "Jill" :id 6})
+```
+
 The exact return value will depend on your database driver. For
 example PostgreSQL returns the whole row, whereas Derby returns just
 `{:1 5M}`.

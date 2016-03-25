@@ -4,7 +4,7 @@
             [clojure.string :refer [join lower-case]]
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
-            [yesql.statement-parser :refer [tokenize]])
+            [yesql.statement-parser :refer [tokenize insert-table-name-regex]])
   (:import [yesql.types Query]))
 
 (def in-list-parameter?
@@ -32,10 +32,11 @@
       expected-keys
       (conj expected-keys :?))))
 
-(defn rewrite-query-for-jdbc
-  [tokens initial-args]
+(defn sane-query? [tokens initial-args]
   (let [{:keys [expected-keys expected-positional-count]} (analyse-statement-tokens tokens)
-        actual-keys (set (keys (dissoc initial-args :?)))
+        actual-keys (if (vector? initial-args)
+                      (-> (mapcat keys initial-args) set (disj :?))
+                      (-> (keys initial-args) set (disj :?)))
         actual-positional-count (count (:? initial-args))
         missing-keys (set/difference expected-keys actual-keys)]
     (assert (empty? missing-keys)
@@ -48,45 +49,55 @@
                           ["Query argument mismatch."
                            "Expected %d positional parameters. Got %d."
                            "Supply positional parameters as {:? [...]}"])
-                    expected-positional-count actual-positional-count))
-    (let [[final-query final-parameters consumed-args]
-          (reduce (fn [[query parameters args] token]
-                    (cond
-                      (string? token) [(str query token)
-                                       parameters
-                                       args]
-                      (symbol? token) (let [[arg new-args] (if (= '? token)
-                                                             [(first (:? args)) (update-in args [:?] rest)]
-                                                             [(get args (keyword token)) args])]
-                                        [(str query (args-to-placeholders arg))
-                                         (vec (if (in-list-parameter? arg)
-                                                (concat parameters arg)
-                                                (conj parameters arg)))
-                                         new-args])))
-                  ["" [] initial-args]
-                  tokens)]
-      (concat [final-query] final-parameters))))
+                    expected-positional-count actual-positional-count))))
+
+(defn rewrite-query-for-jdbc
+  [tokens initial-args]
+  (sane-query? tokens initial-args)
+  (let [[final-query final-parameters consumed-args]
+        (reduce (fn [[query parameters args] token]
+                  (cond
+                    (string? token) [(str query token)
+                                     parameters
+                                     args]
+                    (symbol? token) (let [[arg new-args] (if (= '? token)
+                                                           [(first (:? args)) (update-in args [:?] rest)]
+                                                           [(get args (keyword token)) args])]
+                                      [(str query (args-to-placeholders arg))
+                                       (vec (if (in-list-parameter? arg)
+                                              (concat parameters arg)
+                                              (conj parameters arg)))
+                                       new-args])))
+                ["" [] initial-args]
+                tokens)]
+    (concat [final-query] final-parameters)))
 
 ;; Maintainer's note: clojure.java.jdbc.execute! returns a list of
 ;; rowcounts, because it takes a list of parameter groups. In our
 ;; case, we only ever use one group, so we'll unpack the
 ;; single-element list with `first`.
 (defn execute-handler
-  [db sql-and-params call-options]
-  (first (jdbc/execute! db sql-and-params)))
+  [db sql params call-options]
+  (first (jdbc/execute! db (rewrite-query-for-jdbc sql params))))
 
 (defn insert-handler
-  [db [statement & params] call-options]
-  (jdbc/db-do-prepared-return-keys db statement params))
+  [db sql params call-options]
+  (if (vector? params)
+    (let [full-query (apply str sql)
+          table-name (re-find insert-table-name-regex full-query)]
+      (sane-query? sql params)
+      (apply jdbc/insert! db table-name params))
+    (let [[rewritten-sql & rewritten-params] (rewrite-query-for-jdbc sql params)]
+      (jdbc/db-do-prepared-return-keys db rewritten-sql rewritten-params))))
 
 (defn query-handler
-  [db sql-and-params
+  [db sql params
    {:keys [row-fn result-set-fn identifiers]
     :or {identifiers lower-case
          row-fn identity
          result-set-fn doall}
     :as call-options}]
-  (jdbc/query db sql-and-params
+  (jdbc/query db (rewrite-query-for-jdbc sql params)
               :identifiers identifiers
               :row-fn row-fn
               :result-set-fn result-set-fn))
@@ -118,7 +129,8 @@
                                            "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
                                     name))
                     (jdbc-fn connection
-                             (rewrite-query-for-jdbc tokens args)
+                             tokens
+                             args
                              call-options)))
         [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
                                                                                       required-args))]

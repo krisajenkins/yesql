@@ -82,13 +82,20 @@
   "SELECT * FROM users WHERE group_ids IN(:group_ids) AND parent_id = :parent_id"
   {:group_ids [1 2]
    :parent_id 3}
-  => ["SELECT * FROM users WHERE group_ids IN(?,?) AND parent_id = ?" 1 2 3]) 
+  => ["SELECT * FROM users WHERE group_ids IN(?,?) AND parent_id = ?" 1 2 3])
 
 ;;; Incorrect parameters.
 (expect AssertionError
-        (rewrite-query-for-jdbc (tokenize "SELECT age FROM users WHERE country = :country AND name = :name")
-                                {:country "gb"}))
+        (sane-query?
+          (tokenize "SELECT age FROM users WHERE country = :country AND name = :name")
+          {:country "gb"}))
 
 (expect AssertionError
-        (rewrite-query-for-jdbc (tokenize "SELECT age FROM users WHERE country = ? AND name = ?")
-                                {}))
+        (sane-query?
+          (tokenize "SELECT age FROM users WHERE country = ? AND name = ?")
+          {}))
+
+(expect AssertionError
+        (sane-query?
+          (tokenize "INSERT INTO users (country, name) VALUES (:country, :name)")
+          [{:country "gb"} {:country "us"}]))

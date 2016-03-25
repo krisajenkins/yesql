@@ -26,16 +26,14 @@
 (expect (create-person-table!))
 
 ;; Insert -> Select.
-(expect {:1 1M} (insert-person<! {:name "Alice"
-                                  :age 20}))
-(expect {:1 2M} (insert-person<! {:name "Bob"
-                                  :age 25}))
-(expect {:1 3M} (insert-person<! {:name "Charlie"
-                                  :age 35}))
+(expect {:1 1M} (insert-person<! {:name "Alice" :age 20}))
+(expect {:1 2M} (insert-person<! {:name "Bob" :age 25}))
+(expect {:1 3M} (insert-person<! {:name "Charlie" :age 35}))
+(expect (list {:1 4M} {:1 5M}) (insert-person<! [{:name "Pepper" :age 50} {:name "Tony" :age 55}]))
 
-(expect 3 (count (find-older-than {:age 10})))
-(expect 1 (count (find-older-than {:age 30})))
-(expect 0 (count (find-older-than {:age 50})))
+(expect 5 (count (find-older-than {:age 10})))
+(expect 3 (count (find-older-than {:age 30})))
+(expect 1 (count (find-older-than {:age 50})))
 
 ;;; Select with IN.
 (expect 2 (count (find-by-age {:age [20 35]})))
@@ -46,20 +44,20 @@
 (expect 0 (update-age! {:age 38
                         :name "David"}))
 
-(expect 3 (count (find-older-than {:age 10})))
-(expect 2 (count (find-older-than {:age 30})))
-(expect 0 (count (find-older-than {:age 50})))
+(expect 5 (count (find-older-than {:age 10})))
+(expect 4 (count (find-older-than {:age 30})))
+(expect 1 (count (find-older-than {:age 50})))
 
 ;; Delete -> Select.
 (expect 1 (delete-person! {:name "Alice"}))
 
-(expect 2 (count (find-older-than {:age 10})))
-(expect 1 (count (find-older-than {:age 30})))
-(expect 0 (count (find-older-than {:age 50})))
+(expect 4 (count (find-older-than {:age 10})))
+(expect 3 (count (find-older-than {:age 30})))
+(expect 1 (count (find-older-than {:age 50})))
 
 ;; Failing transaction: Insert with abort.
 ;; Insert two rows in a transaction. The second throws a deliberate error, meaning no new rows created.
-(expect 2 (count (find-older-than {:age 10})))
+(expect 4 (count (find-older-than {:age 10})))
 
 (expect SQLException
         (jdbc/with-db-transaction [connection derby-db]
@@ -68,16 +66,20 @@
                            {:connection connection})
           (insert-person<! {:name "Bob"
                             :age 25}
-                           {:connection connection} )))
+                           {:connection connection})))
 
-(expect 2
-        (count (find-older-than {:age 10})))
+(expect 4 (count (find-older-than {:age 10})))
 
 ;;; Type error.
 (expect SQLDataException
         (insert-person<! {:name 5
                           :age "Eamonn"}
                          {:connection derby-db}))
+
+;;; Attempt insert with incorrect parameters
+(expect SQLSyntaxErrorException
+        (insert-person<! [{:name "Mary" :height 20}
+                          {:name "Parker" :age 20}]))
 
 ;; Drop
 (expect (drop-person-table!))
