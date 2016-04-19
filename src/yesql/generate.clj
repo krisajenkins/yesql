@@ -76,8 +76,8 @@
   (first (jdbc/execute! db sql-and-params)))
 
 (defn insert-handler
-  [db statement-and-params call-options]
-  (jdbc/db-do-prepared-return-keys db statement-and-params))
+  [db sql-and-params call-options]
+  (jdbc/db-do-prepared-return-keys db sql-and-params))
 
 (defn query-handler
   [db sql-and-params
