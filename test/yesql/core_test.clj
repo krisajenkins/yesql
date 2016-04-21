@@ -17,6 +17,10 @@
   "yesql/sample_files/current_time.sql"
   {:connection derby-db})
 
+(defquery connection-fn-query
+  "yesql/sample_files/current_time.sql"
+  {:connection-fn (fn [] derby-db)})
+
 (defquery mixed-parameters-query
   "yesql/sample_files/mixed_parameters.sql"
   {:connection derby-db})
@@ -25,6 +29,10 @@
 (expect (more-> java.util.Date
                 (-> first :time))
         (current-time-query))
+
+(expect (more-> java.util.Date
+                (-> first :time))
+        (connection-fn-query))
 
 (expect (more-> java.util.Date
                 (-> first :time))
@@ -64,7 +72,7 @@
 ;;; Test Metadata.
 (expect (more-> "Just selects the current time.\nNothing fancy." :doc
                 'current-time-query :name
-                (list '[] '[{} {:keys [connection]}]) :arglists)
+                (list '[] '[{} {:keys [connection connection-fn]}]) :arglists)
         (meta (var current-time-query)))
 
 (expect (more->  "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)" :doc
@@ -78,7 +86,7 @@
 
                  2 (-> :arglists second count)
                  #{'? 'value1 'value2} (-> :arglists second first  :keys set)
-                 #{'connection}        (-> :arglists second second :keys set))
+                 #{'connection 'connection-fn} (-> :arglists second second :keys set))
         (meta (var mixed-parameters-query)))
 
 ;; Running a query in a transaction and using the result outside of it should work as expected.

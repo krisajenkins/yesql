@@ -108,10 +108,12 @@
                   :else query-handler)
         required-args (expected-parameter-list statement)
         global-connection (:connection query-options)
+        global-connection-fn (:connection-fn query-options)
         tokens (tokenize statement)
         real-fn (fn [args call-options]
                   (let [connection (or (:connection call-options)
-                                       global-connection)]
+                                       global-connection
+                                       (and (fn? global-connection-fn) (global-connection-fn)))]
                     (assert connection
                             (format (join "\n"
                                           ["No database connection supplied to function '%s',"
@@ -124,8 +126,8 @@
                                                                                       required-args))]
                                                              {:keys as-vec}
                                                              {})
-                                                global-args {:keys ['connection]}]
-                                            (if global-connection
+                                                global-args {:keys ['connection 'connection-fn]}]
+                                            (if (or global-connection global-connection-fn)
                                               (if (empty? required-args)
                                                 [(list []
                                                        [named-args global-args])
