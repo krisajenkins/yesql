@@ -76,8 +76,8 @@
   (first (jdbc/execute! db sql-and-params)))
 
 (defn insert-handler
-  [db [statement & params] call-options]
-  (jdbc/db-do-prepared-return-keys db statement params))
+  [db statement-and-params call-options]
+  (jdbc/db-do-prepared-return-keys db statement-and-params))
 
 (defn query-handler
   [db sql-and-params
@@ -87,9 +87,9 @@
          result-set-fn doall}
     :as call-options}]
   (jdbc/query db sql-and-params
-              :identifiers identifiers
-              :row-fn row-fn
-              :result-set-fn result-set-fn))
+              {:identifiers identifiers
+               :row-fn row-fn
+               :result-set-fn result-set-fn}))
 
 (defn generate-query-fn
   "Generate a function to run a query.
