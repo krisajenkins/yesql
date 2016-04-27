@@ -82,16 +82,16 @@
         (meta (var mixed-parameters-query)))
 
 ;; Running a query in a transaction and using the result outside of it should work as expected.
-(expect-let [[{time :time}] (jdbc/with-db-transaction [connection derby-db]
-                              (current-time-query {}
-                                                  {:connection connection}))]
-  java.util.Date
-  time)
+
+(let [[{time :time}] (jdbc/with-db-transaction [connection derby-db]
+                       (current-time-query {}
+                                           {:connection connection}))]
+  (expect java.util.Date time))
 
 ;;; Check defqueries returns the list of defined vars.
-(expect-let [return-value (defqueries "yesql/sample_files/combined_file.sql")]
-  (repeat 3 clojure.lang.Var)
-  (map type return-value))
+(let [return-value (defqueries "yesql/sample_files/combined_file.sql")]
+  (expect (repeat 3 clojure.lang.Var)
+          (map type return-value)))
 
 ;;; SQL's quoting rules.
 (defquery quoting "yesql/sample_files/quoting.sql")

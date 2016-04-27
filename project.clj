@@ -9,7 +9,7 @@
   :pedantic? :abort
   :scm {:name "git"
         :url "https://github.com/krisajenkins/yesql"}
-  :profiles {:dev {:dependencies [[expectations "2.1.3" :exclusions [org.clojure/clojure]]
+  :profiles {:dev {:dependencies [[expectations "2.1.8" :exclusions [org.clojure/clojure]]
                                   [org.apache.derby/derby "10.12.1.1"]]
                    :plugins [[lein-autoexpect "1.4.0"]
                              [lein-expectations "0.0.8"]]}
