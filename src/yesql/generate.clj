@@ -5,7 +5,8 @@
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer [tokenize]])
-  (:import [yesql.types Query]))
+  (:import [yesql.types Query])
+  (import java.lang.IllegalArgumentException))
 
 (def in-list-parameter?
   "Check if a type triggers IN-list expansion."
@@ -38,17 +39,17 @@
         actual-keys (set (keys (dissoc initial-args :?)))
         actual-positional-count (count (:? initial-args))
         missing-keys (set/difference expected-keys actual-keys)]
-    (assert (empty? missing-keys)
-            (format "Query argument mismatch.\nExpected keys: %s\nActual keys: %s\nMissing keys: %s"
+    (if-not (empty? missing-keys)
+            (throw (IllegalArgumentException. (format "Query argument mismatch.\nExpected keys: %s\nActual keys: %s\nMissing keys: %s"
                     (str (seq expected-keys))
                     (str (seq actual-keys))
-                    (str (seq missing-keys))))
-    (assert (= expected-positional-count actual-positional-count)
-            (format (join "\n"
+                    (str (seq missing-keys))))))
+    (if-not (= expected-positional-count actual-positional-count)
+            (throw (IllegalArgumentException. (format (join "\n"
                           ["Query argument mismatch."
                            "Expected %d positional parameters. Got %d."
                            "Supply positional parameters as {:? [...]}"])
-                    expected-positional-count actual-positional-count))
+                    expected-positional-count actual-positional-count))))
     (let [[final-query final-parameters consumed-args]
           (reduce (fn [[query parameters args] token]
                     (cond
