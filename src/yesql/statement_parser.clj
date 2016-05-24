@@ -1,6 +1,5 @@
 (ns yesql.statement-parser
   (:require [clojure.java.io :as io]
-            [clojure.string :refer [join]]
             [instaparse.core :as instaparse]
             [yesql.util :refer [str-non-nil]]
             [yesql.instaparse-util :refer [process-instaparse-result]])
