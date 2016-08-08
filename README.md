@@ -233,7 +233,7 @@ Using the `queryfile.sql` from the previous example:
 
 ; Use :as to alias the entire namespace, and :refer to refer functions
 ; into the current namespace. Use one or both.
-(require-sql ["some/where/queryfile.sql" :as user :refer [user-count])
+(require-sql ["some/where/queryfile.sql" :as user :refer [user-count]])
 
 (user-count)
 ;=> ({:count 132})
