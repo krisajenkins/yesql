@@ -307,7 +307,7 @@ the default `:row-fn` is `identity`, and the default `:identifiers` is
 _A note of caution_: Remember you're often better off doing your
 processing directly in SQL. For example, if you're counting a million
 rows, you can do it with `{:result-set-fn count}` or
-`SELECT count(*) ...`. Both wil give the same answer, but the
+`SELECT count(*) ...`. Both will give the same answer, but the
 SQL-version will avoid sending a million rows over the wire to do it.
 
 ### Insert/Update/Delete and More
