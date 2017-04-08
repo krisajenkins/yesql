@@ -4,6 +4,16 @@ Yesql is a Clojure library for _using_ SQL.
 
 [![Build Status](https://travis-ci.org/krisajenkins/yesql.png?branch=travis)](https://travis-ci.org/krisajenkins/yesql)
 
+## Status
+
+Ready to use. Maintainer sought.
+
+(I've been promising myself for ages that I'll get round to all the feature
+requests the next time I'm working on a Clojure/SQL project. But that's been a
+long while now, so maybe it's time to admit that this project needs a more
+active pair of hands. If you'd like to take it on, please [contact
+me](https://twitter.com/krisajenkins).
+
 ## Installation
 
 Add this to your [Leiningen](https://github.com/technomancy/leiningen) `:dependencies`:
@@ -385,10 +395,6 @@ Yesql has inspired ports to other languages:
 |Erlang|[eql](https://github.com/artemeff/eql)|
 |Clojure|[YeSPARQL](https://github.com/joelkuiper/yesparql)|
 |PHP|[YepSQL](https://github.com/LionsHead/YepSQL)|
-
-## Status
-
-Ready to use. The API is subject to change. Feedback is welcomed.
 
 ## License
 
