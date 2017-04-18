@@ -3,9 +3,7 @@
             [clojure.set :as set]
             [clojure.string :refer [join lower-case]]
             [yesql.util :refer [create-root-var]]
-            [yesql.types :refer [map->Query]]
-            [yesql.statement-parser :refer [tokenize]])
-  (:import [yesql.types Query]))
+            [yesql.statement-parser :refer [tokenize]]))
 
 (def in-list-parameter?
   "Check if a type triggers IN-list expansion."
