@@ -11,6 +11,6 @@ parameter = placeholder-parameter | named-parameter
 
 placeholder-parameter = "?"
 
-named-parameter = <":"> #"[^\s,\"':&;()|=+\-*%/\\<>^\[\]]+"
+named-parameter = <":"> #"[^\s,\"':&;()|=+*%\\<>^\[\]]+"
 
 whitespace = (' ' | '\t')+
