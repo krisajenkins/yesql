@@ -6,13 +6,18 @@ Yesql is a Clojure library for _using_ SQL.
 
 ## Status
 
-Ready to use. Maintainer sought.
+Frozen. Maintainer sought.
+
+Tested with Clojure 1.5-1.9-alpha20, but there will be no new development unless a maintainer steps up.
+
 
 (I've been promising myself for ages that I'll get round to all the feature
 requests the next time I'm working on a Clojure/SQL project. But that's been a
 long while now, so maybe it's time to admit that this project needs a more
 active pair of hands. If you'd like to take it on, please [contact
 me](https://twitter.com/krisajenkins).
+
+(You might also consider [hugsql](https://www.hugsql.org/) which is philosophically similar and actively maintained.)
 
 ## Installation
 
