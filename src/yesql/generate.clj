@@ -5,7 +5,8 @@
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer [tokenize]])
-  (:import [yesql.types Query]))
+  (:import [yesql.types Query])
+  (import java.lang.IllegalArgumentException))
 
 (def in-list-parameter?
   "Check if a type triggers IN-list expansion."
@@ -35,37 +36,47 @@
 (defn rewrite-query-for-jdbc
   [tokens initial-args]
   (let [{:keys [expected-keys expected-positional-count]} (analyse-statement-tokens tokens)
-        actual-keys (set (keys (dissoc initial-args :?)))
+        actual-keys (set (keys (dissoc (if (or (vector? initial-args) (list? initial-args)) (apply merge initial-args) initial-args) :?)))
         actual-positional-count (count (:? initial-args))
         missing-keys (set/difference expected-keys actual-keys)]
-    (assert (empty? missing-keys)
-            (format "Query argument mismatch.\nExpected keys: %s\nActual keys: %s\nMissing keys: %s"
+    (if-not (empty? missing-keys)
+            (throw (IllegalArgumentException. (format "Query argument mismatch.\nExpected keys: %s\nActual keys: %s\nMissing keys: %s"
                     (str (seq expected-keys))
                     (str (seq actual-keys))
-                    (str (seq missing-keys))))
-    (assert (= expected-positional-count actual-positional-count)
-            (format (join "\n"
+                    (str (seq missing-keys))))))
+    (if-not (= expected-positional-count actual-positional-count)
+            (throw (IllegalArgumentException. (format (join "\n"
                           ["Query argument mismatch."
                            "Expected %d positional parameters. Got %d."
                            "Supply positional parameters as {:? [...]}"])
-                    expected-positional-count actual-positional-count))
-    (let [[final-query final-parameters consumed-args]
-          (reduce (fn [[query parameters args] token]
-                    (cond
-                      (string? token) [(str query token)
-                                       parameters
-                                       args]
-                      (symbol? token) (let [[arg new-args] (if (= '? token)
-                                                             [(first (:? args)) (update-in args [:?] rest)]
-                                                             [(get args (keyword token)) args])]
-                                        [(str query (args-to-placeholders arg))
-                                         (vec (if (in-list-parameter? arg)
-                                                (concat parameters arg)
-                                                (conj parameters arg)))
-                                         new-args])))
-                  ["" [] initial-args]
-                  tokens)]
-      (concat [final-query] final-parameters))))
+                    expected-positional-count actual-positional-count))))
+    (if (or (vector? initial-args) (list? initial-args)) 
+      (let [[final-query final-parameters consumed-args]
+            (reduce (fn [[query parameters args] token]
+                      (cond
+                       (string? token) [(str query token)
+                                        parameters
+                                        args]
+                       (symbol? token) [(str query (args-to-placeholders ""))
+                                        (conj parameters (keyword token))
+                                        args])) ["" [] initial-args] tokens)] (concat [final-query] (mapv (apply juxt final-parameters) initial-args)))
+      (let [[final-query final-parameters consumed-args]
+                 (reduce (fn [[query parameters args] token]
+                           (cond
+                            (string? token) [(str query token)
+                                             parameters
+                                             args]
+                            (symbol? token) (let [[arg new-args] (if (= '? token)
+                                                                   [(first (:? args)) (update-in args [:?] rest)]
+                                                                   [(get args (keyword token)) args])]
+                                              [(str query (args-to-placeholders arg))
+                                               (vec (if (in-list-parameter? arg)
+                                                      (concat parameters arg)
+                                                      (conj parameters arg)))
+                                               new-args])))
+                         ["" [] initial-args]
+                         tokens)]
+             (concat [final-query] final-parameters)))))
 
 ;; Maintainer's note: clojure.java.jdbc.execute! returns a list of
 ;; rowcounts, because it takes a list of parameter groups. In our
@@ -77,7 +88,9 @@
 
 (defn insert-handler
   [db statement-and-params call-options]
-  (jdbc/db-do-prepared-return-keys db statement-and-params))
+   (if (vector? (second statement-and-params))
+     (apply jdbc/db-do-prepared db statement-and-params)
+     (jdbc/db-do-prepared-return-keys db statement-and-params)))
 
 (defn query-handler
   [db sql-and-params

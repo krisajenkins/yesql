@@ -2,7 +2,8 @@
   (:require [expectations :refer :all]
             [clojure.template :refer [do-template]]
             [yesql.statement-parser :refer [tokenize]]
-            [yesql.generate :refer :all]))
+            [yesql.generate :refer :all])
+  (:import [java.lang IllegalArgumentException]))
 
 (do-template [statement _ expected-parameters]
   (expect expected-parameters
@@ -82,13 +83,13 @@
   "SELECT * FROM users WHERE group_ids IN(:group_ids) AND parent_id = :parent_id"
   {:group_ids [1 2]
    :parent_id 3}
-  => ["SELECT * FROM users WHERE group_ids IN(?,?) AND parent_id = ?" 1 2 3]) 
+  => ["SELECT * FROM users WHERE group_ids IN(?,?) AND parent_id = ?" 1 2 3])
 
 ;;; Incorrect parameters.
-(expect AssertionError
+(expect IllegalArgumentException
         (rewrite-query-for-jdbc (tokenize "SELECT age FROM users WHERE country = :country AND name = :name")
                                 {:country "gb"}))
 
-(expect AssertionError
+(expect IllegalArgumentException
         (rewrite-query-for-jdbc (tokenize "SELECT age FROM users WHERE country = ? AND name = ?")
                                 {}))
