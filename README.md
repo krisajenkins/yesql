@@ -400,6 +400,7 @@ Yesql has inspired ports to other languages:
 |Erlang|[eql](https://github.com/artemeff/eql)|
 |Clojure|[YeSPARQL](https://github.com/joelkuiper/yesparql)|
 |PHP|[YepSQL](https://github.com/LionsHead/YepSQL)|
+|Haskell|[yeshql](https://github.com/tdammers/yeshql)|
 
 ## License
 
