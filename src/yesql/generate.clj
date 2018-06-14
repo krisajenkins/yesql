@@ -1,7 +1,7 @@
 (ns yesql.generate
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.set :as set]
-            [clojure.string :refer [join lower-case]]
+            [clojure.string :refer [join lower-case split trim]]
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer [tokenize]])
@@ -123,16 +123,31 @@
         global-connection (:connection query-options)
         tokens (tokenize statement)
         real-fn (fn [args call-options]
-                  (let [connection (or (:connection call-options)
-                                       global-connection)]
-                    (assert connection
-                            (format (join "\n"
-                                          ["No database connection supplied to function '%s',"
-                                           "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
-                                    name))
-                    (jdbc-fn connection
-                             (rewrite-query-for-jdbc tokens args)
-                             call-options)))
+                  (if (:debug call-options)
+                    args
+                    (let [connection (or (:connection call-options)
+                                         global-connection)]
+                      (assert connection
+                              (format (join "\n"
+                                            ["No database connection supplied to function '%s',"
+                                             "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
+                                      name))
+                      (cond (and (= insert-handler jdbc-fn) (:before-insert query-options))
+                              ((:before-insert query-options) args statement call-options)
+                            (and (= execute-handler jdbc-fn) (= "delete" (lower-case (first (split (trim statement) #" ")))) (:before-delete query-options))
+                              ((:before-delete query-options) args statement call-options)
+                            (and (= execute-handler jdbc-fn) (= "update" (lower-case (first (split (trim statement) #" ")))) (:before-update query-options))
+                              ((:before-update query-options) args statement call-options))
+                      (let [ret (jdbc-fn connection
+                                 (rewrite-query-for-jdbc tokens args)
+                                 call-options)]
+                        (cond (and (= insert-handler jdbc-fn) (:after-insert query-options))
+                                ((:after-insert query-options) ret args statement call-options)
+                              (and (= execute-handler jdbc-fn) (= "delete" (lower-case (first (split (trim statement) #" ")))) (:after-delete query-options))
+                                ((:after-delete query-options) ret args statement call-options)
+                              (and (= execute-handler jdbc-fn) (= "update" (lower-case (first (split (trim statement) #" ")))) (:after-update query-options))
+                                ((:after-update query-options) ret args statement call-options))
+                        ret))))
         [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
                                                                                       required-args))]
                                                              {:keys as-vec}
