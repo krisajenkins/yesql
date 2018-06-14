@@ -89,7 +89,7 @@
 (defn insert-handler
   [db statement-and-params call-options]
    (if (vector? (second statement-and-params))
-     (apply jdbc/db-do-prepared db statement-and-params)
+     (jdbc/execute! db statement-and-params {:multi? true :return-keys true})
      (jdbc/db-do-prepared-return-keys db statement-and-params)))
 
 (defn query-handler
