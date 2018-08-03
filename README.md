@@ -398,6 +398,7 @@ Yesql has inspired ports to other languages:
 |C#|[JaSql](https://bitbucket.org/rick/jasql)|
 |Ruby|[yayql](https://github.com/gnarmis/yayql)|
 |Erlang|[eql](https://github.com/artemeff/eql)|
+|Elixir|[yesql](https://github.com/lpil/yesql)|
 |Clojure|[YeSPARQL](https://github.com/joelkuiper/yesparql)|
 |PHP|[YepSQL](https://github.com/LionsHead/YepSQL)|
 
