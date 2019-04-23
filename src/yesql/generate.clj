@@ -15,7 +15,7 @@
 (defn- args-to-placeholders
   [args]
   (if (in-list-parameter? args)
-    (clojure.string/join "," (repeat (count args) "?"))
+    (if (empty? args) "NULL" (clojure.string/join "," (repeat (count args) "?")))
     "?"))
 
 (defn- analyse-statement-tokens
