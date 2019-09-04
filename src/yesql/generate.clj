@@ -6,7 +6,7 @@
             [yesql.types :refer [map->Query]]
             [yesql.statement-parser :refer [tokenize]])
   (:import [yesql.types Query])
-  (import java.lang.IllegalArgumentException))
+  (:import java.lang.IllegalArgumentException))
 
 (def in-list-parameter?
   "Check if a type triggers IN-list expansion."
@@ -138,9 +138,24 @@
                               ((:before-delete query-options) args statement call-options)
                             (and (= execute-handler jdbc-fn) (= "update" (lower-case (first (split (trim statement) #" ")))) (:before-update query-options))
                               ((:before-update query-options) args statement call-options))
-                      (let [ret (jdbc-fn connection
-                                 (rewrite-query-for-jdbc tokens args)
-                                 call-options)]
+                      (let [ret (jdbc/with-db-transaction [t connection] 
+                                  (if (not= (:level t) 1) 
+                                    (jdbc-fn connection
+                                             (rewrite-query-for-jdbc tokens args)
+                                             call-options)
+                                    (loop [i 0]
+                                      (Thread/sleep (* i 2 10))
+                                      (let [sym (try
+                                                  (jdbc-fn connection
+                                                           (rewrite-query-for-jdbc tokens args)
+                                                           call-options)
+                                                  (catch com.mysql.jdbc.exceptions.jdbc4.MySQLTransactionRollbackException e
+                                                    (if (= i 10) 
+                                                      (throw e)
+                                                      :exception-caught)))]
+                                        (if (= :exception-caught sym)
+                                          (recur (inc i))
+                                          sym)))))]
                         (cond (and (= insert-handler jdbc-fn) (:after-insert query-options))
                                 ((:after-insert query-options) ret args statement call-options)
                               (and (= execute-handler jdbc-fn) (= "delete" (lower-case (first (split (trim statement) #" ")))) (:after-delete query-options))
