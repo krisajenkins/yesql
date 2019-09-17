@@ -132,7 +132,7 @@
                                             ["No database connection supplied to function '%s',"
                                              "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
                                       name))
-                      (cond (and (= insert-handler jdbc-fn) (:hooks query-options) @(:hooks (:before-insert query-options)))
+                      (cond (and (= insert-handler jdbc-fn) (:hooks query-options) (:before-insert @(:hooks query-options)))
                               ((:before-insert @(:hooks query-options)) args statement call-options)
                             (and (= execute-handler jdbc-fn) (:hooks query-options) (= "delete" (lower-case (first (split (trim statement) #" ")))) (:before-delete @(:hooks query-options)))
                               ((:before-delete @(:hooks query-options)) args statement call-options)
