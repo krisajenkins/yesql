@@ -4,7 +4,8 @@
             [clojure.string :refer [join lower-case split trim]]
             [yesql.util :refer [create-root-var]]
             [yesql.types :refer [map->Query]]
-            [yesql.statement-parser :refer [tokenize]])
+            [yesql.statement-parser :refer [tokenize]]
+            [safely.core :refer [safely]])
   (:import yesql.types.Query)
   (:import java.lang.IllegalArgumentException))
 
@@ -139,9 +140,12 @@
                               ((:before-delete @(:hooks query-options)) args statement (assoc call-options :uuid uuid))
                             (and (= execute-handler jdbc-fn) (:hooks query-options) (= "update" (lower-case (first (split (trim statement) #" ")))) (:before-update @(:hooks query-options)))
                               ((:before-update @(:hooks query-options)) args statement (assoc call-options :uuid uuid)))
-                      (let [ret (jdbc-fn connection
-                                 (rewrite-query-for-jdbc tokens args)
-                                 call-options)]
+                      (let [ret (safely (jdbc-fn connection
+                                                 (rewrite-query-for-jdbc tokens args)
+                                                 call-options)
+                                        :on-error
+                                        :max-retries 5
+                                        :retry-delay [:random-exp-backoff :base 50 :+/- 0.5])]
                         (cond (and (= insert-handler jdbc-fn) (:hooks query-options) (:after-insert @(:hooks query-options)))
                                 ((:after-insert @(:hooks query-options)) ret args statement (assoc call-options :uuid uuid))
                               (and (= execute-handler jdbc-fn) (:hooks query-options) (= "delete" (lower-case (first (split (trim statement) #" ")))) (:after-delete @(:hooks query-options)))

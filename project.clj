@@ -1,11 +1,12 @@
-(defproject org.batch/yesql "0.6.9"
+(defproject org.batch/yesql "0.7.0"
   :description "A Clojure library for using SQL"
   :url "https://github.com/krisajenkins/yesql"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/java.jdbc "0.7.6"]
-                 [instaparse "1.4.1" :exclusions [org.clojure/clojure]]]
+                 [instaparse "1.4.1" :exclusions [org.clojure/clojure]]
+                 [com.brunobonacci/safely "0.5.0-alpha8" :exclusions [com.google.errorprone/error_prone_annotations org.clojure/clojure com.google.code.findbugs/jsr305]]]
   :pedantic? :abort
   :scm {:name "git"
         :url "https://github.com/krisajenkins/yesql"}
