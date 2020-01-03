@@ -126,27 +126,28 @@
                   (if (:debug call-options)
                     args
                     (let [connection (or (:connection call-options)
-                                         global-connection)]
+                                         global-connection)
+                          uuid (.toString (java.util.UUID/randomUUID))]
                       (assert connection
                               (format (join "\n"
                                             ["No database connection supplied to function '%s',"
                                              "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
                                       name))
                       (cond (and (= insert-handler jdbc-fn) (:hooks query-options) (:before-insert @(:hooks query-options)))
-                              ((:before-insert @(:hooks query-options)) args statement call-options)
+                              ((:before-insert @(:hooks query-options)) args statement (assoc call-options :uuid uuid))
                             (and (= execute-handler jdbc-fn) (:hooks query-options) (= "delete" (lower-case (first (split (trim statement) #" ")))) (:before-delete @(:hooks query-options)))
-                              ((:before-delete @(:hooks query-options)) args statement call-options)
+                              ((:before-delete @(:hooks query-options)) args statement (assoc call-options :uuid uuid))
                             (and (= execute-handler jdbc-fn) (:hooks query-options) (= "update" (lower-case (first (split (trim statement) #" ")))) (:before-update @(:hooks query-options)))
-                              ((:before-update @(:hooks query-options)) args statement call-options))
+                              ((:before-update @(:hooks query-options)) args statement (assoc call-options :uuid uuid)))
                       (let [ret (jdbc-fn connection
                                  (rewrite-query-for-jdbc tokens args)
                                  call-options)]
                         (cond (and (= insert-handler jdbc-fn) (:hooks query-options) (:after-insert @(:hooks query-options)))
-                                ((:after-insert @(:hooks query-options)) ret args statement call-options)
+                                ((:after-insert @(:hooks query-options)) ret args statement (assoc call-options :uuid uuid))
                               (and (= execute-handler jdbc-fn) (:hooks query-options) (= "delete" (lower-case (first (split (trim statement) #" ")))) (:after-delete @(:hooks query-options)))
-                                ((:after-delete @(:hooks query-options)) ret args statement call-options)
+                                ((:after-delete @(:hooks query-options)) ret args statement (assoc call-options :uuid uuid))
                               (and (= execute-handler jdbc-fn) (:hooks query-options) (= "update" (lower-case (first (split (trim statement) #" ")))) (:after-update @(:hooks query-options)))
-                                ((:after-update @(:hooks query-options)) ret args statement call-options))
+                                ((:after-update @(:hooks query-options)) ret args statement (assoc call-options :uuid uuid)))
                         ret))))
         [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
                                                                                       required-args))]
