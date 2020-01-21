@@ -7,6 +7,7 @@
             [yesql.statement-parser :refer [tokenize]]
             [safely.core :refer [safely]])
   (:import yesql.types.Query)
+  (:import java.sql.SQLException)
   (:import java.lang.IllegalArgumentException))
 
 (def in-list-parameter?
@@ -145,6 +146,7 @@
                                                  call-options)
                                         :on-error
                                         :max-retries 5
+                                        :retryable-error? #(isa? (class %) SQLException)
                                         :retry-delay [:random-exp-backoff :base 50 :+/- 0.5])]
                         (cond (and (= insert-handler jdbc-fn) (:hooks query-options) (:after-insert @(:hooks query-options)))
                                 ((:after-insert @(:hooks query-options)) ret args statement (assoc call-options :uuid uuid))
