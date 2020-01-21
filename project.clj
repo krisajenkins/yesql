@@ -1,4 +1,4 @@
-(defproject org.batch/yesql "0.7.1"
+(defproject org.batch/yesql "0.7.2"
   :description "A Clojure library for using SQL"
   :url "https://github.com/krisajenkins/yesql"
   :license {:name "Eclipse Public License"
