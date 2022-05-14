@@ -6,18 +6,23 @@ Yesql is a Clojure library for _using_ SQL.
 
 ## Status
 
-Frozen. Maintainer sought.
+Thawing. Assistance maintaining sought.
 
-Tested with Clojure 1.5-1.9-alpha20, but there will be no new development unless a maintainer steps up.
+Tested with Clojure 1.7-1.11.1.
 
+[Kris Jenkins](https://twitter.com/krisajenkins) originally wrote and
+maintained this project, and [Mike Schaeffer](https://twitter.com/mschaef_ectw)
+is taking on forward maintenance. Please contact Mike with issues,
+suggestions, and questions.
 
-(I've been promising myself for ages that I'll get round to all the feature
-requests the next time I'm working on a Clojure/SQL project. But that's been a
-long while now, so maybe it's time to admit that this project needs a more
-active pair of hands. If you'd like to take it on, please [contact
-me](https://twitter.com/krisajenkins).
+The primary focus moving forward will be to keep versions and tests up
+to date, and potentially add a few new features where they are most
+likely to be helpful. The goal is for yesql to continue as a stable
+and composable library for integrating SQL easily into Clojure
+projects.
 
-(You might also consider [hugsql](https://www.hugsql.org/) which is philosophically similar and actively maintained.)
+You might also consider using [hugsql](https://www.hugsql.org/) which is
+philosophically similar and more actively developed.
 
 ## Installation
 
@@ -31,12 +36,13 @@ check, because there may be a newer version available):
 
 |Database|`:dependencies` Entry|
 |---|---|
-|PostgreSQL|`[org.postgresql/postgresql "9.4-1201-jdbc41"]`|
-|MySQL|`[mysql/mysql-connector-java "5.1.32"]`|
-|Oracle|`[com.oracle/ojdbc14 "10.2.0.4.0"]`|
-|SQLite|`[org.xerial/sqlite-jdbc "3.7.2"]`|
-|Derby|`[org.apache.derby/derby "10.11.1.1"]`|
-|h2|`[com.h2database/h2 "1.4.191"]`|
+|Derby|`[org.apache.derby/derby "10.15.2.0"]`|
+|H2|`[com.h2database/h2 "2.1.212"]`|
+|HyperSQL|`[org.hsqldb/hsqldb "2.6.1"]`|
+|MySQL|`[mysql/mysql-connector-java "8.0.29"]`|
+|Oracle|`[com.oracle.database.jdbc/ojdbc10 "19.14.0.0"]]`|
+|PostgreSQL|`[org.postgresql/postgresql "42.3.5"]`|
+|SQLite|`[org.xerial/sqlite-jdbc "3.36.0.3"]`|
 
 (Any database with a JDBC driver should work. If you know of a driver
 that's not listed here, please open a pull request to update this
