@@ -109,37 +109,44 @@
         required-args (expected-parameter-list statement)
         global-connection (:connection query-options)
         tokens (tokenize statement)
-        real-fn (fn [args call-options]
-                  (let [connection (or (:connection call-options)
-                                       global-connection)]
-                    (assert connection
-                            (format (join "\n"
-                                          ["No database connection supplied to function '%s',"
-                                           "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
-                                    name))
-                    (jdbc-fn connection
-                             (rewrite-query-for-jdbc tokens args)
-                             call-options)))
+        real-fn-0 (fn [args call-options]
+                    (let [connection (or (:connection call-options)
+                                         global-connection)]
+                      (assert connection
+                              (format (join "\n"
+                                            ["No database connection supplied to function '%s',"
+                                             "Check the docs, and supply {:connection ...} as an option to the function"
+                                             "call, or globally to the defquery declaration."])
+                                      name))
+                      (jdbc-fn connection
+                               (rewrite-query-for-jdbc tokens args)
+                               call-options)))
+        real-fn (if-let [middleware (:middleware query-options)]
+                  (middleware real-fn-0)
+                  real-fn-0)
         [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
                                                                                       required-args))]
                                                              {:keys as-vec}
                                                              {})
                                                 global-args {:keys ['connection]}]
                                             (if global-connection
+
                                               (if (empty? required-args)
-                                                [(list []
-                                                       [named-args global-args])
+                                                [(list [] [named-args] [named-args global-args])
                                                  (fn query-wrapper-fn
                                                    ([] (query-wrapper-fn {} {}))
-                                                   ([args call-options] (real-fn args call-options)))]
-                                                [(list [named-args]
-                                                       [named-args global-args])
+                                                   ([args] (query-wrapper-fn args {}))
+                                                   ([args call-options] (real-fn args (assoc call-options :query query))))]
+                                                [(list [named-args] [named-args global-args])
                                                  (fn query-wrapper-fn
                                                    ([args] (query-wrapper-fn args {}))
-                                                   ([args call-options] (real-fn args call-options)))])
-                                              [(list [named-args global-args])
+                                                   ([args call-options] (real-fn args (assoc call-options :query query))))])
+
+                                              [(list [] [named-args] [named-args global-args])
                                                (fn query-wrapper-fn
-                                                 ([args call-options] (real-fn args call-options)))]))]
+                                                 ([] (query-wrapper-fn {} {}))
+                                                 ([args] (query-wrapper-fn args {}))
+                                                 ([args call-options] (real-fn args (assoc call-options :query query))))]))]
     (with-meta generated-function
       (merge {:name name
               :arglists display-args

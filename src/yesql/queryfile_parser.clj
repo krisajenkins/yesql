@@ -1,5 +1,6 @@
 (ns yesql.queryfile-parser
   (:require [clojure.java.io :as io]
+            [clojure.edn :as edn]
             [clojure.string :as str :refer [join trim]]
             [instaparse.core :as instaparse]
             [yesql.types :refer [map->Query]]
@@ -20,6 +21,8 @@
    :newline str-non-nil
    :any str-non-nil
    :line str-non-nil
+   :info (fn [& args]
+           [:info (edn/read-string (apply str-non-nil args))])
    :comment (fn [& args]
               [:comment (apply str-non-nil args)])
    :docstring (fn [& comments]

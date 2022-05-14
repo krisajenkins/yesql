@@ -2,7 +2,8 @@
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.string :refer [upper-case]]
             [expectations :refer :all]
-            [yesql.core :refer :all]))
+            [yesql.core :refer :all]
+            [yesql.middleware-test :refer :all]))
 
 (def derby-db {:subprotocol "derby"
                :subname (gensym "memory:")
@@ -17,6 +18,10 @@
   "yesql/sample_files/current_time.sql"
   {:connection derby-db})
 
+(defquery current-time-query-middleware
+  "yesql/sample_files/current_time.sql"
+  {:middleware (set-connection-middleware derby-db)})
+
 (defquery mixed-parameters-query
   "yesql/sample_files/mixed_parameters.sql"
   {:connection derby-db})
@@ -25,6 +30,10 @@
 (expect (more-> java.util.Date
                 (-> first :time))
         (current-time-query))
+
+(expect (more-> java.util.Date
+                (-> first :time))
+        (current-time-query-middleware))
 
 (expect (more-> java.util.Date
                 (-> first :time))
@@ -52,6 +61,21 @@
                                 :identifiers clojure.string/upper-case
                                 :row-fn :TIME}))
 
+;;; Processor functions with middleware
+(expect (more-> java.util.Date :time)
+        (current-time-query-middleware {} {:result-set-fn first}))
+
+(expect (more-> java.util.Date first)
+        (current-time-query-middleware {} {:row-fn :time}))
+
+(expect (more-> java.util.Date (-> first :TIME))
+        (current-time-query-middleware {} {:identifiers upper-case}))
+
+(expect java.util.Date
+        (current-time-query-middleware {} {:result-set-fn first
+                                           :identifiers clojure.string/upper-case
+                                           :row-fn :TIME}))
+
 ;;; Test comment rules.
 (defquery inline-comments-query
   "yesql/sample_files/inline_comments.sql"
@@ -64,7 +88,7 @@
 ;;; Test Metadata.
 (expect (more-> "Just selects the current time.\nNothing fancy." :doc
                 'current-time-query :name
-                (list '[] '[{} {:keys [connection]}]) :arglists)
+                (list '[] '[{}] '[{} {:keys [connection]}]) :arglists)
         (meta (var current-time-query)))
 
 (expect (more->  "Here's a query with some named and some anonymous parameters.\n(...and some repeats.)" :doc

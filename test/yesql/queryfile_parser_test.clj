@@ -29,6 +29,9 @@
   :name "--name:test\n"   => [:name "test"]
   :name "-- name: test\n" => [:name "test"]
 
+  :info "--info::test\n"   => [:info :test]
+  :info "-- info: :test\n" => [:info :test]
+
   :line "SELECT *\n"                 => "SELECT *\n"
   :line "SELECT * FROM dual\n"       => "SELECT * FROM dual\n"
   :line "SELECT * FROM dual\n"       => "SELECT * FROM dual\n"
@@ -41,6 +44,18 @@
                      "FROM dual"
                      ""])
   => (map->Query {:name "a-query"
+                  :docstring "This is\na long comment"
+                  :statement "SELECT * -- With embedded comments.\nFROM dual"})
+
+  :query (join "\n" ["-- name: a-query"
+                     "-- info: :scalar"
+                     "-- This is"
+                     "-- a long comment"
+                     "SELECT * -- With embedded comments."
+                     "FROM dual"
+                     ""])
+  => (map->Query {:name "a-query"
+                  :info :scalar
                   :docstring "This is\na long comment"
                   :statement "SELECT * -- With embedded comments.\nFROM dual"}))
 
