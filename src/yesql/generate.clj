@@ -115,8 +115,9 @@
                       (assert connection
                               (format (join "\n"
                                             ["No database connection supplied to function '%s',"
-                                             "Check the docs, and supply {:connection ...} as an option to the function"
-                                             "call, or globally to the defquery declaration."])
+                                             "Check the docs, and supply {:connection ...} as an "
+                                             "option to the function call, globally to the "
+                                             "defquery declaration, or through a query middleware."])
                                       name))
                       (jdbc-fn connection
                                (rewrite-query-for-jdbc tokens args)
