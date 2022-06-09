@@ -66,7 +66,7 @@ Unless these query strings are short, they quickly get hard to read
 and hard to rewrite. Plus the lack of indentation & syntax
 highlighting is horrible.
 
-But something like this is not the solution:
+But something like this **is not the solution**:
 
 ``` clojure
 (select :*
