@@ -396,6 +396,7 @@ Yesql has inspired ports to other languages:
 
 |Language|Project|
 |---|---|
+|JavaScript|[jsyesql](https://github.com/fanatid/jsyesql)|
 |JavaScript|[Preql](https://github.com/NGPVAN/preql)|
 |JavaScript|[sqlt](https://github.com/eugeneware/sqlt)|
 |Python|[Anosql](https://github.com/honza/anosql)|
