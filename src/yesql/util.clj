@@ -30,7 +30,7 @@
    (create-root-var *ns* name value))
 
   ([ns name value]
-   (intern *ns*
+   (intern ns
            (with-meta (symbol name)
              (meta value))
            value)))

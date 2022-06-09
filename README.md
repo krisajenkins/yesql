@@ -66,7 +66,7 @@ Unless these query strings are short, they quickly get hard to read
 and hard to rewrite. Plus the lack of indentation & syntax
 highlighting is horrible.
 
-But something like this is not the solution:
+But something like this **is not the solution**:
 
 ``` clojure
 (select :*
@@ -452,6 +452,7 @@ Yesql has inspired ports to other languages:
 
 |Language|Project|
 |---|---|
+|JavaScript|[jsyesql](https://github.com/fanatid/jsyesql)|
 |JavaScript|[Preql](https://github.com/NGPVAN/preql)|
 |JavaScript|[sqlt](https://github.com/eugeneware/sqlt)|
 |Python|[Anosql](https://github.com/honza/anosql)|
@@ -462,6 +463,7 @@ Yesql has inspired ports to other languages:
 |Erlang|[eql](https://github.com/artemeff/eql)|
 |Clojure|[YeSPARQL](https://github.com/joelkuiper/yesparql)|
 |PHP|[YepSQL](https://github.com/LionsHead/YepSQL)|
+|Haskell|[YeshQL](https://hackage.haskell.org/package/yeshql)|
 
 ## License
 
