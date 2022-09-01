@@ -399,7 +399,7 @@ Yesql has inspired ports to other languages:
 |JavaScript|[jsyesql](https://github.com/fanatid/jsyesql)|
 |JavaScript|[Preql](https://github.com/NGPVAN/preql)|
 |JavaScript|[sqlt](https://github.com/eugeneware/sqlt)|
-|Python|[Anosql](https://github.com/honza/anosql)|
+|Python|[aiosql](https://github.com/nackjicholson/aiosql)|
 |Go|[DotSql](https://github.com/gchaincl/dotsql)|
 |Go|[goyesql](https://github.com/nleof/goyesql)|
 |C#|[JaSql](https://bitbucket.org/rick/jasql)|
