@@ -22,7 +22,7 @@
 
 ;;; Testing in-list-parmaeter for "IN-list" statements.
 (expect [true true true false false]
-        (map in-list-parameter?
+        (map default-in-list-parameter?
              (list []
                    (list)
                    (lazy-seq (cons 1 [2]))

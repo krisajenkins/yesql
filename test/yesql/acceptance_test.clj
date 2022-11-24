@@ -89,3 +89,4 @@
 
 (expect SQLSyntaxErrorException
         (syntax-error))
+
