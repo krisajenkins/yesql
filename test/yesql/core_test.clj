@@ -3,7 +3,8 @@
             [clojure.string :refer [upper-case]]
             [expectations :refer :all]
             [yesql.core :refer :all]
-            [yesql.middleware-test :refer :all]))
+            [yesql.middleware-test :refer :all]
+            [yesql.middleware :as middleware]))
 
 (def derby-db {:subprotocol "derby"
                :subname (gensym "memory:")
@@ -20,7 +21,7 @@
 
 (defquery current-time-query-middleware
   "yesql/sample_files/current_time.sql"
-  {:middleware (set-connection-middleware derby-db)})
+  {:middleware (middleware/set-connection derby-db)})
 
 (defquery mixed-parameters-query
   "yesql/sample_files/mixed_parameters.sql"

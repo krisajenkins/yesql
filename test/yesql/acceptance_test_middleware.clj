@@ -2,7 +2,8 @@
   (:require [expectations :refer :all]
             [clojure.java.jdbc :as jdbc]
             [yesql.core :refer :all]
-            [yesql.middleware-test :refer :all])
+            [yesql.middleware-test :refer :all]
+            [yesql.middleware :as middleware])
   (:import [java.sql SQLException SQLSyntaxErrorException SQLDataException]))
 
 (def derby-db {:subprotocol "derby"
@@ -13,7 +14,7 @@
 (defquery current-time
   "yesql/sample_files/acceptance_test_single.sql"
   {:middleware (comp log-query-middleware
-                     (set-connection-middleware derby-db))})
+                     (middleware/set-connection derby-db))})
 
 (expect java.util.Date
         (-> (current-time {} {:connection derby-db})
@@ -23,7 +24,7 @@
 ;;; Multiple-query workflow.
 (defqueries
   "yesql/sample_files/acceptance_test_combined.sql"
-  {:middleware (set-connection-middleware derby-db)})
+  {:middleware (middleware/set-connection derby-db)})
 
 ;; Create
 (expect (create-person-table!))
