@@ -23,6 +23,10 @@
   "yesql/sample_files/current_time.sql"
   {:middleware (middleware/set-connection derby-db)})
 
+(defquery current-time-query-middleware-fnarg
+  "yesql/sample_files/current_time.sql"
+  {:middleware (middleware/set-connection (constantly derby-db))})
+
 (defquery mixed-parameters-query
   "yesql/sample_files/mixed_parameters.sql"
   {:connection derby-db})
@@ -35,6 +39,10 @@
 (expect (more-> java.util.Date
                 (-> first :time))
         (current-time-query-middleware))
+
+(expect (more-> java.util.Date
+                (-> first :time))
+        (current-time-query-middleware-fnarg))
 
 (expect (more-> java.util.Date
                 (-> first :time))
