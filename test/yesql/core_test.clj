@@ -109,6 +109,10 @@
 
 (expect var? #'combined/edge)
 
+(expect first (combined/edge {} {:connection yesql.core-test/derby-db}))
+
 (require-sql ["yesql/sample_files/combined_file.sql" :refer [the-time]])
 
 (expect var? #'the-time)
+
+(expect first (the-time {} {:connection yesql.core-test/derby-db}))
