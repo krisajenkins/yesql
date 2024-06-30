@@ -15,14 +15,18 @@
 (defn- rm-semicolon [s]
   (str/replace s #";$" ""))
 
+(defn- separate [pred s]
+  ((juxt filter remove) pred s))
+
 (def parser-transforms
   {:whitespace str-non-nil
    :non-whitespace str-non-nil
    :newline str-non-nil
    :any str-non-nil
    :line str-non-nil
-   :info (fn [& args]
-           [:info (edn/read-string (apply str-non-nil args))])
+   :rest-of-line (fn [ & args ] (apply str-non-nil args))
+   :info (fn [[_ key] & args ]
+           [:info (keyword key) (edn/read-string (apply str-non-nil args))])
    :comment (fn [& args]
               [:comment (apply str-non-nil args)])
    :docstring (fn [& comments]
@@ -30,7 +34,11 @@
    :statement (fn [& lines]
                 [:statement (rm-semicolon (trim (join lines)))])
    :query (fn [& args]
-            (map->Query (into {} args)))
+            (let [[info-args query-args] (separate #(= (first %) :info) args)
+                  infos (reduce (fn [infos [_ k v]]
+                                  (assoc infos k v)) {} info-args)]
+              (map->Query (assoc (into {} query-args)
+                                 :info infos))))
    :queries list})
 
 (defn parse-tagged-queries

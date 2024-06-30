@@ -1,12 +1,12 @@
 queries = <blank-line*> query*
-query = name info? docstring? statement
+query = name info* docstring? statement
 
 docstring = comment+
 
 statement = line (line | <comment>)*
 
-name = <whitespace? COMMENT_MARKER whitespace? NAME_TAG whitespace?> non-whitespace <whitespace? newline>
-info = <whitespace? COMMENT_MARKER whitespace? INFO_TAG whitespace?> non-whitespace <whitespace? newline>
+name = <whitespace? COMMENT_MARKER whitespace? NAME_TAG ":" whitespace?> non-whitespace <whitespace? newline>
+info = <whitespace? COMMENT_MARKER whitespace? INFO_TAG> symbol <":"> rest-of-line
 
 comment = <whitespace? COMMENT_MARKER whitespace?> !PARAM_TAG (non-whitespace whitespace?)* newline
 line = whitespace? !COMMENT_MARKER (non-whitespace whitespace?)* newline
@@ -15,11 +15,13 @@ COMMENT_MARKER = '--'
 
 PARAM_TAG = NAME_TAG | INFO_TAG
 
-NAME_TAG = "name:"
-INFO_TAG = "info:"
+NAME_TAG = "name"
+INFO_TAG = "info-"
 
 blank-line = whitespace* newline
 any = (whitespace | non-whitespace)+
 newline = '\n' | '\r\n'
 whitespace = (' ' | '\t')+
 non-whitespace = #'\S+'
+rest-of-line = #'[^\n]*' <newline>
+symbol = #'([a-zA-Z0-9-]+)'
