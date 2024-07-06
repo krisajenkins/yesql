@@ -421,19 +421,20 @@ function. (Note that the query is passed as a new value under
 ```
 
 To allow middleware to be paramaterized per-query, the query
-definition format has been extended with a new `info` attribute that
-allows an EDN value to be specified for each query:
+definition format has been extended to allow `info` attributes
+to be specified, binding EDN values to specific names.
 
 ``` sql
 -- name: users-by-country
--- info: { :edn :value }
+-- info-value-1: { :edn :value-1 }
+-- info-value-2: { :edn :value-2 }
 SELECT *
 FROM users
 WHERE country_code = :country_code
 ```
 
-The `info` value is accessible within the middleware through the
-`:info` field of the query. (`(get-in call-options [:query :info])`)
+The `info` values are accessible within the middleware through the
+`:info` field of the query. (`(get-in call-options [:query :info :value-1])`)
 
 ## Development & Testing
 
