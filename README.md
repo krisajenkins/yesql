@@ -293,6 +293,26 @@ The query will be automatically expanded to `... IN (1001, 1003, 1005)
 Just remember that some databases have a limit on the number of values
 in an `IN`-list, and Yesql makes no effort to circumvent such limits.
 
+By default, vectors, lists and seqs are automatically expanded as explained
+above, but this behaviour can be overridden by passing an extra parameter
+to the query creation functions (`defquery`, `defqueries` and `require-sql`):
+
+```clojure
+(defqueries "some/where/queryfile.sql"
+  {:connection db-spec
+   :in-list-parameter-predicate set?})
+
+(find-users {:id #{1001 1003 1005}
+             :maxage 18})
+```
+
+In this way you can use data structures such as vectors for other purposes,
+for example you are free to use `PostgreSQL`'s ARRAYs.
+The `:in-list-parameter-predicate` must be a predicate used to identify
+the data structure that must be expanded, but keep in mind that the choosen
+data structure must respond to the `Seq` interface. A `nil` value selects
+the default behaviour.
+
 ### Row And Result Processors
 
 Like `clojure.java.jdbc`, Yesql accepts functions to pre-process each

@@ -7,12 +7,12 @@
             [yesql.statement-parser :refer [tokenize]])
   (:import [yesql.types Query]))
 
-(def in-list-parameter?
+(def default-in-list-parameter?
   "Check if a type triggers IN-list expansion."
   (some-fn list? vector? seq?))
 
 (defn- args-to-placeholders
-  [args]
+  [args in-list-parameter?]
   (if (in-list-parameter? args)
     (clojure.string/join "," (repeat (count args) "?"))
     "?"))
@@ -33,7 +33,10 @@
       (conj expected-keys :?))))
 
 (defn rewrite-query-for-jdbc
-  [tokens initial-args]
+  ([tokens initial-args]
+  (rewrite-query-for-jdbc tokens initial-args default-in-list-parameter?))
+
+  ([tokens initial-args in-list-parameter?]
   (let [{:keys [expected-keys expected-positional-count]} (analyse-statement-tokens tokens)
         actual-keys (set (keys (dissoc initial-args :?)))
         actual-positional-count (count (:? initial-args))
@@ -58,14 +61,14 @@
                       (symbol? token) (let [[arg new-args] (if (= '? token)
                                                              [(first (:? args)) (update-in args [:?] rest)]
                                                              [(get args (keyword token)) args])]
-                                        [(str query (args-to-placeholders arg))
+                                        [(str query (args-to-placeholders arg in-list-parameter?))
                                          (vec (if (in-list-parameter? arg)
                                                 (concat parameters arg)
                                                 (conj parameters arg)))
                                          new-args])))
                   ["" [] initial-args]
                   tokens)]
-      (concat [final-query] final-parameters))))
+      (concat [final-query] final-parameters)))))
 
 ;; Maintainer's note: clojure.java.jdbc.execute! returns a list of
 ;; rowcounts, because it takes a list of parameter groups. In our
@@ -109,6 +112,8 @@
         required-args (expected-parameter-list statement)
         global-connection (:connection query-options)
         tokens (tokenize statement)
+        in-list-p (:in-list-parameter-predicate query-options)
+        in-list-parameter? (if (nil? in-list-p) default-in-list-parameter? in-list-p)
         real-fn (fn [args call-options]
                   (let [connection (or (:connection call-options)
                                        global-connection)]
@@ -118,7 +123,7 @@
                                            "Check the docs, and supply {:connection ...} as an option to the function call, or globally to the defquery declaration."])
                                     name))
                     (jdbc-fn connection
-                             (rewrite-query-for-jdbc tokens args)
+                             (rewrite-query-for-jdbc tokens args in-list-parameter?)
                              call-options)))
         [display-args generated-function] (let [named-args (if-let [as-vec (seq (mapv (comp symbol clojure.core/name)
                                                                                       required-args))]
