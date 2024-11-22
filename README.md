@@ -2,16 +2,14 @@
 
 Yesql is a Clojure library for _using_ SQL.
 
-[![Build Status](https://travis-ci.org/krisajenkins/yesql.png?branch=travis)](https://travis-ci.org/krisajenkins/yesql)
-
 ## Status
 
 Thawing. Assistance maintaining sought.
 
-Tested with Clojure 1.7-1.11.1.
+Tested with Clojure 1.7-1.12.0.
 
 [Kris Jenkins](https://twitter.com/krisajenkins) originally wrote and
-maintained this project, and [Mike Schaeffer](https://twitter.com/mschaef_ectw)
+maintained this project, and [Mike Schaeffer](https://mschaef.com)
 is taking on forward maintenance. Please contact Mike with issues,
 suggestions, and questions.
 
@@ -36,7 +34,7 @@ check, because there may be a newer version available):
 
 |Database|`:dependencies` Entry|
 |---|---|
-|Derby|`[org.apache.derby/derby "10.15.2.0"]`|
+|Derby|`[org.apache.derby/derby "10.16.1.1"]`|
 |H2|`[com.h2database/h2 "2.1.212"]`|
 |HyperSQL|`[org.hsqldb/hsqldb "2.6.1"]`|
 |MySQL|`[mysql/mysql-connector-java "8.0.29"]`|
@@ -469,7 +467,7 @@ Yesql has inspired ports to other languages:
 ## License
 
 Copyright © 2013-2016 Kris Jenkins
-Copyright © 2022 Mike Schaeffer
+Copyright © 2022-2024 Mike Schaeffer
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
