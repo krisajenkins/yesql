@@ -377,6 +377,63 @@ example PostgreSQL returns the whole row, whereas Derby returns just
 
 The `<!` suffix is intended to mirror `core.async`, so it should be easy to remember.
 
+## Query Middlware (Experimental)
+
+***Note: This section covers an experimental feature that is under
+development. The interface is subject to review (by you!) and may
+or may not continue to be supported its current form. Please
+check it out and report back how it works and might be improved.***
+
+Yesql now has support for middleware in a style modeled after
+[Ring](https://github.com/ring-clojure/ring/wiki/Concepts#middleware).
+Yesql middleware are higher-order functions that wrap queries,
+allowing inspection and modification of both arguments and
+results. The intent is for middlware to allowa single definition for
+cross cutting concerns that apply to all of the queries defined within
+a file. Possible uses include query logging, caching, alternative
+sources for database connections, and various forms of result
+post-processing.
+
+Middleware is specified via a new `:middleware` option to `defquery`,
+`defquery*`, and `defqueries`.
+
+```clojure
+(defquery current-time-query-middleware
+  "yesql/sample_files/current_time.sql"
+  {:middleware log-query-middleware})
+```
+
+The middleware itself is a higher order function over a query
+function. (Note that the query is passed as a new value under
+`call-options`, keyed by `:query`.)
+
+```clojure
+(def log-query-middleware
+  (fn [ query-fn ]
+    (fn [args call-options]
+      (let [ query-name (get-in call-options [:query :name]) ]
+        (println [ :begin query-name ])
+        (let [ result (query-fn args call-options) ]
+          (println [ :end query-name])
+          result)))))
+```
+
+To allow middleware to be paramaterized per-query, the query
+definition format has been extended to allow `info` attributes
+to be specified, binding EDN values to specific names.
+
+``` sql
+-- name: users-by-country
+-- info-value-1: { :edn :value-1 }
+-- info-value-2: { :edn :value-2 }
+SELECT *
+FROM users
+WHERE country_code = :country_code
+```
+
+The `info` values are accessible within the middleware through the
+`:info` field of the query. (`(get-in call-options [:query :info :value-1])`)
+
 ## Development & Testing
 
 Yesql uses the marvellous
