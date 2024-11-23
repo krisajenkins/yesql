@@ -26,7 +26,7 @@ philosophically similar and more actively developed.
 
 Add this to your [Leiningen](https://github.com/technomancy/leiningen) `:dependencies`:
 
-[![Clojars Project](http://clojars.org/yesql/latest-version.svg)](http://clojars.org/yesql)
+[![Clojars Project](https://img.shields.io/clojars/v/yesql.svg)](https://clojars.org/yesql)
 
 ### Driver
 Plus you'll want a database driver. Here are some examples (but double
@@ -410,7 +410,7 @@ Yesql has inspired ports to other languages:
 ## License
 
 Copyright © 2013-2016 Kris Jenkins
-Copyright © 2023-2024 Mike Schaeffer
+Copyright © 2022-2024 Mike Schaeffer
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
