@@ -1,7 +1,8 @@
 (ns yesql.core
   (:require [yesql.util :refer [slurp-from-classpath]]
             [yesql.generate :refer [generate-var]]
-            [yesql.queryfile-parser :refer [parse-tagged-queries]]))
+            [yesql.queryfile-parser :refer [parse-tagged-queries]]
+            [clojure.string :as str]))
 
 (defn defqueries
   "Defines several query functions, as defined in the given SQL file.
@@ -47,7 +48,7 @@
     (throw (Exception. "Missing an :as or a :refer")))
   (let [current-ns (ns-name *ns*)
         ;; Keep this .sql file's defqueries in a predictable place:
-        target-ns (symbol (str "yesquire/" sql-file))]
+        target-ns (-> (str "yesquire/" sql-file) (str/replace  #"/" ".") symbol)]
     `(do
        (ns-unalias *ns* '~as)
        (create-ns '~target-ns)
