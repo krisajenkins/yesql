@@ -434,6 +434,44 @@ WHERE country_code = :country_code
 The `info` values are accessible within the middleware through the
 `:info` field of the query. (`(get-in call-options [:query :info :value-1])`)
 
+### Supplying Connections with Middleware
+
+`yesql.middleware/set-connection` is a middleware that supplies each
+query's database connection, so it doesn't have to be passed at
+every call site:
+
+```clojure
+(require '[yesql.middleware :as middleware])
+
+(defqueries "some/where/queries.sql"
+  {:middleware (middleware/set-connection db-spec)})
+```
+
+The connection can also be a function of no arguments, which is
+called each time a query runs. This lets the connection come from
+somewhere that changes over time, such as a connection bound for the
+current request or thread:
+
+```clojure
+(def ^:dynamic *db* nil)
+
+(defqueries "some/where/queries.sql"
+  {:middleware (middleware/set-connection (fn [] *db*))})
+```
+
+A `:connection` passed in a query's call options still takes
+precedence, so a query can be run against a specific connection,
+such as an open transaction:
+
+```clojure
+(jdbc/with-db-transaction [tx db-spec]
+  (insert-user<! {:name "Alice"} {:connection tx}))
+```
+
+Middleware composes with `comp`, so `set-connection` can be combined
+with others (`(comp log-query-middleware (middleware/set-connection
+db-spec))`).
+
 ## Development & Testing
 
 Yesql uses the marvellous

@@ -21,6 +21,40 @@
             first
             :time))
 
+;;; Connection supplied by a function, called for each query.
+(def connection-fn-calls (atom 0))
+
+(defquery current-time-from-connection-fn
+  "yesql/sample_files/acceptance_test_single.sql"
+  {:middleware (middleware/set-connection (fn []
+                                            (swap! connection-fn-calls inc)
+                                            derby-db))})
+
+(expect java.util.Date
+        (-> (current-time-from-connection-fn)
+            first
+            :time))
+
+(expect 2
+        (do
+          (reset! connection-fn-calls 0)
+          (current-time-from-connection-fn)
+          (current-time-from-connection-fn)
+          @connection-fn-calls))
+
+;;; A connection passed at the call site takes precedence over the
+;;; middleware's.
+(defquery current-time-with-override
+  "yesql/sample_files/acceptance_test_single.sql"
+  {:middleware (middleware/set-connection
+                (fn []
+                  (throw (RuntimeException. "Middleware connection used despite call-site connection."))))})
+
+(expect java.util.Date
+        (-> (current-time-with-override {} {:connection derby-db})
+            first
+            :time))
+
 ;;; Multiple-query workflow.
 (defqueries
   "yesql/sample_files/acceptance_test_combined.sql"
